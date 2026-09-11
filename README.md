@@ -2,65 +2,141 @@
 
 # ⚡ TradeVision AI
 
-### *Next-Gen AI-Powered Stock Analysis & Interactive Trading Platform*
+### *Institutional-Grade AI Stock Intelligence & Interactive Trading Platform*
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
+[![Riverpod](https://img.shields.io/badge/State-Riverpod%202.x-blueviolet?style=for-the-badge)](https://riverpod.dev)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
+[![HuggingFace](https://img.shields.io/badge/AI-HuggingFace%20LLM-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-E4405F?style=for-the-badge)](https://github.com/CodeWidKrish/TradeVision-AI)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 <br />
 
-> **TradeVision AI** simplifies complex market volatility into actionable, institutional-grade intelligence for retail traders and investors across the **NSE (National Stock Exchange)** and **BSE (Bombay Stock Exchange)**.
+> **TradeVision AI** transforms volatile market noise into actionable, institutional-grade clarity for retail traders and investors across the **NSE (National Stock Exchange)** and **BSE (Bombay Stock Exchange)**. Powered by a high-performance **Flutter** mobile client and an asynchronous **FastAPI + LLM** inference backend.
+
+<br />
+
+```bash
+# Clone & run the production web client in under 60 seconds
+git clone https://github.com/CodeWidKrish/TradeVision-AI.git
+cd TradeVision-AI/frontend && flutter run -d chrome
+```
 
 </div>
 
 ---
 
-## 🌟 Key Highlights & Innovations
+## ⚔️ Why TradeVision AI?
 
-### 🤖 AI-Powered Market Intelligence
-* **Autonomous Trend & Sentiment Analysis:** Natural language insights powered by machine learning and LLM synthesis.
-* **Smart Signals:** Real-time BUY / HOLD / SELL recommendations with institutional confidence metrics and risk factors.
-* **AI Explanation Sheets:** Tap any signal to inspect moving averages, RSI divergence, MACD crossovers, and volume spikes.
+| Architectural Dimension | Traditional Trading Dashboards (Groww / Zerodha) | ⚡ TradeVision AI Experience |
+| :--- | :---: | :---: |
+| **Market Intelligence** | ⚠️ Raw financial headlines without context | ✅ **HuggingFace LLM synthesis** with BUY/HOLD/SELL confidence gauges |
+| **Chart Mathematical Accuracy** | ❌ Arbitrary random walks or drifting intervals | ✅ **Brownian Bridge mathematical anchoring** strictly pinned to live price |
+| **Micro-Interactions** | ❌ Flat, static lists & horizontal pagers | ✅ **3D Perspective Card Flips (`Matrix4`)** with dynamic shading & elevation |
+| **Mobile System Integration** | ⚠️ Bottom navigation obscured by Android gestures | ✅ **Instagram-Grade 64px floating bar** with edge-to-edge transparent system bars |
+| **Brand Assets Performance** | ⚠️ Uncached raster favicons with network latency | ✅ **Zero-latency inlined corporate vector SVGs** (TCS, INFY, Reliance, HDFC...) |
+| **Trading Session Engine** | ❌ Static system clock | ✅ **Live Indian Standard Time (IST) Engine** with pre-open & session tracking |
 
-### 📈 Institutional-Grade Interactive Charts
-* **Dual Rendering Modes:** Toggle between smooth **Area Line** charts and **Japanese Candlestick** charts.
-* **Precision Technical Overlays:** 
+---
+
+## 🌟 Core Platform Highlights
+
+### 🤖 1. AI-Driven Market Sentiment & Signal Engine
+* **HuggingFace LLM Synthesis:** Analyzes macro indicators, price momentum, and financial news feeds to generate human-readable technical rationale.
+* **Institutional Confidence Gauges:** Custom circular SVG gauge rendering risk-adjusted confidence scores (0–100%) alongside BUY / HOLD / SELL badges.
+* **Interactive Explanation Bottom Sheets:** Drill down into moving averages, RSI divergence patterns, MACD momentum lines, and volume profiles.
+
+### 📈 2. Dual-Engine Interactive Candlestick & Area Charts
+* **Bespoke Japanese Candlesticks:** Color-coded hollow bullish bodies (`#00C853`) and solid bearish candles (`#FF3B3B`) with precision wicks.
+* **Live Technical Overlays:**
   * `MA(20)` — 20-period simple moving average
   * `EMA(50)` — 50-period exponential trend indicator
-  * `Bollinger Bands` — 20-period volatility envelopes
-  * `Volume Histograms` — Color-coded buy/sell volume bars
-* **Price Anchoring via Brownian Bridge:** Intraday trajectories start at the opening bell and mathematically converge precisely at the live market price without drift.
-* **Multi-Timeframe Analysis:** Instant 1D, 1W, 1M, 3M, 6M, 1Y, and MAX views with zero-latency caching.
+  * `Bollinger Bands` — Dynamic 20-period upper/lower volatility bands
+  * `Volume Histograms` — Sub-chart volume profile with buy/sell weighting
+* **Multi-Timeframe Support:** Real-time calculations across `1D`, `1W`, `1M`, `3M`, `6M`, `1Y`, and `MAX`.
 
-### 🔄 3D Perspective Card Flip Architecture
-* **Portfolio & Movers 3D Cards:** Real-time 3D rotation (`Matrix4.identity()..setEntry(3, 2, 0.0014)..scale()..rotateY()`) featuring dynamic mid-air elevation and realistic surface shading.
-* **Gesture & Tab Driven:** Swipe left/right or tap tabs to flip between Top Gainers and Top Losers with haptic feedback.
+### 🔄 3. Spatial 3D Perspective Flip Cards
+* **Portfolio Breakdown & Movers:** Smooth 3D Y-axis rotation with dynamic spatial perspective (`0.0014`), scale lift (`1.05x`), and dark opacity falloff.
+* **Dual Trigger Architecture:** Responds naturally to horizontal swipe gestures (`onHorizontalDragEnd`) as well as tab clicks with haptic feedback.
 
-### 🏢 Authentic Corporate Vector Identities
-* **Zero-Latency Inlined SVGs:** High-fidelity, present-day corporate vector marks for Indian market leaders:
-  * **TCS:** Official TATA brandmark with cyan accent.
-  * **INFY:** Official lowercase `infosys` brand lettering.
-  * **WIPRO:** Modern post-2017 multi-colored dynamic dots cluster.
+### 🏢 4. Authentic Corporate Vector Identity
+* **Zero-Latency Inlined SVGs:** High-fidelity, modern corporate vector brandmarks rendered natively:
+  * **TCS:** Official TATA brandmark with cyan accent dot.
+  * **INFY:** Official lowercase `infosys` brand lettering with gold baseline.
+  * **WIPRO:** Modern post-2017 multi-colored dynamic dots cluster and clean wordmark.
   * **RELIANCE:** Royal navy medallion with golden torch flame.
   * **HDFC BANK:** Geometric red interlocking corner blocks with white grid gutters.
   * **SBI:** Signature cyan circular keyhole vault emblem.
   * **ICICI BANK:** Deep maroon badge with the iconic orange-gold flame "i".
   * **BAJFINANCE:** Royal blue tile with official white/cyan dual flight wings.
-  * **ZOMATO:** Vibrant crimson badge with iconic bold italic `zomato` lettering.
+  * **ZOMATO:** Vibrant crimson badge with iconic bold italic `zomato` typography.
   * **TATA MOTORS:** Dual arched chrome ellipses emblem.
   * **MARUTI SUZUKI:** Geometric red Suzuki "S" brandmark.
 
-### ⏱️ Live IST Market Engine & Status
-* **Real-time Indian Standard Time (IST) Clock:** Displays trading session phases (Pre-Open, Normal Market Hours `09:15 – 15:30 IST`, and Closed).
-* **Live Ticker Tape:** Real-time flashing stock prices with green/red pulse animations on tick updates.
+### 🌓 5. Dynamic Theme Engine
+* **Tailored OLED Dark Mode:** Pure `#000000` / `#0A0E1A` surfaces tailored for high contrast and battery efficiency on mobile OLED displays.
+* **High-Contrast Light Mode:** Clean `#FFFFFF` / `#F8FAFC` daylight theme.
 
-### 📱 Modern Edge-to-Edge Navigation
-* **Instagram-Grade Bottom Bar:** 64px floating translucent navigation bar with top active pill indicators and system bar transparency on Android & iOS.
-* **Theme Engine:** Fully tailored OLED Dark Mode (`#0A0E1A` / `#111827`) and high-contrast Light Mode (`#FFFFFF` / `#F8FAFC`).
+---
+
+## 🧠 Under the Hood: Engineering Highlights
+
+<details>
+<summary><b>📐 1. Mathematical Price Anchoring via Brownian Bridge</b></summary>
+<br />
+
+```dart
+// Guarantees closes[0] == startPrice and closes[bars] == targetPrice
+// eliminates synthetic drift between chart candles and the live market header.
+final closes = List<double>.filled(bars + 1, 0.0);
+closes[0] = startPrice;
+closes[bars] = targetPrice;
+
+for (int i = 1; i < bars; i++) {
+  final t = i / bars;
+  final bridge = raw[i] - t * raw[bars]; // Standard Brownian Bridge B(t) = W(t) - t*W(1)
+  final linear = startPrice + t * (targetPrice - startPrice);
+  closes[i] = linear + bridge;
+}
+```
+</details>
+
+<details>
+<summary><b>🔄 2. 60 FPS 3D Perspective Rotation Matrix</b></summary>
+<br />
+
+```dart
+// Dynamic 3D Matrix4 perspective rotation with mid-air elevation and shading
+final angle = _flipAnimation.value * math.pi;
+final isUnder = angle > (math.pi / 2);
+
+final transform = Matrix4.identity()
+  ..setEntry(3, 2, 0.0014) // 3D Perspective depth factor
+  ..scale(1.0 + math.sin(angle) * 0.05); // Dynamic scale lift
+
+if (!isUnder) {
+  transform.rotateY(angle);
+} else {
+  transform.rotateY(angle - math.pi);
+}
+```
+</details>
+
+<details>
+<summary><b>📱 3. Android Edge-to-Edge System Bar Injection</b></summary>
+<br />
+
+```kotlin
+// MainActivity.kt — Complete system navigation bar transparency
+WindowCompat.setDecorFitsSystemWindows(window, false)
+val controller = WindowInsetsControllerCompat(window, window.decorView)
+controller.isAppearanceLightNavigationBars = false
+window.navigationBarColor = android.graphics.Color.TRANSPARENT
+```
+</details>
 
 ---
 
@@ -68,31 +144,32 @@
 
 ```mermaid
 graph TD
-    subgraph Client ["Flutter Cross-Platform Frontend (Dart)"]
-        UI[Screens & Interactive Widgets]
-        SM[Riverpod State Management]
-        Router[GoRouter Declarative Routing]
-        Theme[Dynamic Theme Engine Dark/Light]
-        Charts[Syncfusion & FL Charts Engine]
+    subgraph Client ["Flutter Mobile Client (Dart)"]
+        UI["Screens (Home, Market, Chart, Watchlist)"]
+        SM["Riverpod 2.x State Management"]
+        Router["GoRouter Declarative Routing"]
+        Charts["Syncfusion & FL Chart Visualizers"]
+        Flip["3D Matrix4 Card Flip Engine"]
     end
 
-    subgraph Backend ["TradeVision FastAPI Server (Python)"]
-        API[FastAPI REST Endpoints]
-        MktSvc[Stock & Historical Data Service]
-        IndSvc[Technical Indicators Engine]
-        AISvc[HuggingFace AI Analysis Service]
-        NewsSvc[Financial News Aggregator]
+    subgraph Backend ["TradeVision Backend (FastAPI / Python)"]
+        API["REST API Router Layer"]
+        MktSvc["Stock Quote & OHLC Service"]
+        IndSvc["Technical Analysis Engine (RSI, MACD, Bollinger)"]
+        AISvc["HuggingFace AI Synthesis Pipeline"]
+        NewsSvc["Real-Time Financial News Service"]
     end
 
-    subgraph Data ["External Market Data Providers"]
-        YF[(Yahoo Finance / NSE Stream)]
-        HF[(HuggingFace LLM Inference)]
-        NewsAPI[(Global Financial Feeds)]
+    subgraph DataSources ["External Providers"]
+        YF[("Yahoo Finance / NSE Ticker Stream")]
+        HF[("HuggingFace Inference Endpoints")]
+        NewsAPI[("Global Financial Feeds")]
     end
 
     UI --> SM
-    SM --> Router
     SM --> Charts
+    SM --> Flip
+    SM --> Router
     SM --> API
     API --> MktSvc
     API --> IndSvc
@@ -105,151 +182,167 @@ graph TD
 
 ---
 
-## 📂 Project Structure
+## 🛠️ Complete Tech Stack Matrix
 
-```text
-TradeVision-AI/
-├── backend/                        # FastAPI Backend Services
-│   ├── app/
-│   │   ├── routers/                # API route controllers (stocks, chart, indicators, ai)
-│   │   ├── schemas/                # Pydantic request/response validation schemas
-│   │   ├── services/               # Business logic (yfinance streaming, AI synthesis)
-│   │   └── main.py                 # FastAPI application entrypoint
-│   └── requirements.txt            # Python dependencies
-│
-├── frontend/                       # Flutter Mobile & Web Client
-│   ├── android/                    # Native Android wrapper (WindowInsetsCompat, Edge-to-Edge)
-│   ├── assets/                     # Corporate logos, vector SVGs, and brand images
-│   ├── lib/
-│   │   ├── core/
-│   │   │   ├── data/               # Static stock repositories & benchmark tickers
-│   │   │   ├── providers/          # Riverpod state providers (market, portfolio, theme)
-│   │   │   └── theme/              # Color tokens, typography, and dark OLED surfaces
-│   │   ├── router/                 # GoRouter route configurations
-│   │   ├── screens/                # UI Screens (Home, Market, Chart, Watchlist, Profile)
-│   │   ├── services/               # Local persistence & REST client
-│   │   ├── widgets/                # Reusable UI widgets (3D FlipCard, RealStockChart, Logos)
-│   │   └── main.dart               # Flutter app entrypoint
-│   ├── pubspec.yaml                # Flutter packages and asset manifest
-│   └── test/                       # Automated widget and unit tests
-│
-├── .gitignore                      # Git exclusion rules (builds, caches, venv)
-└── README.md                       # Repository documentation
+```
+┌─────────────────┬────────────────────────────────────────────────────────┐
+│ Layer           │ Technologies & Frameworks                              │
+├─────────────────┼────────────────────────────────────────────────────────┤
+│ Mobile & Web    │ Flutter 3.x, Dart 3.x, Riverpod, GoRouter, GoogleFonts │
+│ Charting        │ Syncfusion Flutter Charts, FL Chart                    │
+│ Backend Server  │ Python 3.10+, FastAPI 0.115+, Uvicorn, Pydantic v2     │
+│ AI & ML         │ HuggingFace Hub, Transformers Inference, Prompt Engine │
+│ Financial Math  │ NumPy, Pandas, yfinance, Brownian Bridge Algorithms    │
+│ Native Android  │ Kotlin, AndroidX WindowInsetsControllerCompat, Gradle  │
+│ Tooling         │ Git, VS Code, Flutter DevTools, Playwright             │
+└─────────────────┴────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Quick Start Guide
+## 📂 Repository Structure
+
+```text
+TradeVision-AI/
+├── backend/                        # Asynchronous Python FastAPI Services
+│   ├── app/
+│   │   ├── routers/                # API controllers (stocks, chart, indicators, ai)
+│   │   ├── schemas/                # Pydantic validation schemas (request & response)
+│   │   ├── services/               # Business logic & market data aggregators
+│   │   └── main.py                 # FastAPI application entrypoint
+│   └── requirements.txt            # Python dependencies
+│
+├── frontend/                       # Flutter Cross-Platform Client
+│   ├── android/                    # Android host configuration (Edge-to-Edge, Icons)
+│   ├── assets/                     # Corporate vector SVGs & brand logos
+│   ├── lib/
+│   │   ├── core/                   # State providers, data models, and theme tokens
+│   │   ├── router/                 # GoRouter route declarations
+│   │   ├── screens/                # Core screens (Home, Market, Chart, Watchlist, Profile)
+│   │   ├── services/               # StorageService & API REST client
+│   │   ├── widgets/                # Custom widgets (3D FlipCard, RealStockChart, TickerLogo)
+│   │   └── main.dart               # Flutter application entrypoint
+│   ├── pubspec.yaml                # Package dependencies and asset manifests
+│   └── test/                       # Automated unit and widget test suite
+│
+├── .gitignore                      # Clean exclusion rules (ignoring builds & caches)
+└── README.md                       # Repository master documentation
+```
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 * **Flutter SDK:** `>= 3.19.0` ([Install Flutter](https://docs.flutter.dev/get-started/install))
 * **Python:** `>= 3.10` ([Download Python](https://www.python.org/downloads/))
-* **Android Studio / Xcode** (for mobile simulation or physical device debugging)
+* **Android Studio / Xcode** (for mobile simulation or device execution)
 
 ---
 
-### 1. Backend Setup (FastAPI)
+### 1. Launch FastAPI Backend
 
 ```bash
-# Navigate to the backend directory
+# Navigate to backend directory
 cd backend
 
-# Create a virtual environment
+# Create & activate virtual environment
 python -m venv venv
 
-# Activate the virtual environment
-# On Windows:
+# Windows:
 .\venv\Scripts\activate
-# On macOS / Linux:
+# macOS / Linux:
 source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Start the development server
+# Run server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-> The API will be live at `http://localhost:8000` with interactive Swagger docs at `http://localhost:8000/docs`.
+> Swagger Interactive API Documentation: **`http://localhost:8000/docs`**
 
 ---
 
-### 2. Frontend Setup (Flutter)
+### 2. Launch Flutter Client
 
 ```bash
-# Navigate to the frontend directory
+# Navigate to frontend directory
 cd frontend
 
-# Fetch all Flutter dependencies
+# Install packages
 flutter pub get
 
-# Run the automated test suite
+# Run test suite
 flutter test test/widget_test.dart
 
-# Launch on connected mobile device or browser
+# Run on Chrome or connected Android/iOS device
 flutter run
 ```
 
 ---
 
-### 3. Building Release APK
-
-To compile an optimized, tree-shaken Android production release APK:
+### 3. Build Production APK
 
 ```bash
 cd frontend
 flutter build apk --release
 ```
-The output file will be generated at:
+The optimized release APK will be generated at:
 `frontend/build/app/outputs/flutter-apk/app-release.apk`
 
 ---
 
-## 📡 Core API Reference
+## 📡 REST API Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/v1/stocks` | Returns real-time quotes for NIFTY 50 and tracked market leaders |
-| `GET` | `/api/v1/stocks/{ticker}` | Returns comprehensive stock overview, market cap, and fundamentals |
-| `GET` | `/api/v1/chart/{ticker}` | Returns OHLC candlestick data across timeframes (`1D`, `1W`, `1M`, `1Y`) |
-| `GET` | `/api/v1/indicators/{ticker}` | Computes MA(20), EMA(50), Bollinger Bands, RSI, and MACD |
-| `POST`| `/api/v1/ai/generate` | Synthesizes technical data into natural-language trade insights |
-| `GET` | `/api/v1/news` | Returns curated, real-time financial market news |
+| `GET` | `/api/v1/stocks` | Quotes and metrics for benchmark Indian equities |
+| `GET` | `/api/v1/stocks/{ticker}` | Fundamental ratios, PE ratio, 52-week ranges, market cap |
+| `GET` | `/api/v1/chart/{ticker}` | OHLC candlestick data series (`1D`, `1W`, `1M`, `1Y`) |
+| `GET` | `/api/v1/indicators/{ticker}` | Real-time MA(20), EMA(50), Bollinger Bands, RSI, and MACD |
+| `POST`| `/api/v1/ai/generate` | Generates natural-language investment thesis via HuggingFace |
+| `GET` | `/api/v1/news` | Real-time aggregated financial news stream |
 
 ---
 
-## 🧪 Testing & Validation
+## 🗺️ Product Roadmap
 
-The codebase includes automated unit and widget tests covering core business logic:
-
-```bash
-flutter test
-```
-
-```text
-00:00 +0: AiConfidenceGauge renders score and label correctly
-00:01 +1: TickerFlashPrice renders price correctly
-00:01 +2: Every stock in repository produces valid OHLC points for each timeframe
-00:01 +3: ChartHeaderRow renders periods and toggles between line and candlestick
-00:01 +4: TickerLogo renders successfully for all stocks
-00:02 +5: SwipeToExecuteButton renders and triggers onConfirmed
-00:02 +6: AppBottomNav renders all tabs and triggers onTabSelected
-00:02 +7: All tests passed!
-```
+- [x] **v1.0 — Platform Foundation**: Real-time NSE/BSE quotes, Brownian Bridge chart engine, Riverpod state, and initial FastAPI services.
+- [x] **v1.1 — Interactive 3D & Brand Refresh**: 3D perspective flip cards, authentic inlined vector SVGs, and Instagram-grade floating navigation.
+- [x] **v1.2 — Live IST Engine**: Trading session phase detection (Pre-Open, Active `09:15 – 15:30 IST`, and Closed) with dynamic alert badges.
+- [ ] **v1.3 — WebSocket Level 2 Order Book**: Real-time bid/ask depth ladder and live market participant volume breakdown.
+- [ ] **v1.4 — Voice-Enabled Trade Copilot**: Natural language speech queries for instant technical screening (*"Find NIFTY 50 breakout stocks above 20 EMA"*).
+- [ ] **v1.5 — Algorithmic Paper Trading Simulator**: Zero-risk virtual capital account with simulated order execution and P&L tracking.
 
 ---
 
-## 👤 Author
+## 🤝 Contributing
+
+Contributions make the open-source community an amazing place to learn, inspire, and create:
+1. **Fork** the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a **Pull Request**
+
+---
+
+## 👤 Author & Creator
 
 **Krish Hingu**
 * GitHub: [@CodeWidKrish](https://github.com/CodeWidKrish)
-* Project: [TradeVision-AI](https://github.com/CodeWidKrish/TradeVision-AI)
+* Repository: [TradeVision-AI](https://github.com/CodeWidKrish/TradeVision-AI)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
 
 <div align="center">
-  <sub>Built with ❤️ for intelligent investing on Indian Capital Markets.</sub>
+  <br />
+  <sub>⭐ If you find TradeVision AI helpful or inspiring, please consider starring the repository! ⭐</sub>
+  <br /><br />
+  <sub>Built with ❤️ for intelligent, data-driven investing.</sub>
 </div>
