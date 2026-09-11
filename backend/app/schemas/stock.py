@@ -6,5 +6,8 @@ class StockResponse(BaseModel):
     company_name: Optional[str] = None
     current_price: Optional[float] = None
     change_percent: Optional[float] = None
+    change_amount: Optional[float] = None
+    volume: Optional[int] = None
+    market_cap: Optional[float] = None
     status: str = "active"
     message: Optional[str] = None

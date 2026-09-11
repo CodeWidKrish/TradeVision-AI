@@ -1,0 +1,94 @@
+{
+  "manifestVersion": "1.0.0",
+  "lastAudited": "2026-08-13",
+  "logos": [
+    {
+      "ticker": "RELIANCE",
+      "companyName": "Reliance Industries Ltd.",
+      "sourceUrl": "https://www.ril.com/media/brand-assets",
+      "localPath": "assets/logos/RELIANCE.svg",
+      "format": "SVG",
+      "attribution": "Official Reliance Industries Brand Asset"
+    },
+    {
+      "ticker": "TCS",
+      "companyName": "Tata Consultancy Services Ltd.",
+      "sourceUrl": "https://www.tcs.com/newsroom/media-kits",
+      "localPath": "assets/logos/TCS.svg",
+      "format": "SVG",
+      "attribution": "Official TCS Corporate Brand Mark"
+    },
+    {
+      "ticker": "HDFCBANK",
+      "companyName": "HDFC Bank Ltd.",
+      "sourceUrl": "https://www.hdfcbank.com/personal/about-us/news-room",
+      "localPath": "assets/logos/HDFCBANK.svg",
+      "format": "SVG",
+      "attribution": "Official HDFC Bank Geometric Mark"
+    },
+    {
+      "ticker": "INFY",
+      "companyName": "Infosys Ltd.",
+      "sourceUrl": "https://www.infosys.com/newsroom/press-kits.html",
+      "localPath": "assets/logos/INFY.svg",
+      "format": "SVG",
+      "attribution": "Official Infosys Signature Asset"
+    },
+    {
+      "ticker": "WIPRO",
+      "companyName": "Wipro Ltd.",
+      "sourceUrl": "https://www.wipro.com/newsroom/brand-assets/",
+      "localPath": "assets/logos/WIPRO.svg",
+      "format": "SVG",
+      "attribution": "Official Wipro Multi-dot Ring Mark"
+    },
+    {
+      "ticker": "SBIN",
+      "companyName": "State Bank of India",
+      "sourceUrl": "https://sbi.co.in/web/investor-relations/brand-assets",
+      "localPath": "assets/logos/SBIN.svg",
+      "format": "SVG",
+      "attribution": "Official SBI Keyhole Emblem Asset"
+    },
+    {
+      "ticker": "ICICIBANK",
+      "companyName": "ICICI Bank Ltd.",
+      "sourceUrl": "https://www.icicibank.com/aboutus/media-centre.page",
+      "localPath": "assets/logos/ICICIBANK.svg",
+      "format": "SVG",
+      "attribution": "Official ICICI Bank Orange/Maroon Mark"
+    },
+    {
+      "ticker": "BAJFINANCE",
+      "companyName": "Bajaj Finance Ltd.",
+      "sourceUrl": "https://www.bajajfinserv.in/investor-relations-brand",
+      "localPath": "assets/logos/BAJFINANCE.svg",
+      "format": "SVG",
+      "attribution": "Official Bajaj Emblem Asset"
+    },
+    {
+      "ticker": "ZOMATO",
+      "companyName": "Zomato Ltd.",
+      "sourceUrl": "https://www.zomato.com",
+      "localPath": "assets/logos/ZOMATO.svg",
+      "format": "SVG",
+      "attribution": "Official Zomato Vector Brand Mark"
+    },
+    {
+      "ticker": "TATAMOTORS",
+      "companyName": "Tata Motors Ltd.",
+      "sourceUrl": "https://www.tatamotors.com",
+      "localPath": "assets/logos/TATAMOTORS.svg",
+      "format": "SVG",
+      "attribution": "Official Tata Ring Emblem"
+    },
+    {
+      "ticker": "MARUTI",
+      "companyName": "Maruti Suzuki India Ltd.",
+      "sourceUrl": "https://www.marutisuzuki.com",
+      "localPath": "assets/logos/MARUTI.svg",
+      "format": "SVG",
+      "attribution": "Official Maruti Suzuki Stylized Asset"
+    }
+  ]
+}

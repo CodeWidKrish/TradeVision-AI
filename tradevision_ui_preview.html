@@ -1,0 +1,435 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
+  .phone { width: 340px; margin: 0 auto; background: #fff; border-radius: 36px; border: 1.5px solid #e0e0e0; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.10); }
+  .status-bar { background: #fff; padding: 12px 20px 4px; display: flex; justify-content: space-between; align-items: center; }
+  .status-time { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .status-icons { font-size: 12px; color: #1a1a1a; font-weight: 500; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .tab-bar { background: #fff; border-top: 0.5px solid #e8e8e8; padding: 8px 0 16px; display: flex; justify-content: space-around; }
+  .tab-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 16px; border-radius: 12px; }
+  .tab-icon { font-size: 20px; color: #b0b0b0; }
+  .tab-icon.active-tab { color: #1B56F1; }
+  .tab-label { font-size: 10px; color: #b0b0b0; font-weight: 500; }
+  .tab-label.active-tab { color: #1B56F1; }
+  .nav-switcher { display: flex; justify-content: center; gap: 8px; margin: 12px 0; }
+  .nav-btn { padding: 6px 18px; border-radius: 20px; border: 1px solid #e0e0e0; font-size: 12px; font-weight: 500; cursor: pointer; background: #f5f5f5; color: #888; }
+  .nav-btn.active { background: #1B56F1; color: #fff; border-color: #1B56F1; }
+
+  /* HOME SCREEN */
+  .home-header { padding: 16px 20px 8px; display: flex; justify-content: space-between; align-items: center; }
+  .home-greeting { font-size: 13px; color: #888; font-weight: 400; }
+  .home-name { font-size: 18px; font-weight: 700; color: #1a1a1a; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: #1B56F1; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; }
+  .portfolio-card { margin: 12px 20px; background: #1B56F1; border-radius: 20px; padding: 20px; color: #fff; }
+  .port-label { font-size: 12px; opacity: 0.75; font-weight: 400; }
+  .port-value { font-size: 28px; font-weight: 700; margin: 4px 0; letter-spacing: -0.5px; }
+  .port-change { font-size: 13px; background: rgba(255,255,255,0.18); display: inline-block; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .port-meta { display: flex; justify-content: space-between; margin-top: 16px; }
+  .port-meta-item { text-align: center; }
+  .port-meta-label { font-size: 10px; opacity: 0.65; }
+  .port-meta-val { font-size: 13px; font-weight: 600; }
+
+  .section-header { padding: 16px 20px 8px; display: flex; justify-content: space-between; align-items: center; }
+  .section-title { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .see-all { font-size: 12px; color: #1B56F1; font-weight: 500; }
+
+  .watchlist-row { margin: 0 20px 8px; background: #f8f9fc; border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .stock-left { display: flex; align-items: center; gap: 10px; }
+  .stock-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+  .stock-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .stock-fullname { font-size: 11px; color: #999; }
+  .stock-right { text-align: right; }
+  .stock-price { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .stock-change-pos { font-size: 11px; color: #16a34a; font-weight: 600; }
+  .stock-change-neg { font-size: 11px; color: #dc2626; font-weight: 600; }
+  .mini-chart { display: flex; align-items: flex-end; gap: 2px; height: 24px; }
+  .mini-bar { width: 3px; border-radius: 2px; }
+
+  /* MARKET SCREEN */
+  .market-header { padding: 16px 20px 8px; }
+  .market-title { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+  .market-sub { font-size: 12px; color: #888; margin-top: 2px; }
+  .index-cards { display: flex; gap: 10px; padding: 8px 20px; overflow-x: auto; }
+  .index-card { min-width: 120px; background: #f8f9fc; border-radius: 14px; padding: 12px; flex-shrink: 0; }
+  .index-name { font-size: 11px; color: #888; font-weight: 500; }
+  .index-val { font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 2px 0; }
+  .index-chg-pos { font-size: 11px; color: #16a34a; font-weight: 600; }
+  .index-chg-neg { font-size: 11px; color: #dc2626; font-weight: 600; }
+  .filter-row { display: flex; gap: 8px; padding: 8px 20px; }
+  .filter-chip { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid #e0e0e0; background: #fff; color: #888; cursor: pointer; }
+  .filter-chip.active { background: #1B56F1; color: #fff; border-color: #1B56F1; }
+
+  /* CHART SCREEN */
+  .chart-header { padding: 14px 20px 0; }
+  .chart-stock-name { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+  .chart-stock-sub { font-size: 12px; color: #888; }
+  .chart-price-row { padding: 8px 20px 0; display: flex; align-items: baseline; gap: 10px; }
+  .chart-price { font-size: 30px; font-weight: 700; color: #1a1a1a; letter-spacing: -1px; }
+  .chart-chg { font-size: 13px; color: #16a34a; font-weight: 600; background: #dcfce7; padding: 3px 10px; border-radius: 20px; }
+  .chart-area { margin: 12px 20px; position: relative; height: 130px; background: #f8f9fc; border-radius: 16px; overflow: hidden; }
+  .chart-range { display: flex; justify-content: space-around; margin: 0 20px 8px; }
+  .range-btn { font-size: 12px; color: #888; font-weight: 500; padding: 4px 10px; border-radius: 8px; cursor: pointer; }
+  .range-btn.active { background: #1B56F1; color: #fff; }
+  .ai-insight { margin: 8px 20px; background: #EFF4FF; border-radius: 14px; padding: 12px 14px; border-left: 3px solid #1B56F1; }
+  .ai-label { font-size: 10px; color: #1B56F1; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .ai-text { font-size: 12px; color: #333; margin-top: 3px; line-height: 1.5; }
+  .action-row { display: flex; gap: 10px; margin: 10px 20px; }
+  .btn-buy { flex: 1; background: #1B56F1; color: #fff; border: none; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .btn-sell { flex: 1; background: #fff; color: #dc2626; border: 1.5px solid #dc2626; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+  /* AI SCREEN */
+  .ai-header { padding: 16px 20px 8px; }
+  .ai-screen-title { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+  .ai-screen-sub { font-size: 12px; color: #888; }
+  .ai-summary-card { margin: 8px 20px; background: #1B56F1; border-radius: 18px; padding: 16px; color: #fff; }
+  .ai-sum-label { font-size: 11px; opacity: 0.75; }
+  .ai-sum-title { font-size: 15px; font-weight: 700; margin: 4px 0 6px; }
+  .ai-sum-text { font-size: 12px; opacity: 0.85; line-height: 1.5; }
+  .sentiment-row { display: flex; gap: 8px; margin: 8px 20px; }
+  .sent-card { flex: 1; background: #f8f9fc; border-radius: 14px; padding: 12px; text-align: center; }
+  .sent-label { font-size: 10px; color: #888; font-weight: 500; }
+  .sent-val { font-size: 18px; font-weight: 700; margin: 4px 0; }
+  .sent-desc { font-size: 10px; color: #888; }
+  .rec-row { margin: 0 20px 8px; background: #f8f9fc; border-radius: 14px; padding: 12px 14px; }
+  .rec-stock { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+  .rec-reason { font-size: 11px; color: #666; margin-top: 2px; }
+  .rec-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; float: right; }
+  .badge-buy { background: #dcfce7; color: #15803d; }
+  .badge-hold { background: #fef9c3; color: #a16207; }
+  .badge-sell { background: #fee2e2; color: #b91c1c; }
+</style>
+
+<div style="padding: 16px 0;">
+  <div class="nav-switcher">
+    <button class="nav-btn active" onclick="showScreen('home', this)">Home</button>
+    <button class="nav-btn" onclick="showScreen('market', this)">Market</button>
+    <button class="nav-btn" onclick="showScreen('chart', this)">Chart</button>
+    <button class="nav-btn" onclick="showScreen('ai', this)">AI Insights</button>
+  </div>
+
+  <div class="phone">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <span class="status-icons">5G  100%</span>
+    </div>
+
+    <!-- HOME -->
+    <div id="screen-home" class="screen active">
+      <div class="home-header">
+        <div>
+          <div class="home-greeting">Good morning,</div>
+          <div class="home-name">Krish</div>
+        </div>
+        <div class="avatar">K</div>
+      </div>
+
+      <div class="portfolio-card">
+        <div class="port-label">Total Portfolio Value</div>
+        <div class="port-value">₹4,82,310</div>
+        <div class="port-change">+₹3,210 &nbsp;+0.67% today</div>
+        <div class="port-meta">
+          <div class="port-meta-item">
+            <div class="port-meta-label">Invested</div>
+            <div class="port-meta-val">₹4,10,000</div>
+          </div>
+          <div class="port-meta-item">
+            <div class="port-meta-label">Returns</div>
+            <div class="port-meta-val">+₹72,310</div>
+          </div>
+          <div class="port-meta-item">
+            <div class="port-meta-label">P&L %</div>
+            <div class="port-meta-val">+17.6%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">Watchlist</span>
+        <span class="see-all">See all</span>
+      </div>
+
+      <div class="watchlist-row">
+        <div class="stock-left">
+          <div class="stock-logo" style="background:#ff6900;">REL</div>
+          <div>
+            <div class="stock-name">RELIANCE</div>
+            <div class="stock-fullname">Reliance Ind.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="mini-chart">
+            <div class="mini-bar" style="height:8px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:12px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:10px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:18px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:14px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:22px;background:#16a34a;"></div>
+          </div>
+          <div class="stock-right">
+            <div class="stock-price">₹2,891</div>
+            <div class="stock-change-pos">+1.24%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="watchlist-row">
+        <div class="stock-left">
+          <div class="stock-logo" style="background:#1B56F1;">TCS</div>
+          <div>
+            <div class="stock-name">TCS</div>
+            <div class="stock-fullname">Tata Consultancy</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="mini-chart">
+            <div class="mini-bar" style="height:18px;background:#dc2626;"></div>
+            <div class="mini-bar" style="height:14px;background:#dc2626;"></div>
+            <div class="mini-bar" style="height:16px;background:#dc2626;"></div>
+            <div class="mini-bar" style="height:10px;background:#dc2626;"></div>
+            <div class="mini-bar" style="height:12px;background:#dc2626;"></div>
+            <div class="mini-bar" style="height:8px;background:#dc2626;"></div>
+          </div>
+          <div class="stock-right">
+            <div class="stock-price">₹3,542</div>
+            <div class="stock-change-neg">-0.83%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="watchlist-row">
+        <div class="stock-left">
+          <div class="stock-logo" style="background:#f59e0b;">INFY</div>
+          <div>
+            <div class="stock-name">INFY</div>
+            <div class="stock-fullname">Infosys Ltd.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="mini-chart">
+            <div class="mini-bar" style="height:10px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:13px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:16px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:14px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:20px;background:#16a34a;"></div>
+            <div class="mini-bar" style="height:18px;background:#16a34a;"></div>
+          </div>
+          <div class="stock-right">
+            <div class="stock-price">₹1,788</div>
+            <div class="stock-change-pos">+0.52%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKET -->
+    <div id="screen-market" class="screen">
+      <div class="market-header">
+        <div class="market-title">Market</div>
+        <div class="market-sub">NSE & BSE — Live</div>
+      </div>
+      <div class="index-cards">
+        <div class="index-card">
+          <div class="index-name">NIFTY 50</div>
+          <div class="index-val">24,613</div>
+          <div class="index-chg-pos">+178 +0.73%</div>
+        </div>
+        <div class="index-card">
+          <div class="index-name">SENSEX</div>
+          <div class="index-val">81,042</div>
+          <div class="index-chg-pos">+412 +0.51%</div>
+        </div>
+        <div class="index-card">
+          <div class="index-name">NIFTY BANK</div>
+          <div class="index-val">52,310</div>
+          <div class="index-chg-neg">-92 -0.17%</div>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="filter-chip active">All</div>
+        <div class="filter-chip">Gainers</div>
+        <div class="filter-chip">Losers</div>
+        <div class="filter-chip">52W High</div>
+      </div>
+      <div class="section-header">
+        <span class="section-title">Top Movers</span>
+        <span class="see-all">Filter</span>
+      </div>
+      <div class="watchlist-row">
+        <div class="stock-left">
+          <div class="stock-logo" style="background:#7c3aed;">HDFC</div>
+          <div>
+            <div class="stock-name">HDFCBANK</div>
+            <div class="stock-fullname">HDFC Bank Ltd.</div>
+          </div>
+        </div>
+        <div class="stock-right">
+          <div class="stock-price">₹1,724</div>
+          <div class="stock-change-pos">+2.31%</div>
+        </div>
+      </div>
+      <div class="watchlist-row">
+        <div class="stock-left">
+          <div class="stock-logo" style="background:#0891b2;">WIPRO</div>
+          <div>
+            <div class="stock-name">WIPRO</div>
+            <div class="stock-fullname">Wipro Ltd.</div>
+          </div>
+        </div>
+        <div class="stock-right">
+          <div class="stock-price">₹548</div>
+          <div class="stock-change-neg">-1.12%</div>
+        </div>
+      </div>
+      <div class="watchlist-row">
+        <div class="stock-left">
+          <div class="stock-logo" style="background:#16a34a;">SBI</div>
+          <div>
+            <div class="stock-name">SBIN</div>
+            <div class="stock-fullname">State Bank of India</div>
+          </div>
+        </div>
+        <div class="stock-right">
+          <div class="stock-price">₹812</div>
+          <div class="stock-change-pos">+0.94%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHART / STOCK DETAIL -->
+    <div id="screen-chart" class="screen">
+      <div class="chart-header">
+        <div class="chart-stock-name">RELIANCE</div>
+        <div class="chart-stock-sub">Reliance Industries Ltd. — NSE</div>
+      </div>
+      <div class="chart-price-row">
+        <div class="chart-price">₹2,891</div>
+        <div class="chart-chg">+1.24%</div>
+      </div>
+      <div class="chart-area">
+        <svg width="100%" height="100%" viewBox="0 0 300 130" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1B56F1" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#1B56F1" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,90 C20,85 40,75 60,70 C80,65 100,80 120,60 C140,45 160,55 180,40 C200,30 220,45 240,30 C260,18 280,22 300,15" stroke="#1B56F1" stroke-width="2.5" fill="none"/>
+          <path d="M0,90 C20,85 40,75 60,70 C80,65 100,80 120,60 C140,45 160,55 180,40 C200,30 220,45 240,30 C260,18 280,22 300,15 L300,130 L0,130 Z" fill="url(#areaGrad)"/>
+          <circle cx="300" cy="15" r="4" fill="#1B56F1"/>
+        </svg>
+      </div>
+      <div class="chart-range">
+        <span class="range-btn">1D</span>
+        <span class="range-btn active">1W</span>
+        <span class="range-btn">1M</span>
+        <span class="range-btn">3M</span>
+        <span class="range-btn">1Y</span>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-label">TradeVision AI</div>
+        <div class="ai-text">Reliance shows strong upward momentum. RSI at 62 — not yet overbought. Support at ₹2,810.</div>
+      </div>
+      <div class="action-row">
+        <button class="btn-buy">Buy</button>
+        <button class="btn-sell">Sell</button>
+      </div>
+    </div>
+
+    <!-- AI INSIGHTS -->
+    <div id="screen-ai" class="screen">
+      <div class="ai-header">
+        <div class="ai-screen-title">AI Insights</div>
+        <div class="ai-screen-sub">Powered by TradeVision AI</div>
+      </div>
+      <div class="ai-summary-card">
+        <div class="ai-sum-label">Market Summary</div>
+        <div class="ai-sum-title">Bullish sentiment today</div>
+        <div class="ai-sum-text">Nifty up 0.73%. IT sector under pressure. Banking and FMCG leading gains. FII inflow positive.</div>
+      </div>
+      <div class="sentiment-row">
+        <div class="sent-card">
+          <div class="sent-label">Nifty Sentiment</div>
+          <div class="sent-val" style="color:#16a34a;">73%</div>
+          <div class="sent-desc">Bullish</div>
+        </div>
+        <div class="sent-card">
+          <div class="sent-label">Fear & Greed</div>
+          <div class="sent-val" style="color:#f59e0b;">54</div>
+          <div class="sent-desc">Neutral</div>
+        </div>
+        <div class="sent-card">
+          <div class="sent-label">VIX</div>
+          <div class="sent-val" style="color:#1B56F1;">13.2</div>
+          <div class="sent-desc">Low Vol</div>
+        </div>
+      </div>
+      <div class="section-header">
+        <span class="section-title">AI Recommendations</span>
+      </div>
+      <div class="rec-row">
+        <span class="rec-badge badge-buy">BUY</span>
+        <div class="rec-stock">RELIANCE</div>
+        <div class="rec-reason">Breakout above resistance, strong volumes</div>
+      </div>
+      <div style="height:8px;"></div>
+      <div class="rec-row">
+        <span class="rec-badge badge-hold">HOLD</span>
+        <div class="rec-stock">TCS</div>
+        <div class="rec-reason">Consolidating, wait for IT sector clarity</div>
+      </div>
+      <div style="height:8px;"></div>
+      <div class="rec-row">
+        <span class="rec-badge badge-buy">BUY</span>
+        <div class="rec-stock">HDFCBANK</div>
+        <div class="rec-reason">Strong NPA improvement, bullish structure</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('home', null, 0)">
+        <i class="ti ti-home tab-icon active-tab" id="ti-0"></i>
+        <span class="tab-label active-tab" id="tl-0">Home</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('market', null, 1)">
+        <i class="ti ti-chart-bar tab-icon" id="ti-1"></i>
+        <span class="tab-label" id="tl-1">Market</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('chart', null, 2)">
+        <i class="ti ti-trending-up tab-icon" id="ti-2"></i>
+        <span class="tab-label" id="tl-2">Chart</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('ai', null, 3)">
+        <i class="ti ti-brain tab-icon" id="ti-3"></i>
+        <span class="tab-label" id="tl-3">AI</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('profile', null, 4)">
+        <i class="ti ti-user tab-icon" id="ti-4"></i>
+        <span class="tab-label" id="tl-4">Profile</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(name, navBtn, tabIdx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const s = document.getElementById('screen-' + name);
+  if (s) s.classList.add('active');
+
+  if (navBtn) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    navBtn.classList.add('active');
+  }
+  if (tabIdx !== undefined) {
+    for (let i = 0; i < 5; i++) {
+      const ti = document.getElementById('ti-' + i);
+      const tl = document.getElementById('tl-' + i);
+      if (ti) { ti.classList.toggle('active-tab', i === tabIdx); }
+      if (tl) { tl.classList.toggle('active-tab', i === tabIdx); }
+    }
+  }
+}
+</script>

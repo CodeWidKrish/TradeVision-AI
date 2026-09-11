@@ -1,0 +1,38 @@
+# Flutter / Dart
+frontend/build/
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+build/
+.dart_tool/
+
+# Android Build & Gradle
+frontend/android/build/
+frontend/android/app/build/
+.gradle/
+**/build/
+*.apk
+*.aab
+
+# Python / Backend
+backend/venv/
+backend/.env
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# IDE & Editor
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db

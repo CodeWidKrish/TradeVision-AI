@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class ChartPoint(BaseModel):
     date: str
@@ -7,9 +7,10 @@ class ChartPoint(BaseModel):
     high: float
     low: float
     close: float
-    volume: int
+    volume: Optional[int] = None
 
 class ChartResponse(BaseModel):
     symbol: str
+    period: str = "1mo"
     points: List[ChartPoint]
-    message: str = "Chart data loaded"
+    message: Optional[str] = None
