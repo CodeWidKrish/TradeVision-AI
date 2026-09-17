@@ -50,8 +50,8 @@ def get_stock_by_symbol(symbol: str) -> Dict[str, Any]:
             change_amt = current_price - prev_close
             change_pct = (change_amt / prev_close) * 100
 
-        full_info     = ticker.info
-        company_name  = full_info.get("longName") or full_info.get("shortName")
+        fb = _FALLBACK.get(sym) or _FALLBACK.get(f"{sym}.NS")
+        company_name = fb.get("company_name") if fb else sym.replace(".NS", "").replace("^", "")
         volume        = getattr(info, "three_month_average_volume", None)
         market_cap    = getattr(info, "market_cap", None)
 

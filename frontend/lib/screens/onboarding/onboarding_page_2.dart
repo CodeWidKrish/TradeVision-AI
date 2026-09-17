@@ -25,8 +25,8 @@ class OnboardingPage2 extends StatelessWidget {
       children: [
         // Illustration Area (Top Card)
         Container(
-          height: 320,
-          margin: EdgeInsets.fromLTRB(24, statusBarHeight + 40, 24, 0),
+          height: 305,
+          margin: EdgeInsets.fromLTRB(24, statusBarHeight + 52, 24, 0),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: cardBg,

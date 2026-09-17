@@ -9,7 +9,6 @@ import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/main_screen.dart';
 import '../widgets/session_guard.dart';
-import '../widgets/connectivity_banner.dart';
 
 import '../screens/holdings_screen.dart';
 import '../screens/stock_detail_screen.dart';
@@ -20,10 +19,8 @@ import '../screens/analysis_screen.dart';
 import '../core/data/stock_data.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final isLoggedIn = ref.read(isLoggedInProvider);
-
   return GoRouter(
-    initialLocation: isLoggedIn ? '/home' : '/splash',
+    initialLocation: '/splash',
     errorBuilder: (context, state) {
       // Log the bad route
       debugPrint('GoRouter error: ${state.error}');
@@ -104,7 +101,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               child: child,
             );
           },
-          transitionDuration: const Duration(milliseconds: 450),
+          transitionDuration: const Duration(milliseconds: 500),
         ),
       ),
       GoRoute(
@@ -112,23 +109,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           child: const OnboardingScreen(),
           transitionsBuilder: (_, anim, secondaryAnim, child) {
+            final curved = CurvedAnimation(
+              parent: anim,
+              curve: Curves.easeInOutCubic,
+            );
             return FadeTransition(
-              opacity: CurvedAnimation(
-                parent: anim,
-                curve: Curves.fastOutSlowIn,
-              ),
+              opacity: curved,
               child: ScaleTransition(
-                scale: Tween<double>(begin: 0.96, end: 1.0).animate(
-                  CurvedAnimation(
-                    parent: anim,
-                    curve: Curves.fastOutSlowIn,
-                  ),
-                ),
+                scale: Tween<double>(begin: 0.975, end: 1.0).animate(curved),
                 child: child,
               ),
             );
           },
-          transitionDuration: const Duration(milliseconds: 400),
+          transitionDuration: const Duration(milliseconds: 550),
         ),
       ),
       GoRoute(
@@ -136,24 +129,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           child: const AuthScreen(),
           transitionsBuilder: (_, anim, secondaryAnim, child) {
+            final curved = CurvedAnimation(
+              parent: anim,
+              curve: Curves.easeInOutCubic,
+            );
             return SlideTransition(
               position: Tween<Offset>(
-                begin: const Offset(1, 0),
+                begin: const Offset(0.06, 0),
                 end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: anim,
-                curve: Curves.fastOutSlowIn,
-              )),
+              ).animate(curved),
               child: FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: anim,
-                  curve: Curves.easeIn,
-                ),
+                opacity: curved,
                 child: child,
               ),
             );
           },
-          transitionDuration: const Duration(milliseconds: 380),
+          transitionDuration: const Duration(milliseconds: 500),
         ),
       ),
       GoRoute(
@@ -163,23 +154,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             child: MainScreen(),
           ),
           transitionsBuilder: (_, anim, secondaryAnim, child) {
+            final curved = CurvedAnimation(
+              parent: anim,
+              curve: Curves.easeInOutCubic,
+            );
             return FadeTransition(
-              opacity: CurvedAnimation(
-                parent: anim,
-                curve: Curves.fastOutSlowIn,
-              ),
+              opacity: curved,
               child: ScaleTransition(
-                scale: Tween<double>(begin: 0.97, end: 1.0).animate(
-                  CurvedAnimation(
-                    parent: anim,
-                    curve: Curves.fastOutSlowIn,
-                  ),
-                ),
+                scale: Tween<double>(begin: 0.985, end: 1.0).animate(curved),
                 child: child,
               ),
             );
           },
-          transitionDuration: const Duration(milliseconds: 450),
+          transitionDuration: const Duration(milliseconds: 550),
         ),
       ),
       GoRoute(

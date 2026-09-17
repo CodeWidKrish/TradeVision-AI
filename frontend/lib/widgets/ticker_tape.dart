@@ -25,12 +25,14 @@ class _TickerTapeWidgetState extends State<TickerTapeWidget>
   late AnimationController _controller;
 
   static const List<TickerItem> _items = [
-    TickerItem(symbol: 'AAPL', change: '+1.1%', isPositive: true),
-    TickerItem(symbol: 'TSLA', change: '-2.1%', isPositive: false),
-    TickerItem(symbol: 'NVDA', change: '+2.3%', isPositive: true),
-    TickerItem(symbol: 'NIFTY 50', change: '+0.6%', isPositive: true),
-    TickerItem(symbol: 'SENSEX', change: '+0.4%', isPositive: true),
-    TickerItem(symbol: 'RELIANCE', change: '+1.8%', isPositive: true),
+    TickerItem(symbol: 'NIFTY 50', change: '+0.11%', isPositive: true),
+    TickerItem(symbol: 'SENSEX', change: '+0.45%', isPositive: true),
+    TickerItem(symbol: 'NIFTY BANK', change: '-0.05%', isPositive: false),
+    TickerItem(symbol: 'NIFTY IT', change: '-0.88%', isPositive: false),
+    TickerItem(symbol: 'RELIANCE', change: '+1.24%', isPositive: true),
+    TickerItem(symbol: 'TCS', change: '+2.09%', isPositive: true),
+    TickerItem(symbol: 'HDFCBANK', change: '+1.15%', isPositive: true),
+    TickerItem(symbol: 'INFY', change: '+3.52%', isPositive: true),
   ];
 
   @override

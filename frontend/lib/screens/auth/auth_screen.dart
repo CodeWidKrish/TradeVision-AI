@@ -254,8 +254,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double topHeaderHeight = screenHeight * 0.36;
+    // Fixed stable header height to prevent vertical collapse & RenderFlex overflow
+    // when software keyboard opens on mobile devices
+    const double topHeaderHeight = 268.0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
@@ -269,54 +270,69 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Top Section Header
-            Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
               children: [
-                Container(
-                  width: double.infinity,
-                  height: topHeaderHeight,
-                  decoration: BoxDecoration(
-                    color: headerBg,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(32),
-                      bottomRight: Radius.circular(32),
-                    ),
-                  ),
-                  child: SafeArea(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const TVLogoWidget(
-                          variant: LogoVariant.iconOnly,
-                          size: 72,
+                // Top Section Header
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: topHeaderHeight,
+                      decoration: BoxDecoration(
+                        color: headerBg,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(32),
+                          bottomRight: Radius.circular(32),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'TradeVision AI',
-                          style: GoogleFonts.inter(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                      ),
+                      child: SafeArea(
+                        bottom: false,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 8),
+                                const TVLogoWidget(
+                                  variant: LogoVariant.iconOnly,
+                                  size: 80,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'TradeVision AI',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 23,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Your AI-Powered Market Intelligence',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF94A3B8),
+                                    letterSpacing: 0.1,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Your AI-Powered Market Intelligence',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xFF8892A4),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
 
                 // Overlapping Tab Switcher (Login / Sign Up)
                 Positioned(
@@ -652,7 +668,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildTabButton({

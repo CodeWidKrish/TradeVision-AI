@@ -11,10 +11,10 @@ class MarketTickerNotifier extends ChangeNotifier {
   final Random _random = Random();
 
   List<Map<String, dynamic>> _indices = [
-    {'name': 'NIFTY 50',    'value': 24613.20, 'change': 178.45, 'changePercent': 0.73, 'up': true},
-    {'name': 'SENSEX',      'value': 81042.50, 'change': 412.90, 'changePercent': 0.51, 'up': true},
-    {'name': 'NIFTY BANK',  'value': 52310.80, 'change': -92.30, 'changePercent': -0.17, 'up': false},
-    {'name': 'NIFTY IT',    'value': 38910.25, 'change': 412.10, 'changePercent': 1.07, 'up': true},
+    {'name': 'NIFTY 50',    'value': 23242.40, 'change': 24.80, 'changePercent': 0.11, 'up': true},
+    {'name': 'SENSEX',      'value': 74336.45, 'change': 332.63, 'changePercent': 0.45, 'up': true},
+    {'name': 'NIFTY BANK',  'value': 56262.40, 'change': -30.05, 'changePercent': -0.05, 'up': false},
+    {'name': 'NIFTY IT',    'value': 28833.05, 'change': -254.60, 'changePercent': -0.88, 'up': false},
     {'name': 'NIFTY NEXT 50','value': 72145.10, 'change': 310.20, 'changePercent': 0.43, 'up': true},
   ];
 
@@ -31,7 +31,7 @@ class MarketTickerNotifier extends ChangeNotifier {
   }
 
   void _startLiveTicks() {
-    _timer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
       _tickRandomStock();
     });
   }

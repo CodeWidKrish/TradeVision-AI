@@ -6,8 +6,10 @@ import 'package:provider/provider.dart' as provider;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
 import '../providers/clock_provider.dart';
+import '../providers/market_data_provider.dart';
 import '../widgets/ist_clock_widget.dart';
 import '../core/theme/dark_surfaces.dart';
 import '../core/data/stock_data.dart';
@@ -23,31 +25,31 @@ import '../widgets/ticker_logo.dart';
 final List<Map<String, dynamic>> marketPulseData = [
   {
     'name': 'NIFTY 50',
-    'value': '24,613.20',
-    'change': '+178.45',
-    'percent': '+0.73%',
+    'value': '23,242.40',
+    'change': '+24.80',
+    'percent': '+0.11%',
     'isPositive': true,
   },
   {
     'name': 'SENSEX',
-    'value': '81,042.50',
-    'change': '+412.90',
-    'percent': '+0.51%',
+    'value': '74,336.45',
+    'change': '+332.63',
+    'percent': '+0.45%',
     'isPositive': true,
   },
   {
     'name': 'NIFTY BANK',
-    'value': '52,310.80',
-    'change': '-92.30',
-    'percent': '-0.17%',
+    'value': '56,262.40',
+    'change': '-30.05',
+    'percent': '-0.05%',
     'isPositive': false,
   },
   {
     'name': 'NIFTY IT',
-    'value': '38,754.60',
-    'change': '+310.25',
-    'percent': '+0.81%',
-    'isPositive': true,
+    'value': '28,833.05',
+    'change': '-254.60',
+    'percent': '-0.88%',
+    'isPositive': false,
   },
 ];
 
@@ -178,6 +180,29 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStaticPulseList() {
+    return SizedBox(
+      height: 130,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: marketPulseData.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final item = marketPulseData[index];
+          return MarketPulseCard(
+            indexName: item['name'] as String,
+            value: item['value'] as String,
+            change: item['change'] as String,
+            changePercent: item['percent'] as String,
+            isPositive: item['isPositive'] as bool,
+          );
+        },
+      ),
     );
   }
 
@@ -413,26 +438,43 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 10),
 
-              // Market Pulse Cards Horizontal Scroll Strip
-              SizedBox(
-                height: 130,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: marketPulseData.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final item = marketPulseData[index];
-                    return MarketPulseCard(
-                      indexName: item['name'] as String,
-                      value: item['value'] as String,
-                      change: item['change'] as String,
-                      changePercent: item['percent'] as String,
-                      isPositive: item['isPositive'] as bool,
-                    );
-                  },
-                ),
+              // Market Pulse Cards Horizontal Scroll Strip (Live Real-Time Stream)
+              Consumer(
+                builder: (context, ref, _) {
+                  final indicesAsync = ref.watch(indicesProvider);
+                  return indicesAsync.when(
+                    data: (indices) {
+                      final items = indices.isNotEmpty ? indices : null;
+                      if (items == null) return _buildStaticPulseList();
+                      return SizedBox(
+                        height: 130,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: items.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 12),
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+                            final sign = item.change >= 0 ? '+' : '';
+                            final changeStr = '$sign${item.change.toStringAsFixed(2)}';
+                            final pctStr = '$sign${item.changePercent.toStringAsFixed(2)}%';
+                            final valueStr = NumberFormat('#,##0.00').format(item.price);
+                            return MarketPulseCard(
+                              indexName: item.name,
+                              value: valueStr,
+                              change: changeStr,
+                              changePercent: pctStr,
+                              isPositive: item.isPositive,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    loading: () => _buildStaticPulseList(),
+                    error: (_, __) => _buildStaticPulseList(),
+                  );
+                },
               ),
 
               const SizedBox(height: 24),
@@ -511,7 +553,7 @@ class MarketPulseCard extends StatelessWidget {
         : const Color(0xFFFF3B3B);
 
     return Container(
-      width: 140,
+      width: 144,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: isDark
@@ -583,15 +625,18 @@ class MarketPulseCard extends StatelessWidget {
                   size: 16,
                 ),
                 Expanded(
-                  child: Text(
-                    '$change ($changePercent)',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: color,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '$change ($changePercent)',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: color,
+                      ),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

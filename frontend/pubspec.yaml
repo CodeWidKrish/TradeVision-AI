@@ -22,9 +22,10 @@ dependencies:
   shimmer: ^3.0.0
   flutter_animate: ^4.5.0
   flutter_svg: ^2.0.10
-  url_launcher: ^6.3.0
+  url_launcher: ^6.3.2
   file_picker: ^8.1.2
   connectivity_plus: ^6.0.0
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:

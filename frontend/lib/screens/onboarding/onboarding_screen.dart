@@ -58,61 +58,67 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       data: AppTheme.dark,
       child: Scaffold(
         backgroundColor: const Color(0xFF0A0E1A),
-        body: Stack(
-          children: [
-            // PageView Container
-            PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Stack(
               children: [
-                OnboardingPage1(onContinue: _nextPage),
-                OnboardingPage2(onContinue: _nextPage),
-                OnboardingPage3(onGetStarted: _skip),
-              ],
-            ),
+                // PageView Container
+                PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  children: [
+                    OnboardingPage1(onContinue: _nextPage),
+                    OnboardingPage2(onContinue: _nextPage),
+                    OnboardingPage3(onGetStarted: _skip),
+                  ],
+                ),
 
-            // Top-Right Skip Button (Hidden on page 0, visible on page 1+)
-            Positioned(
-              top: statusBarHeight + 8,
-              right: 16,
-              child: AnimatedOpacity(
-                opacity: _currentPage > 0 ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: _currentPage > 0
-                    ? SizedBox(
-                        height: 44,
-                        child: TextButton(
-                          onPressed: _skip,
-                          style: TextButton.styleFrom(
-                            minimumSize: const Size(60, 44),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                          ),
-                          child: Text(
-                            'Skip',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF8892A4),
-                            ),
+                // Top-Right Skip Button (Cleanly aligned with card margin, zero overlap)
+                Positioned(
+                  top: statusBarHeight + 12,
+                  right: 24,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _skip,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF131C2E),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF223048),
+                            width: 1.0,
                           ),
                         ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ),
+                        child: Text(
+                          'Skip',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF94A3B8),
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
-            // Bottom Fixed Controls Section (Dots + CTA Button)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPadding + 24),
-                color: const Color(0xFF0A0E1A),
+                // Bottom Fixed Controls Section (Dots + CTA Button)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPadding + 24),
+                    color: const Color(0xFF0A0E1A),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -161,8 +167,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   Color _getButtonColor(int page) {
     switch (page) {

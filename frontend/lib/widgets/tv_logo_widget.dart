@@ -16,12 +16,36 @@ class TVLogoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (variant) {
       case LogoVariant.iconOnly:
-        return Image.asset(
-          'assets/images/logo_icon.png',
+        return Container(
           width: size,
           height: size,
-          fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(size * 0.22),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0077FF).withOpacity(0.35),
+                blurRadius: 20,
+                spreadRadius: 1,
+                offset: const Offset(0, 4),
+              ),
+              BoxShadow(
+                color: const Color(0xFF00FF88).withOpacity(0.20),
+                blurRadius: 28,
+                spreadRadius: 0,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(size * 0.22),
+            child: Image.asset(
+              'assets/images/logo_icon.png',
+              width: size,
+              height: size,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
         );
 
       case LogoVariant.fullStacked:

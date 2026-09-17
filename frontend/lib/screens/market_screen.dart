@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/data/stock_data.dart';
+import '../providers/market_data_provider.dart';
 import '../widgets/index_card.dart';
 import '../widgets/filter_chip_row.dart';
 import '../widgets/section_header.dart';
@@ -22,6 +25,44 @@ class MarketScreen extends StatefulWidget {
 class _MarketScreenState extends State<MarketScreen> {
   String selectedFilter = 'All';
 
+  Widget _buildDefaultIndexCards() {
+    return const SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: AppDim.screenH, vertical: 8),
+      child: Row(
+        children: [
+          IndexCard(
+            name: 'NIFTY 50',
+            value: '23,242.40',
+            change: '+24.80 (+0.11%)',
+            isPositive: true,
+          ),
+          SizedBox(width: 10),
+          IndexCard(
+            name: 'SENSEX',
+            value: '74,336.45',
+            change: '+332.63 (+0.45%)',
+            isPositive: true,
+          ),
+          SizedBox(width: 10),
+          IndexCard(
+            name: 'NIFTY BANK',
+            value: '56,262.40',
+            change: '-30.05 (-0.05%)',
+            isPositive: false,
+          ),
+          SizedBox(width: 10),
+          IndexCard(
+            name: 'NIFTY IT',
+            value: '28,833.05',
+            change: '-254.60 (-0.88%)',
+            isPositive: false,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<StockModel> filteredStocks = StockRepository.stocks;
@@ -34,7 +75,7 @@ class _MarketScreenState extends State<MarketScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -42,21 +83,20 @@ class _MarketScreenState extends State<MarketScreen> {
             children: [
               // Header
               const Padding(
-                padding: EdgeInsets.fromLTRB(AppDim.screenH, 16, AppDim.screenH, 8),
+                padding: EdgeInsets.symmetric(horizontal: AppDim.screenH, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Market',
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'Market Command Center',
+                      'Equity & Technical Command Center',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
@@ -66,41 +106,43 @@ class _MarketScreenState extends State<MarketScreen> {
                 ),
               ),
 
-              // Index Cards Horizontal List
-              const SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: AppDim.screenH, vertical: 8),
-                child: Row(
-                  children: [
-                    IndexCard(
-                      name: 'NIFTY 50',
-                      value: '24,613',
-                      change: '+178 +0.73%',
-                      isPositive: true,
-                    ),
-                    const SizedBox(width: 10),
-                    IndexCard(
-                      name: 'SENSEX',
-                      value: '81,042',
-                      change: '+412 +0.51%',
-                      isPositive: true,
-                    ),
-                    const SizedBox(width: 10),
-                    IndexCard(
-                      name: 'NIFTY BANK',
-                      value: '52,310',
-                      change: '-92 -0.17%',
-                      isPositive: false,
-                    ),
-                    const SizedBox(width: 10),
-                    IndexCard(
-                      name: 'NIFTY IT',
-                      value: '38,940',
-                      change: '+245 +0.63%',
-                      isPositive: true,
-                    ),
-                  ],
-                ),
+              // Index Cards Horizontal List (Live Synchronized Stream)
+              Consumer(
+                builder: (context, ref, _) {
+                  final indicesAsync = ref.watch(indicesProvider);
+                  return indicesAsync.when(
+                    data: (indices) {
+                      final items = indices.isNotEmpty ? indices : null;
+                      if (items == null) return _buildDefaultIndexCards();
+
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppDim.screenH, vertical: 8),
+                        child: Row(
+                          children: items.map((item) {
+                            final sign = item.change >= 0 ? '+' : '';
+                            final changeStr =
+                                '$sign${item.change.toStringAsFixed(2)} ($sign${item.changePercent.toStringAsFixed(2)}%)';
+                            final valStr =
+                                NumberFormat('#,##0.00').format(item.price);
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: IndexCard(
+                                name: item.name,
+                                value: valStr,
+                                change: changeStr,
+                                isPositive: item.isPositive,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                    loading: () => _buildDefaultIndexCards(),
+                    error: (_, __) => _buildDefaultIndexCards(),
+                  );
+                },
               ),
 
               // Filter Chips
