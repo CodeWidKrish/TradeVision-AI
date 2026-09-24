@@ -372,6 +372,46 @@ def get_market_news(limit: int = 15) -> Dict[str, Any]:
     }
 
 
+def _fetch_rss_articles(query: str, limit: int = 10) -> List[Dict[str, Any]]:
+    encoded = urllib.parse.quote(query)
+    url = f"https://news.google.com/rss/search?q={encoded}&hl=en-IN&gl=IN&ceid=IN:en"
+    articles: List[Dict[str, Any]] = []
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        )
+        with urllib.request.urlopen(req, timeout=4.0) as resp:
+            xml_data = resp.read()
+        root = ET.fromstring(xml_data)
+        items = root.findall("./channel/item")
+        for item in items[:limit]:
+            raw_title = item.findtext("title") or ""
+            link = item.findtext("link") or "#"
+            pub_date = item.findtext("pubDate") or ""
+            raw_desc = item.findtext("description") or ""
+            clean_title = raw_title
+            source = "Financial Media"
+            if " - " in raw_title:
+                parts = raw_title.rsplit(" - ", 1)
+                clean_title = parts[0].strip()
+                source = parts[1].strip()
+            summary = _strip_html(raw_desc) or clean_title
+            articles.append({
+                "title": clean_title,
+                "summary": summary,
+                "source": source,
+                "url": link,
+                "published_at": None,
+                "time_ago": _parse_time_ago(pub_date),
+                "related_ticker": query.split()[0].upper(),
+                "sentiment": _infer_sentiment(clean_title, summary),
+                "category": _detect_category(clean_title, summary),
+            })
+    except Exception as exc:
+        logger.warning(f"Ticker RSS fetch failed for {query}: {exc}")
+    return articles
+
 
 def get_news_by_symbol(symbol: str, limit: int = 10) -> Dict[str, Any]:
     """Fetch live news specifically for an equity symbol using ticker RSS and Alpha Vantage."""

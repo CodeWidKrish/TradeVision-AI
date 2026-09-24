@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_colors.dart';
 import '../models/ohlc_point.dart';
+import '../../services/api_service.dart';
 
 class StockModel {
   final String ticker;
@@ -178,6 +181,35 @@ class StockModel {
   String get support => '₹${(price * 0.96).toInt()}';
   String get resistance => '₹${(price * 1.04).toInt()}';
 
+  Map<String, dynamic> toJson() {
+    return {
+      'symbol': nseSymbol.isNotEmpty ? nseSymbol : ticker,
+      'ticker': ticker,
+      'company_name': fullName,
+      'fullName': fullName,
+      'current_price': price,
+      'price': price,
+      'change_percent': changePercent,
+      'changePercent': changePercent,
+      'change_amount': changeAmount,
+      'previous_close': previousClose,
+      'open_price': openPrice,
+      'day_high': dayHigh,
+      'day_low': dayLow,
+      'market_cap': marketCap,
+      'pe_ratio': peRatio,
+      'week52_high': week52High,
+      'week52_low': week52Low,
+      'volume': volume,
+      'isin': isin,
+      'exchange': exchange,
+      'sector': sector,
+      'website_domain': websiteUrl.replaceAll('https://', '').replaceAll('http://', ''),
+      'ai_signal': aiSignal,
+      'ai_reason': aiReason,
+    };
+  }
+
   String get high52 => week52High;
   String get low52 => week52Low;
   List<FlSpot> get chartData => chart1D;
@@ -227,6 +259,154 @@ class StockModel {
     final fmt = NumberFormat('#,##,##0.00', 'en_IN');
     return '₹${fmt.format(val)}';
   }
+
+  static const Map<String, double> benchmarkPrices = {
+    'RELIANCE': 1247.40,
+    'TCS': 4124.80,
+    'HDFCBANK': 747.75,
+    'INFY': 1892.40,
+    'ICICIBANK': 1214.30,
+    'SBIN': 842.60,
+    'TATAMOTORS': 982.40,
+    'MARUTI': 12480.60,
+    'BHARTIARTL': 1482.30,
+    'ITC': 488.50,
+    'ZOMATO': 264.30,
+    'KOTAKBANK': 1785.40,
+    'LT': 3912.60,
+    'TATASTEEL': 154.20,
+    'BAJFINANCE': 7180.00,
+    'HINDUNILVR': 2420.00,
+    'ADANIENT': 2840.00,
+    'SUNPHARMA': 1720.00,
+    'TITAN': 3480.00,
+    'WIPRO': 530.00,
+    'AXISBANK': 1180.00,
+    'ASIANPAINT': 2450.00,
+    'HCLTECH': 1740.00,
+    'NTPC': 395.00,
+    'ONGC': 295.00,
+    'POWERGRID': 315.00,
+    'ULTRACEMCO': 11200.00,
+    'COALINDIA': 480.00,
+    'JSWSTEEL': 960.00,
+    'BPCL': 345.00,
+    'GRASIM': 2650.00,
+    'TECHM': 1620.00,
+    'HEROMOTOCO': 5100.00,
+    'EICHERMOT': 4900.00,
+    'HINDALCO': 680.00,
+    'NESTLEIND': 2250.00,
+    'CIPLA': 1560.00,
+    'DRREDDY': 6400.00,
+    'TATACONSUM': 1150.00,
+    'APOLLOHOSP': 6800.00,
+    'DIVISLAB': 5600.00,
+    'BRITANNIA': 5800.00,
+    'BEL': 290.00,
+    'VEDL': 480.00,
+    'HAL': 4450.00,
+    'JIOFIN': 340.00,
+    'TRENT': 7100.00,
+    'SUZLON': 78.40,
+    'TBZ': 285.50,
+    'POLICYBZR': 1680.00,
+    'PFIZER': 5250.00,
+    'MAZDA': 1420.00,
+    'IZMO': 380.00,
+    'AZAD': 1540.00,
+    'ZEEL': 128.50,
+  };
+
+  factory StockModel.fromMasterJson(Map<String, dynamic> json) {
+    final sym = (json['symbol'] as String? ?? '').toUpperCase();
+    final name = json['company_name'] as String? ?? sym;
+
+    final double price;
+    if (json['current_price'] != null && (json['current_price'] as num) > 0) {
+      price = (json['current_price'] as num).toDouble();
+    } else if (benchmarkPrices.containsKey(sym)) {
+      price = benchmarkPrices[sym]!;
+    } else {
+      final h = sym.codeUnits.fold(0, (prev, elem) => prev + elem);
+      price = (110.0 + (h % 2200) + (h % 90) * 0.1);
+    }
+
+    final double changePct;
+    if (json['change_percent'] != null) {
+      changePct = (json['change_percent'] as num).toDouble();
+    } else {
+      final h = sym.codeUnits.fold(0, (prev, elem) => prev + elem);
+      // Roughly 45% losers, 55% gainers for realistic market balance
+      final isLoser = (h % 11 < 5);
+      final magnitude = ((h % 360) / 100.0) + 0.18; // 0.18% to 3.78%
+      changePct = double.parse((isLoser ? -magnitude : magnitude).toStringAsFixed(2));
+    }
+
+    final changeAmt = (json['change_amount'] as num?)?.toDouble() ?? (price * changePct / 100);
+    final sector = json['sector'] as String? ?? 'General Equity';
+    final domain = (json['website_domain'] as String? ?? '').trim();
+    final effectiveDomain = domain.isNotEmpty
+        ? domain
+        : '${sym.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '')}.com';
+    final logoUrl = 'https://www.google.com/s2/favicons?domain=$effectiveDomain&sz=128';
+
+    final h = sym.codeUnits.fold(0, (prev, elem) => prev + elem);
+    final startPrice = price - changeAmt;
+    final spots1D = [
+      FlSpot(0, startPrice),
+      FlSpot(1, startPrice + (changeAmt * 0.25)),
+      FlSpot(2, startPrice + (changeAmt * 0.55)),
+      FlSpot(3, startPrice + (changeAmt * 0.80)),
+      FlSpot(4, price),
+    ];
+
+    return StockModel(
+      ticker: sym,
+      fullName: name,
+      nseSymbol: sym,
+      bseCode: '',
+      isin: json['isin'] as String? ?? '',
+      exchange: json['exchange'] as String? ?? 'NSE',
+      sector: sector,
+      industry: sector,
+      logoUrl: logoUrl,
+      logoColor: AppColors.primary,
+      websiteUrl: effectiveDomain.isNotEmpty ? 'https://$effectiveDomain' : '',
+      price: price,
+      changePercent: changePct,
+      changeAmount: changeAmt,
+      previousClose: startPrice,
+      openPrice: startPrice,
+      dayHigh: math.max(price, startPrice),
+      dayLow: math.min(price, startPrice),
+      marketCap: '₹${((price * 1000000) / 100000).toStringAsFixed(1)} Cr',
+      peRatio: '${(16 + (h % 28)).toStringAsFixed(1)}',
+      week52High: '₹${(price * 1.25).toStringAsFixed(2)}',
+      week52Low: '₹${(price * 0.75).toStringAsFixed(2)}',
+      volume: '${((h % 900) + 100) / 10} L',
+      chart1D: spots1D,
+      chart1W: spots1D,
+      chart1M: spots1D,
+      chart1Y: spots1D,
+      volumeData: const [12.0, 14.5, 13.0, 18.2, 16.0, 19.5, 21.0],
+      rsiData: [
+        45.0 + (h % 15),
+        50.0 + (h % 12),
+        52.0 + (h % 14),
+        56.0 + (h % 10),
+        58.0 + (h % 15),
+        changePct >= 0 ? 62.5 : 42.0,
+      ],
+      macdLine: const [1.2, 1.8, 2.3, 3.0, 3.5, 4.1, 4.8],
+      signalLine: const [1.0, 1.5, 2.0, 2.6, 3.1, 3.7, 4.2],
+      aiSignal: changePct >= 1.5 ? 'BUY' : (changePct <= -1.5 ? 'SELL' : 'HOLD'),
+      aiReason: changePct >= 0
+          ? 'Strong bullish volume breakout with clean moving average support at ₹${(price * 0.97).toStringAsFixed(1)}.'
+          : 'Consolidation phase near support boundary. Awaiting confirmation above ₹${(price * 1.02).toStringAsFixed(1)}.',
+      searchKeywords: [sym.toLowerCase(), name.toLowerCase()],
+    );
+  }
 }
 
 class StockRepository {
@@ -243,53 +423,53 @@ class StockRepository {
       logoUrl: 'https://logo.clearbit.com/ril.com',
       logoColor: AppColors.logoReliance,
       websiteUrl: 'https://www.ril.com',
-      price: 2891.00,
-      changePercent: 1.24,
-      changeAmount: 35.40,
-      previousClose: 2855.60,
-      openPrice: 2860.00,
-      dayHigh: 2898.50,
-      dayLow: 2845.00,
-      marketCap: '₹19,55,420 Cr',
-      peRatio: '28.4',
-      week52High: '₹3,024.90',
-      week52Low: '₹2,220.30',
-      volume: '1.24 Cr',
+      price: 1247.40,
+      changePercent: 1.71,
+      changeAmount: 21.00,
+      previousClose: 1226.40,
+      openPrice: 1234.10,
+      dayHigh: 1249.10,
+      dayLow: 1232.50,
+      marketCap: '₹16,88,040 Cr',
+      peRatio: '26.8',
+      week52High: '₹1,611.80',
+      week52Low: '₹1,226.40',
+      volume: '1.00 Cr',
       chart1D: const [
-        FlSpot(0, 2855.6),
-        FlSpot(1, 2862.0),
-        FlSpot(2, 2870.5),
-        FlSpot(3, 2865.0),
-        FlSpot(4, 2880.0),
-        FlSpot(5, 2885.5),
-        FlSpot(6, 2891.0),
+        FlSpot(0, 1226.4),
+        FlSpot(1, 1232.0),
+        FlSpot(2, 1238.5),
+        FlSpot(3, 1235.0),
+        FlSpot(4, 1242.0),
+        FlSpot(5, 1245.5),
+        FlSpot(6, 1247.4),
       ],
       chart1W: const [
-        FlSpot(0, 2810.0),
-        FlSpot(1, 2830.0),
-        FlSpot(2, 2845.0),
-        FlSpot(3, 2835.0),
-        FlSpot(4, 2860.0),
-        FlSpot(5, 2875.0),
-        FlSpot(6, 2891.0),
+        FlSpot(0, 1210.0),
+        FlSpot(1, 1218.0),
+        FlSpot(2, 1225.0),
+        FlSpot(3, 1220.0),
+        FlSpot(4, 1235.0),
+        FlSpot(5, 1240.0),
+        FlSpot(6, 1247.4),
       ],
       chart1M: const [
-        FlSpot(0, 2720.0),
-        FlSpot(1, 2750.0),
-        FlSpot(2, 2780.0),
-        FlSpot(3, 2810.0),
-        FlSpot(4, 2840.0),
-        FlSpot(5, 2865.0),
-        FlSpot(6, 2891.0),
+        FlSpot(0, 1190.0),
+        FlSpot(1, 1205.0),
+        FlSpot(2, 1215.0),
+        FlSpot(3, 1225.0),
+        FlSpot(4, 1230.0),
+        FlSpot(5, 1240.0),
+        FlSpot(6, 1247.4),
       ],
       chart1Y: const [
-        FlSpot(0, 2350.0),
-        FlSpot(1, 2480.0),
-        FlSpot(2, 2600.0),
-        FlSpot(3, 2750.0),
-        FlSpot(4, 2820.0),
-        FlSpot(5, 2980.0),
-        FlSpot(6, 2891.0),
+        FlSpot(0, 1150.0),
+        FlSpot(1, 1220.0),
+        FlSpot(2, 1310.0),
+        FlSpot(3, 1420.0),
+        FlSpot(4, 1530.0),
+        FlSpot(5, 1480.0),
+        FlSpot(6, 1247.4),
       ],
       volumeData: const [12.4, 15.2, 11.8, 9.4, 16.8, 14.5, 18.2],
       rsiData: const [45, 52, 58, 54, 60, 63, 62.4],
@@ -913,22 +1093,108 @@ class StockRepository {
     ),
   ];
 
+  static final List<StockModel> _allUniverse = [];
+  static bool _isUniverseLoaded = false;
+  static bool get isUniverseLoaded => _isUniverseLoaded;
+  static List<StockModel> get allUniverse => _allUniverse.isNotEmpty ? _allUniverse : stocks;
+
+  static final Map<String, StockModel> _dynamicCache = {};
+
+  static Future<void> loadStockUniverse() async {
+    if (_isUniverseLoaded && _allUniverse.isNotEmpty) return;
+    try {
+      final jsonStr = await rootBundle.loadString('assets/data/stock_universe.json');
+      final list = json.decode(jsonStr) as List<dynamic>;
+      _allUniverse.clear();
+      for (final item in list) {
+        if (item is Map<String, dynamic>) {
+          final model = StockModel.fromMasterJson(item);
+          _allUniverse.add(model);
+          _dynamicCache[model.ticker.toUpperCase()] = model;
+        }
+      }
+      // Populate hand-curated rich benchmark stocks into cache
+      for (final s in stocks) {
+        _dynamicCache[s.ticker.toUpperCase()] = s;
+      }
+      _isUniverseLoaded = true;
+      debugPrint('TradeVision: Loaded ${_allUniverse.length} stock universe into memory.');
+    } catch (e) {
+      debugPrint('TradeVision: Error loading stock universe: $e');
+    }
+  }
+
+  static void registerStock(StockModel stock) {
+    _dynamicCache[stock.ticker.toUpperCase()] = stock;
+  }
+
+  static Future<StockModel> fetchAndCacheStock(String symbol) async {
+    final q = symbol.trim().toUpperCase();
+    try {
+      final liveQuote = await ApiService.fetchLiveQuote(q);
+      if (liveQuote != null && liveQuote['current_price'] != null) {
+        final stock = StockModel.fromMasterJson(liveQuote);
+        _dynamicCache[q] = stock;
+        return stock;
+      }
+      final results = await ApiService.searchStocks(q, limit: 1);
+      if (results.isNotEmpty) {
+        final stock = StockModel.fromMasterJson(results.first);
+        _dynamicCache[q] = stock;
+        return stock;
+      }
+    } catch (_) {}
+    return getStock(q);
+  }
+
   static StockModel getStock(String query) {
     final q = query.trim().toUpperCase();
-    return stocks.firstWhere(
+    if (_dynamicCache.containsKey(q)) {
+      return _dynamicCache[q]!;
+    }
+    final pool = _allUniverse.isNotEmpty ? _allUniverse : stocks;
+    final found = pool.firstWhere(
       (s) =>
           s.ticker.toUpperCase() == q ||
           s.nseSymbol.toUpperCase() == q ||
           s.bseCode == q,
-      orElse: () => stocks.first,
+      orElse: () {
+        final dyn = StockModel.fromMasterJson({'symbol': q, 'company_name': q});
+        _dynamicCache[q] = dyn;
+        return dyn;
+      },
     );
+    _dynamicCache[q] = found;
+    return found;
   }
 
-  static List<StockModel> searchStocks(String query) {
-    final cleanQ = query.trim().toLowerCase();
-    if (cleanQ.isEmpty) return stocks;
+  static List<StockModel> getUniverse({String? sector, int limit = 80, int offset = 0}) {
+    List<StockModel> pool = _allUniverse.isNotEmpty ? _allUniverse : stocks;
+    if (sector != null && sector.isNotEmpty && sector.toLowerCase() != 'all') {
+      pool = pool.where((s) => s.sector.toLowerCase() == sector.toLowerCase()).toList();
+    }
+    if (offset >= pool.length) return [];
+    final end = (offset + limit < pool.length) ? offset + limit : pool.length;
+    return pool.sublist(offset, end);
+  }
 
-    // Helper to check if ticker, symbol, or any word in full name starts with query
+  static List<String> getAllSectors() {
+    final pool = _allUniverse.isNotEmpty ? _allUniverse : stocks;
+    final set = <String>{};
+    for (final s in pool) {
+      if (s.sector.isNotEmpty && s.sector != 'General Equity') {
+        set.add(s.sector);
+      }
+    }
+    final sorted = set.toList()..sort();
+    return ['All', ...sorted];
+  }
+
+  static List<StockModel> searchStocks(String query, {int limit = 50}) {
+    final cleanQ = query.trim().toLowerCase();
+    final allAvailable = _allUniverse.isNotEmpty ? _allUniverse : stocks;
+    if (cleanQ.isEmpty) return allAvailable.take(limit).toList();
+
     bool startsWithQuery(StockModel s) {
       final t = s.ticker.toLowerCase();
       final nse = s.nseSymbol.toLowerCase();
@@ -941,30 +1207,77 @@ class StockRepository {
       return false;
     }
 
-    // Sort results: exact prefix matches first
-    final exactPrefixMatches = stocks.where(startsWithQuery).toList();
+    // 1. Exact prefix matches first
+    final exactPrefixMatches = allAvailable.where(startsWithQuery).take(limit).toList();
+    if (exactPrefixMatches.length >= limit) return exactPrefixMatches;
 
-    // For short queries (1 or 2 characters), return ONLY prefix matches (e.g. 'm' -> Maruti, Tata Motors)
-    if (cleanQ.length <= 2) {
-      return exactPrefixMatches;
-    }
-
-    // For 3+ character queries, add secondary contains matches if not already included
-    final secondaryMatches = stocks.where((s) {
+    // 2. Substring (contains) matches
+    final remaining = limit - exactPrefixMatches.length;
+    final secondaryMatches = allAvailable.where((s) {
       if (exactPrefixMatches.contains(s)) return false;
       final t = s.ticker.toLowerCase();
       final n = s.fullName.toLowerCase();
       final nse = s.nseSymbol.toLowerCase();
-      final bse = s.bseCode.toLowerCase();
+      final isin = s.isin.toLowerCase();
       final sector = s.sector.toLowerCase();
 
       return t.contains(cleanQ) ||
              n.contains(cleanQ) ||
              nse.contains(cleanQ) ||
-             bse.contains(cleanQ) ||
+             isin.contains(cleanQ) ||
              sector.contains(cleanQ);
-    }).toList();
+    }).take(remaining).toList();
 
     return [...exactPrefixMatches, ...secondaryMatches];
+  }
+
+  static List<Map<String, dynamic>> getClientGainers({int limit = 5}) {
+    final candidates = [
+      getStock('ZOMATO'),
+      getStock('TATAMOTORS'),
+      getStock('RELIANCE'),
+      getStock('MARUTI'),
+      getStock('ICICIBANK'),
+      getStock('SBIN'),
+      getStock('INFY'),
+      getStock('TCS'),
+    ];
+    final sorted = List<StockModel>.from(candidates)
+      ..sort((a, b) => b.changePercent.compareTo(a.changePercent));
+    return sorted.take(limit).map((s) => {
+      'ticker': s.ticker,
+      'name': s.fullName,
+      'price': '₹${s.price.toStringAsFixed(2)}',
+      'rawPrice': s.price,
+      'change': '${s.changePercent >= 0 ? '+' : ''}${s.changePercent.toStringAsFixed(2)}%',
+      'changeAmount': '${s.changeAmount >= 0 ? '+' : ''}₹${s.changeAmount.toStringAsFixed(2)}',
+      'isPositive': s.changePercent >= 0,
+      'logoUrl': s.logoUrl,
+    }).toList();
+  }
+
+  static List<Map<String, dynamic>> getClientLosers({int limit = 5}) {
+    final candidates = [
+      getStock('WIPRO'),
+      getStock('HDFCBANK'),
+      getStock('INFY'),
+      getStock('SBIN'),
+      getStock('TCS'),
+      getStock('RELIANCE'),
+      getStock('MARUTI'),
+      getStock('TATAMOTORS'),
+    ];
+    final sorted = List<StockModel>.from(candidates)
+      ..sort((a, b) => a.changePercent.compareTo(b.changePercent));
+    return sorted.take(limit).map((s) => {
+      'ticker': s.ticker,
+      'name': s.fullName,
+      'price': '₹${s.price.toStringAsFixed(2)}',
+      'rawPrice': s.price,
+      'change': '${s.changePercent >= 0 ? '+' : ''}${s.changePercent.toStringAsFixed(2)}%',
+      'changeAmount': '${s.changeAmount >= 0 ? '+' : ''}₹${s.changeAmount.toStringAsFixed(2)}',
+      'isPositive': s.changePercent >= 0,
+      'logoUrl': s.logoUrl,
+    }).toList();
   }
 }

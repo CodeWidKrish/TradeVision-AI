@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart' as provider;
@@ -51,12 +53,21 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<StockModel> _searchResults = [];
   bool _isSearching = false;
+  bool _isLoadingSearch = false;
+  Timer? _debounceTimer;
   final Set<String> _watchlistTickers = {'RELIANCE', 'TCS', 'HDFCBANK', 'INFY'};
 
   @override
   void initState() {
     super.initState();
     _selectedStock = widget.initialStock;
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -70,17 +81,53 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
   }
 
   void _onSearchChanged(String query) {
-    if (query.trim().isEmpty) {
+    _debounceTimer?.cancel();
+    final q = query.trim();
+    if (q.isEmpty) {
       setState(() {
         _isSearching = false;
+        _isLoadingSearch = false;
         _searchResults = [];
       });
-    } else {
-      setState(() {
-        _isSearching = true;
-        _searchResults = StockRepository.searchStocks(query);
-      });
+      return;
     }
+
+    // Immediate local search fallback
+    setState(() {
+      _isSearching = true;
+      _isLoadingSearch = true;
+      _searchResults = StockRepository.searchStocks(q);
+    });
+
+    // Debounced query to backend covering all 2,595+ NSE/BSE stocks
+    _debounceTimer = Timer(const Duration(milliseconds: 120), () async {
+      try {
+        final serverResults = await ApiService.searchStocks(q, limit: 30);
+        if (!mounted || _searchController.text.trim() != q) return;
+
+        if (serverResults.isNotEmpty) {
+          final models = serverResults.map((item) {
+            final model = StockModel.fromMasterJson(item);
+            StockRepository.registerStock(model);
+            return model;
+          }).toList();
+          setState(() {
+            _searchResults = models;
+            _isLoadingSearch = false;
+          });
+        } else {
+          setState(() {
+            _isLoadingSearch = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoadingSearch = false;
+          });
+        }
+      }
+    });
   }
 
   void _toggleWatchlist(String ticker) {
@@ -249,7 +296,10 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
         );
         return AnimatedPressCard(
           onTap: () {
-            context.push('/stock-detail/${stock.ticker}');
+            setState(() {
+              _selectedStock = stock;
+              _selectedTab = 0;
+            });
           },
           child: Container(
             padding: const EdgeInsets.all(14),
@@ -335,7 +385,7 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
         children: [
           const SizedBox(height: 8),
           AnimatedPressCard(
-            onTap: () => context.push('/stock-detail/${_selectedStock.ticker}'),
+            onTap: () => context.push('/stock-detail', extra: _selectedStock.ticker),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
@@ -667,7 +717,7 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
               fontWeight: FontWeight.w500,
             ),
             decoration: InputDecoration(
-              hintText: 'Search symbol, company...',
+              hintText: 'Search',
               hintStyle: GoogleFonts.inter(
                 fontSize: 13,
                 color: const Color(0xFF8892A4),
@@ -769,12 +819,13 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
           final s = _searchResults[index];
           return AnimatedPressCard(
             onTap: () {
+              StockRepository.registerStock(s);
               setState(() {
                 _selectedStock = s;
+                _selectedTab = 0;
                 _isSearching = false;
                 _searchController.clear();
               });
-              context.push('/stock-detail/${s.ticker}');
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

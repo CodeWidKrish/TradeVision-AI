@@ -16,6 +16,8 @@ import '../screens/watchlist_screen.dart';
 import '../screens/market_charts_screen.dart';
 import '../screens/ai_insights_screen.dart';
 import '../screens/analysis_screen.dart';
+import '../screens/paper_trading_screen.dart';
+import '../screens/sentiment_heatmap_screen.dart';
 import '../core/data/stock_data.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -256,9 +258,45 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/paper-trading',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const PaperTradingScreen(),
+          transitionsBuilder: (_, anim, secondaryAnim, child) {
+            return FadeTransition(
+              opacity: CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 350),
+          reverseTransitionDuration: const Duration(milliseconds: 280),
+        ),
+      ),
+      GoRoute(
+        path: '/sentiment-heatmap',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const SentimentHeatmapScreen(),
+          transitionsBuilder: (_, anim, secondaryAnim, child) {
+            return FadeTransition(
+              opacity: CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 350),
+          reverseTransitionDuration: const Duration(milliseconds: 280),
+        ),
+      ),
+      GoRoute(
         path: '/stock-detail',
         pageBuilder: (context, state) {
-          final symbol = state.extra as String? ?? 'RELIANCE';
+          String symbol = 'RELIANCE';
+          if (state.extra is String) {
+            symbol = state.extra as String;
+          } else if (state.extra is StockModel) {
+            symbol = (state.extra as StockModel).ticker;
+          } else if (state.uri.queryParameters['symbol'] != null) {
+            symbol = state.uri.queryParameters['symbol']!;
+          }
+
           return CustomTransitionPage(
             child: StockDetailScreen(symbol: symbol),
             transitionsBuilder: (_, anim, secondaryAnim, child) {
@@ -306,6 +344,37 @@ final routerProvider = Provider<GoRouter>((ref) {
             reverseTransitionDuration: const Duration(milliseconds: 300),
           );
         },
+      ),
+      GoRoute(
+        path: '/stock/:symbol',
+        pageBuilder: (context, state) {
+          final symbol = state.pathParameters['symbol'] ?? 'RELIANCE';
+          return CustomTransitionPage(
+            child: StockDetailScreen(symbol: symbol),
+            transitionsBuilder: (_, anim, secondaryAnim, child) {
+              return FadeTransition(
+                opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 300),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/search',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: MarketChartsScreen(
+            initialStock: StockRepository.stocks.first,
+          ),
+          transitionsBuilder: (_, anim, secondaryAnim, child) {
+            return FadeTransition(
+              opacity: CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
       ),
     ],
   );

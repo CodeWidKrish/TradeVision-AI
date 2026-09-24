@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../core/data/stock_data.dart';
 import '../core/theme/dark_surfaces.dart';
+import '../services/api_service.dart';
 import 'ticker_logo.dart';
 
 class CommandPalette extends StatefulWidget {
@@ -45,6 +47,8 @@ class _CommandPaletteState extends State<CommandPalette> {
   final List<String> _filters = ['All', 'AI Strong Buy', 'Top Gainers', 'Banking', 'IT', 'Energy'];
 
   List<StockModel> _filteredStocks = [];
+  Timer? _debounceTimer;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -58,40 +62,56 @@ class _CommandPaletteState extends State<CommandPalette> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
   void _applyFilter() {
-    final query = _searchController.text.trim().toLowerCase();
+    _debounceTimer?.cancel();
+    final query = _searchController.text.trim();
+
+    if (query.isEmpty) {
+      setState(() {
+        _filteredStocks = StockRepository.allUniverse.take(40).toList();
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // Immediate local match for instant responsiveness on every character
+    final localMatches = StockRepository.searchStocks(query);
     setState(() {
-      _filteredStocks = StockRepository.stocks.where((stock) {
-        final matchesQuery = query.isEmpty ||
-            stock.ticker.toLowerCase().contains(query) ||
-            stock.name.toLowerCase().contains(query) ||
-            stock.sector.toLowerCase().contains(query);
+      _filteredStocks = localMatches;
+    });
 
-        if (!matchesQuery) return false;
+    // Snappy debounce for live API search across 2,595+ NSE/BSE stocks
+    _debounceTimer = Timer(const Duration(milliseconds: 120), () async {
+      setState(() => _isLoading = true);
+      try {
+        final apiResults = await ApiService.searchStocks(query, limit: 40);
+        if (apiResults.isNotEmpty && mounted) {
+          final mapped = apiResults.map((json) {
+            final stock = StockModel.fromMasterJson(json);
+            StockRepository.registerStock(stock);
+            return stock;
+          }).toList();
 
-        switch (_selectedFilter) {
-          case 'AI Strong Buy':
-            return stock.aiRecommendation.toUpperCase().contains('BUY');
-          case 'Top Gainers':
-            return stock.change >= 0;
-          case 'Banking':
-            return stock.sector.toLowerCase().contains('bank') ||
-                stock.sector.toLowerCase().contains('financial');
-          case 'IT':
-            return stock.sector.toLowerCase().contains('technology') ||
-                stock.sector.toLowerCase().contains('it');
-          case 'Energy':
-            return stock.sector.toLowerCase().contains('energy') ||
-                stock.sector.toLowerCase().contains('oil');
-          default:
-            return true;
+          setState(() {
+            _filteredStocks = mapped;
+            _isLoading = false;
+          });
+          return;
         }
-      }).toList();
+      } catch (_) {}
+
+      if (mounted) {
+        setState(() {
+          _filteredStocks = StockRepository.searchStocks(query);
+          _isLoading = false;
+        });
+      }
     });
   }
 
@@ -101,7 +121,7 @@ class _CommandPaletteState extends State<CommandPalette> {
     if (widget.onSelectStock != null) {
       widget.onSelectStock!(stock);
     } else {
-      context.push('/stock/${stock.ticker}');
+      context.push('/stock-detail', extra: stock.ticker);
     }
   }
 
@@ -110,7 +130,6 @@ class _CommandPaletteState extends State<CommandPalette> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF0F172A) : Colors.white;
     final border = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
-    final cardBg = isDark ? const Color(0xFF142033) : const Color(0xFFF8FAFC);
     final size = MediaQuery.of(context).size;
     final dialogWidth = size.width > 680 ? 620.0 : size.width * 0.94;
 
@@ -159,7 +178,7 @@ class _CommandPaletteState extends State<CommandPalette> {
                           color: isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Search symbol, sector, or company (e.g. RELIANCE, Banking)...',
+                          hintText: 'Search',
                           hintStyle: GoogleFonts.inter(
                             fontSize: 13,
                             color: DarkSurface.textMuted,
@@ -170,6 +189,14 @@ class _CommandPaletteState extends State<CommandPalette> {
                         ),
                       ),
                     ),
+                    if (_isLoading)
+                      const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00C853)),
+                      ),
+                    if (_isLoading && _searchController.text.isNotEmpty)
+                      const SizedBox(width: 8),
                     if (_searchController.text.isNotEmpty)
                       GestureDetector(
                         onTap: () {

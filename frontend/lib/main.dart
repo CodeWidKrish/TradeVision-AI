@@ -10,9 +10,13 @@ import 'core/providers/market_ticker_provider.dart';
 import 'core/providers/auth_provider.dart';
 import 'router/app_router.dart';
 import 'services/storage_service.dart';
+import 'services/alert_service.dart';
+import 'services/notification_service.dart';
 import 'widgets/connectivity_banner.dart';
+import 'widgets/in_app_notification_banner.dart';
 
 import 'core/error_handler.dart';
+import 'core/data/stock_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,8 +44,11 @@ void main() async {
   // Wrap entire startup in try-catch
   try {
     await StorageService.init();
+    await AlertService.instance.init();
+    await NotificationService.instance.init();
+    await StockRepository.loadStockUniverse();
   } catch (e) {
-    debugPrint('StorageService init failed: $e');
+    debugPrint('StorageService / StockRepository init failed: $e');
     // Continue anyway — app can run without persisted prefs
   }
 
@@ -84,7 +91,9 @@ class TradeVisionApp extends ConsumerWidget {
       scrollBehavior: const _SmoothScrollBehavior(),
       builder: (context, child) {
         return ConnectivityWrapper(
-          child: child ?? const SizedBox.shrink(),
+          child: InAppNotificationBanner(
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );

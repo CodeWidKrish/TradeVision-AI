@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart' as provider;
 import '../widgets/empty_state_widget.dart';
 import '../widgets/ticker_logo.dart';
+import '../core/data/stock_data.dart';
+import '../core/providers/market_ticker_provider.dart';
 
 class HoldingsScreen extends StatefulWidget {
   const HoldingsScreen({super.key});
@@ -75,10 +78,17 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Calculate totals safely
+    // Listen to real-time market ticks
+    final _ = provider.Provider.of<MarketTickerNotifier>(context);
+
+    // Calculate totals safely with live market prices
     double totalInvested = 0;
     double totalCurrent = 0;
     for (final h in _holdings) {
+      final stock = StockRepository.getStock(h['ticker'] as String);
+      if (stock.price > 0) {
+        h['current'] = stock.price;
+      }
       totalInvested += (h['avgBuy'] as double) * (h['qty'] as int);
       totalCurrent += (h['current'] as double) * (h['qty'] as int);
     }
@@ -288,7 +298,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
                       return GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
-                          context.push('/stock-detail/${h['ticker']}');
+                          context.push('/stock-detail', extra: h['ticker'] as String);
                         },
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 10),

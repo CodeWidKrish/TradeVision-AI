@@ -36,14 +36,21 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
-*.backup.dart*.before-market-fix.dart
+
+# Personal documents, presentations, design drafts & media
+*.docx
+*.pptx
+*.pdf
+*.jpg
+*.jpeg
+*.png
+tradevision_ui_preview.html
+design (1).md
+design*.md
+frontend_backup/
+
+# Local backup and generated virtual-environment folders
+backend/venv_broken_backup/
+*.backup.dart
 *.before-market-fix.dart
 
-# Local backup and generated virtual-environment folders
-backend/venv_broken_backup/
-*.backup.dart
-
-
-# Local backup and generated virtual-environment folders
-backend/venv_broken_backup/
-*.backup.dart

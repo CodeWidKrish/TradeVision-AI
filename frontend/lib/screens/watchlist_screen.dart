@@ -128,7 +128,7 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
                               : const Color(0xFF1A1A2E),
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Search stocks by name or symbol...',
+                          hintText: 'Search',
                           hintStyle: GoogleFonts.inter(
                             fontSize: 14,
                             color: const Color(0xFF8892A4),
@@ -281,7 +281,7 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
                           child: GestureDetector(
                             onTap: () {
                               HapticFeedback.lightImpact();
-                              context.push('/stock-detail/${s.ticker}');
+                              context.push('/stock-detail', extra: s.ticker);
                             },
                             child: Container(
                               padding: const EdgeInsets.all(14),

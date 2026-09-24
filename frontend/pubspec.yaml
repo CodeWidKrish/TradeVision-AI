@@ -26,6 +26,7 @@ dependencies:
   file_picker: ^8.1.2
   connectivity_plus: ^6.0.0
   web_socket_channel: ^3.0.3
+  flutter_local_notifications: ^22.3.1
 
 dev_dependencies:
   flutter_test:
@@ -57,3 +58,4 @@ flutter:
     - assets/logos/
     - assets/images/logo_full.png
     - assets/images/logo_icon.png
+    - assets/data/

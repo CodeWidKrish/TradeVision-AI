@@ -82,6 +82,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        provider.Provider.of<MarketTickerNotifier>(context, listen: false).hydrateLiveMarket();
+      }
+    });
+  }
+
   void _showQuickPortfolioSheet(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? DarkSurface.card : Colors.white;
@@ -182,6 +192,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+
+
 
   Widget _buildStaticPulseList() {
     return SizedBox(
@@ -393,7 +405,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+
+
+              const SizedBox(height: 18),
 
               // 5. SECTION 1 — MARKET PULSE STRIP
               Padding(
@@ -438,42 +452,41 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 10),
 
-              // Market Pulse Cards Horizontal Scroll Strip (Live Real-Time Stream)
+              // Market Pulse Cards Horizontal Scroll Strip (Continuous Real-Time Live Ticker)
               Consumer(
                 builder: (context, ref, _) {
-                  final indicesAsync = ref.watch(indicesProvider);
-                  return indicesAsync.when(
-                    data: (indices) {
-                      final items = indices.isNotEmpty ? indices : null;
-                      if (items == null) return _buildStaticPulseList();
-                      return SizedBox(
-                        height: 130,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: items.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 12),
-                          itemBuilder: (context, index) {
-                            final item = items[index];
-                            final sign = item.change >= 0 ? '+' : '';
-                            final changeStr = '$sign${item.change.toStringAsFixed(2)}';
-                            final pctStr = '$sign${item.changePercent.toStringAsFixed(2)}%';
-                            final valueStr = NumberFormat('#,##0.00').format(item.price);
-                            return MarketPulseCard(
-                              indexName: item.name,
-                              value: valueStr,
-                              change: changeStr,
-                              changePercent: pctStr,
-                              isPositive: item.isPositive,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    loading: () => _buildStaticPulseList(),
-                    error: (_, __) => _buildStaticPulseList(),
-                  );
+                  final liveIndices = tickerNotifier.indices;
+                  if (liveIndices.isNotEmpty) {
+                    return SizedBox(
+                      height: 130,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: liveIndices.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final item = liveIndices[index];
+                          final val = (item['value'] as num?)?.toDouble() ?? 0.0;
+                          final chg = (item['change'] as num?)?.toDouble() ?? 0.0;
+                          final pct = (item['changePercent'] as num?)?.toDouble() ?? 0.0;
+                          final isPos = (item['up'] as bool?) ?? (chg >= 0);
+                          final sign = chg >= 0 ? '+' : '';
+                          final changeStr = '$sign${chg.toStringAsFixed(2)}';
+                          final pctStr = '$sign${pct.toStringAsFixed(2)}%';
+                          final valueStr = NumberFormat('#,##0.00').format(val);
+                          return MarketPulseCard(
+                            indexName: item['name'] as String? ?? 'INDEX',
+                            value: valueStr,
+                            change: changeStr,
+                            changePercent: pctStr,
+                            isPositive: isPos,
+                          );
+                        },
+                      ),
+                    );
+                  }
+                  return _buildStaticPulseList();
                 },
               ),
 
@@ -501,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   final stock = watchlistStocks[index];
                   return AnimatedPressCard(
-                    onTap: () => context.push('/stock-detail/${stock.ticker}'),
+                    onTap: () => context.push('/stock-detail', extra: stock.ticker),
                     child: StockRow(
                       ticker: stock.ticker,
                       fullName: stock.fullName,
@@ -510,7 +523,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       isPositive: stock.isPositive,
                       logoColor: stock.logoColor,
                       logoUrl: stock.logoUrl,
-                      onTap: () => context.push('/stock-detail/${stock.ticker}'),
+                      onTap: () => context.push('/stock-detail', extra: stock.ticker),
                     ),
                   );
                 },
@@ -693,53 +706,28 @@ class _MoversSection extends StatefulWidget {
   State<_MoversSection> createState() => _MoversSectionState();
 }
 
-class _MoversSectionState extends State<_MoversSection>
-    with SingleTickerProviderStateMixin {
+class _MoversSectionState extends State<_MoversSection> {
   bool _showGainers = true;
-  late AnimationController _flipController;
-  late Animation<double> _flipAnimation;
 
-  @override
-  void initState() {
-    super.initState();
-    _flipController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 550),
-    );
-    _flipAnimation = CurvedAnimation(
-      parent: _flipController,
-      curve: Curves.easeInOutCubic,
-    );
-  }
-
-  @override
-  void dispose() {
-    _flipController.dispose();
-    super.dispose();
-  }
-
-  void _flipTo(bool targetGainers) {
-    if (_showGainers == targetGainers || _flipController.isAnimating) return;
+  void _switchTab(bool targetGainers) {
+    if (_showGainers == targetGainers) return;
     HapticFeedback.selectionClick();
-
-    _flipController.forward(from: 0).then((_) {
-      if (mounted) {
-        setState(() {
-          _showGainers = targetGainers;
-          _flipController.reset();
-        });
-      }
+    setState(() {
+      _showGainers = targetGainers;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tickerNotifier = provider.Provider.of<MarketTickerNotifier>(context);
+    final gainers = tickerNotifier.gainers;
+    final losers = tickerNotifier.losers;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header with tab toggle (clean, no swipe text)
+        // Section header with tab toggle
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
@@ -765,8 +753,8 @@ class _MoversSectionState extends State<_MoversSection>
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isDark
-                        ? const Color(0xFF1E2733)
-                        : const Color(0xFFE2E6EA),
+                      ? const Color(0xFF1E2733)
+                      : const Color(0xFFE2E6EA),
                   ),
                 ),
                 child: Row(
@@ -776,14 +764,14 @@ class _MoversSectionState extends State<_MoversSection>
                       label: 'Gainers',
                       isSelected: _showGainers,
                       selectedColor: const Color(0xFF00C853),
-                      onTap: () => _flipTo(true),
+                      onTap: () => _switchTab(true),
                     ),
                     const SizedBox(width: 2),
                     _MoverTab(
                       label: 'Losers',
                       isSelected: !_showGainers,
                       selectedColor: const Color(0xFFFF3B3B),
-                      onTap: () => _flipTo(false),
+                      onTap: () => _switchTab(false),
                     ),
                   ],
                 ),
@@ -794,71 +782,42 @@ class _MoversSectionState extends State<_MoversSection>
 
         const SizedBox(height: 12),
 
-        // Interactive 3D Flip Card for Gainers / Losers
+        // Instant smooth transition for Gainers / Losers
         GestureDetector(
           onHorizontalDragEnd: (details) {
             if (details.primaryVelocity == null) return;
-            if (details.primaryVelocity! < -120) {
+            if (details.primaryVelocity! < -100) {
               // Swipe left -> Losers
-              _flipTo(false);
-            } else if (details.primaryVelocity! > 120) {
+              _switchTab(false);
+            } else if (details.primaryVelocity! > 100) {
               // Swipe right -> Gainers
-              _flipTo(true);
+              _switchTab(true);
             }
           },
           behavior: HitTestBehavior.opaque,
-          child: AnimatedBuilder(
-            animation: _flipAnimation,
-            builder: (context, child) {
-              final angle = _flipAnimation.value * math.pi;
-              final isUnder = angle > (math.pi / 2);
-
-              final Widget face;
-              if (!isUnder) {
-                face = _showGainers
-                    ? _MoversList(isGainers: true, isDark: isDark)
-                    : _MoversList(isGainers: false, isDark: isDark);
-              } else {
-                face = _showGainers
-                    ? _MoversList(isGainers: false, isDark: isDark)
-                    : _MoversList(isGainers: true, isDark: isDark);
-              }
-
-              final scale = 1.0 + math.sin(angle) * 0.05;
-              final shadowOpacity = (math.sin(angle) * 0.24).clamp(0.0, 0.24);
-
-              final transform = Matrix4.identity()
-                ..setEntry(3, 2, 0.0014) // 3D Perspective
-                ..scale(scale);
-
-              if (!isUnder) {
-                transform.rotateY(angle);
-              } else {
-                transform.rotateY(angle - math.pi);
-              }
-
-              return Transform(
-                transform: transform,
-                alignment: Alignment.center,
-                child: Stack(
-                  children: [
-                    face,
-                    if (shadowOpacity > 0.01)
-                      Positioned.fill(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: shadowOpacity),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.03, 0),
+                  end: Offset.zero,
+                ).animate(anim),
+                child: child,
+              ),
+            ),
+            child: _showGainers
+                ? KeyedSubtree(
+                    key: const ValueKey('gainers_list'),
+                    child: _MoversList(isGainers: true, isDark: isDark, liveMovers: gainers),
+                  )
+                : KeyedSubtree(
+                    key: const ValueKey('losers_list'),
+                    child: _MoversList(isGainers: false, isDark: isDark, liveMovers: losers),
+                  ),
           ),
         ),
 
@@ -869,10 +828,10 @@ class _MoversSectionState extends State<_MoversSection>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
-              onTap: () => _flipTo(true),
+              onTap: () => _switchTab(true),
               behavior: HitTestBehavior.opaque,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
+                duration: const Duration(milliseconds: 200),
                 width: _showGainers ? 20 : 6,
                 height: 6,
                 decoration: BoxDecoration(
@@ -885,10 +844,10 @@ class _MoversSectionState extends State<_MoversSection>
             ),
             const SizedBox(width: 4),
             GestureDetector(
-              onTap: () => _flipTo(false),
+              onTap: () => _switchTab(false),
               behavior: HitTestBehavior.opaque,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
+                duration: const Duration(milliseconds: 200),
                 width: !_showGainers ? 20 : 6,
                 height: 6,
                 decoration: BoxDecoration(
@@ -910,16 +869,21 @@ class _MoversSectionState extends State<_MoversSection>
 class _MoversList extends StatelessWidget {
   final bool isGainers;
   final bool isDark;
+  final List<Map<String, dynamic>>? liveMovers;
 
-  const _MoversList({required this.isGainers, required this.isDark});
+  const _MoversList({
+    required this.isGainers,
+    required this.isDark,
+    this.liveMovers,
+  });
 
-  static const gainers = [
+  static const defaultGainers = [
     {'ticker': 'BAJFINANCE', 'name': 'Bajaj Finance Ltd.',    'price': '₹7,284.50', 'change': '+3.42%'},
-    {'ticker': 'RELIANCE',   'name': 'Reliance Industries',   'price': '₹2,896.25', 'change': '+1.82%'},
+    {'ticker': 'RELIANCE',   'name': 'Reliance Industries',   'price': '₹1,247.40', 'change': '+1.82%'},
     {'ticker': 'HDFCBANK',   'name': 'HDFC Bank Ltd.',        'price': '₹1,723.40', 'change': '+1.54%'},
   ];
 
-  static const losers = [
+  static const defaultLosers = [
     {'ticker': 'TCS',    'name': 'Tata Consultancy Services', 'price': '₹3,538.30', 'change': '-0.93%'},
     {'ticker': 'INFY',   'name': 'Infosys Ltd.',              'price': '₹1,775.60', 'change': '-0.67%'},
     {'ticker': 'WIPRO',  'name': 'Wipro Ltd.',                'price': '₹558.10',   'change': '-0.74%'},
@@ -927,7 +891,9 @@ class _MoversList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stocks = isGainers ? gainers : losers;
+    final stocks = (liveMovers != null && liveMovers!.isNotEmpty)
+        ? liveMovers!
+        : (isGainers ? defaultGainers : defaultLosers);
     final color = isGainers
         ? const Color(0xFF00C853)
         : const Color(0xFFFF3B3B);
@@ -954,7 +920,27 @@ class _MoversList extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-                onTap: () => context.push('/stock-detail/${s['ticker']}'),
+                onTap: () {
+                  // Register the mover's authenticated live price so StockDetailScreen
+                  // immediately shows the correct price without waiting for network.
+                  final ticker = s['ticker'] as String? ?? '';
+                  final rawPrice = s['rawPrice'];
+                  if (ticker.isNotEmpty && rawPrice != null) {
+                    final baseSym = ticker.replaceAll('.NS', '').replaceAll('.BO', '').toUpperCase();
+                    final livePrice = rawPrice is num ? rawPrice.toDouble() : double.tryParse(rawPrice.toString()) ?? 0.0;
+                    if (livePrice > 0) {
+                      final chgPct = double.tryParse((s['change'] as String? ?? '0%').replaceAll('%', '').replaceAll('+', '')) ?? 0.0;
+                      final existing = StockRepository.getStock(baseSym);
+                      final updated = existing.copyWith(
+                        price: livePrice,
+                        changePercent: chgPct,
+                        changeAmount: livePrice * (chgPct / 100),
+                      );
+                      StockRepository.registerStock(updated);
+                    }
+                  }
+                  context.push('/stock-detail', extra: s['ticker'] as String);
+                },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 14, vertical: 10),
@@ -1122,7 +1108,7 @@ class MoverRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: () => context.push('/stock-detail/$ticker'),
+        onTap: () => context.push('/stock-detail', extra: ticker),
         child: Row(
           children: [
           // Rank number
