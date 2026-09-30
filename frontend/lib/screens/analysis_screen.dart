@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -2730,6 +2731,8 @@ class _StockSearchSheetState extends State<_StockSearchSheet> {
   final TextEditingController _searchCtrl = TextEditingController();
   List<StockModel> _results = [];
 
+  Timer? _debounceTimer;
+
   @override
   void initState() {
     super.initState();
@@ -2739,26 +2742,60 @@ class _StockSearchSheetState extends State<_StockSearchSheet> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchCtrl.removeListener(_onSearchChanged);
     _searchCtrl.dispose();
     super.dispose();
   }
 
   void _onSearchChanged() {
+    _debounceTimer?.cancel();
     final query = _searchCtrl.text.trim();
     if (query.isEmpty) {
       setState(() {
         _results = StockRepository.stocks;
       });
-    } else {
-      final matches = StockRepository.searchStocks(query);
-      setState(() {
-        _results = matches;
-      });
+      return;
     }
+
+    final matches = StockRepository.searchStocks(query);
+    setState(() {
+      _results = matches;
+    });
+
+    _debounceTimer = Timer(const Duration(milliseconds: 140), () async {
+      try {
+        final serverResults = await ApiService.searchStocks(query, limit: 30);
+        if (!mounted || _searchCtrl.text.trim() != query) return;
+
+        if (serverResults.isNotEmpty) {
+          final models = serverResults.map((item) {
+            final model = StockModel.fromMasterJson(item);
+            StockRepository.registerStock(model);
+            return model;
+          }).toList();
+
+          if (!mounted || _searchCtrl.text.trim() != query) return;
+
+          final existing = _results.map((e) => e.ticker).toSet();
+          final merged = List<StockModel>.from(_results);
+          for (final m in models) {
+            if (!existing.contains(m.ticker)) {
+              merged.add(m);
+            }
+          }
+          setState(() {
+            _results = merged.isNotEmpty ? merged : models;
+          });
+        }
+      } catch (_) {}
+    });
   }
 
   void _selectCustomTicker(String raw) {
+    FocusScope.of(context).unfocus();
+    HapticFeedback.lightImpact();
+    _debounceTimer?.cancel();
     final sym = raw.trim().toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
     if (sym.isNotEmpty) {
       final stock = StockRepository.getStock(sym);
@@ -2872,6 +2909,16 @@ class _StockSearchSheetState extends State<_StockSearchSheet> {
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
+                onSubmitted: (_) {
+                  if (_results.isNotEmpty) {
+                    FocusScope.of(context).unfocus();
+                    HapticFeedback.lightImpact();
+                    _debounceTimer?.cancel();
+                    StockRepository.registerStock(_results.first);
+                    widget.onSelected(_results.first);
+                    Navigator.of(context).pop();
+                  }
+                },
               ),
             ),
           ),
@@ -3031,6 +3078,10 @@ class _StockSearchSheetState extends State<_StockSearchSheet> {
                           ],
                         ),
                         onTap: () {
+                          FocusScope.of(context).unfocus();
+                          HapticFeedback.lightImpact();
+                          _debounceTimer?.cancel();
+                          StockRepository.registerStock(stock);
                           widget.onSelected(stock);
                           Navigator.of(context).pop();
                         },

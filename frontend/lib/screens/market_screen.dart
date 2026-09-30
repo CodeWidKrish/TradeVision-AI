@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -92,6 +94,23 @@ class _MarketScreenState extends State<MarketScreen> {
     }
   }
 
+  void _selectAndOpenStock(StockModel stock) {
+    FocusScope.of(context).unfocus();
+    HapticFeedback.lightImpact();
+    _debounceTimer?.cancel();
+    StockRepository.registerStock(stock);
+    setState(() {
+      _isSearching = false;
+      _isLoadingSearch = false;
+      _searchController.clear();
+      _searchResults = [];
+    });
+    if (widget.onSelectStock != null) {
+      widget.onSelectStock!(stock);
+    }
+    context.push('/stock-detail', extra: stock.ticker);
+  }
+
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
     final q = query.trim();
@@ -104,16 +123,17 @@ class _MarketScreenState extends State<MarketScreen> {
       return;
     }
 
+    final localMatches = StockRepository.searchStocks(q);
     setState(() {
       _isSearching = true;
       _isLoadingSearch = true;
-      _searchResults = StockRepository.searchStocks(q);
+      _searchResults = localMatches;
     });
 
-    _debounceTimer = Timer(const Duration(milliseconds: 120), () async {
+    _debounceTimer = Timer(const Duration(milliseconds: 140), () async {
       try {
         final serverResults = await ApiService.searchStocks(q, limit: 30);
-        if (!mounted || _searchController.text.trim() != q) return;
+        if (!mounted || !_isSearching || _searchController.text.trim() != q) return;
 
         if (serverResults.isNotEmpty) {
           final models = serverResults.map((item) {
@@ -121,15 +141,28 @@ class _MarketScreenState extends State<MarketScreen> {
             StockRepository.registerStock(model);
             return model;
           }).toList();
+
+          if (!mounted || !_isSearching || _searchController.text.trim() != q) return;
+
+          final existingTickers = _searchResults.map((e) => e.ticker).toSet();
+          final merged = List<StockModel>.from(_searchResults);
+          for (final m in models) {
+            if (!existingTickers.contains(m.ticker)) {
+              merged.add(m);
+            }
+          }
+
           setState(() {
-            _searchResults = models;
+            _searchResults = merged.isNotEmpty ? merged : models;
             _isLoadingSearch = false;
           });
         } else {
-          setState(() => _isLoadingSearch = false);
+          if (mounted && _isSearching) {
+            setState(() => _isLoadingSearch = false);
+          }
         }
       } catch (_) {
-        if (mounted) setState(() => _isLoadingSearch = false);
+        if (mounted && _isSearching) setState(() => _isLoadingSearch = false);
       }
     });
   }
@@ -198,6 +231,7 @@ class _MarketScreenState extends State<MarketScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -267,6 +301,11 @@ class _MarketScreenState extends State<MarketScreen> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
+                    onSubmitted: (_) {
+                      if (_searchResults.isNotEmpty) {
+                        _selectAndOpenStock(_searchResults.first);
+                      }
+                    },
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: textColor,
@@ -351,20 +390,18 @@ class _MarketScreenState extends State<MarketScreen> {
                         ),
                       ),
                       ..._searchResults.map((stock) {
-                        return StockRow(
-                          ticker: stock.ticker,
-                          fullName: stock.fullName,
-                          price: stock.priceFormatted,
-                          changePercent: stock.changePercentFormatted,
-                          isPositive: stock.isPositive,
-                          logoColor: stock.logoColor,
-                          logoUrl: stock.logoUrl,
-                          onTap: () {
-                            StockRepository.registerStock(stock);
-                            if (widget.onSelectStock != null) {
-                              widget.onSelectStock!(stock);
-                            }
-                          },
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: AppDim.screenH, vertical: 4),
+                          child: StockRow(
+                            ticker: stock.ticker,
+                            fullName: stock.fullName,
+                            price: stock.priceFormatted,
+                            changePercent: stock.changePercentFormatted,
+                            isPositive: stock.isPositive,
+                            logoColor: stock.logoColor,
+                            logoUrl: stock.logoUrl,
+                            onTap: () => _selectAndOpenStock(stock),
+                          ),
                         );
                       }),
                     ],

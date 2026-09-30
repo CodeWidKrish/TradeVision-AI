@@ -1,32 +1,25 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:flutter/services.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:intl/intl.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/data/stock_data.dart';
-import '../core/models/ohlc_point.dart';
 import '../core/providers/market_ticker_provider.dart';
 import '../widgets/index_card.dart';
 import '../widgets/ticker_logo.dart';
-import '../widgets/live_pulse_badge.dart';
 import '../widgets/animated_press_card.dart';
 import '../widgets/market_depth_widget.dart';
 import '../widgets/signal_badge.dart';
 import '../widgets/chart_type_selector.dart';
-import '../widgets/interactive_stock_chart.dart';
 import '../widgets/real_stock_chart.dart';
 import '../core/providers/chart_pattern_provider.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/clock_provider.dart';
-import '../widgets/ist_clock_widget.dart';
 import '../services/storage_service.dart';
 
 class MarketChartsScreen extends ConsumerStatefulWidget {
@@ -80,6 +73,22 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
     }
   }
 
+  void _selectAndOpenStock(StockModel s) {
+    FocusScope.of(context).unfocus();
+    HapticFeedback.lightImpact();
+    _debounceTimer?.cancel();
+    StockRepository.registerStock(s);
+    setState(() {
+      _selectedStock = s;
+      _selectedTab = 0;
+      _isSearching = false;
+      _isLoadingSearch = false;
+      _searchController.clear();
+      _searchResults = [];
+    });
+    context.push('/stock-detail', extra: s.ticker);
+  }
+
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
     final q = query.trim();
@@ -92,18 +101,19 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
       return;
     }
 
-    // Immediate local search fallback
+    // Immediate local search match for zero-latency response
+    final localMatches = StockRepository.searchStocks(q);
     setState(() {
       _isSearching = true;
       _isLoadingSearch = true;
-      _searchResults = StockRepository.searchStocks(q);
+      _searchResults = localMatches;
     });
 
     // Debounced query to backend covering all 2,595+ NSE/BSE stocks
-    _debounceTimer = Timer(const Duration(milliseconds: 120), () async {
+    _debounceTimer = Timer(const Duration(milliseconds: 140), () async {
       try {
         final serverResults = await ApiService.searchStocks(q, limit: 30);
-        if (!mounted || _searchController.text.trim() != q) return;
+        if (!mounted || !_isSearching || _searchController.text.trim() != q) return;
 
         if (serverResults.isNotEmpty) {
           final models = serverResults.map((item) {
@@ -111,17 +121,31 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
             StockRepository.registerStock(model);
             return model;
           }).toList();
+
+          if (!mounted || !_isSearching || _searchController.text.trim() != q) return;
+
+          // Merge to preserve currently displayed items without destroying active widget instances
+          final existingTickers = _searchResults.map((e) => e.ticker).toSet();
+          final merged = List<StockModel>.from(_searchResults);
+          for (final m in models) {
+            if (!existingTickers.contains(m.ticker)) {
+              merged.add(m);
+            }
+          }
+
           setState(() {
-            _searchResults = models;
+            _searchResults = merged.isNotEmpty ? merged : models;
             _isLoadingSearch = false;
           });
         } else {
-          setState(() {
-            _isLoadingSearch = false;
-          });
+          if (mounted && _isSearching) {
+            setState(() {
+              _isLoadingSearch = false;
+            });
+          }
         }
       } catch (e) {
-        if (mounted) {
+        if (mounted && _isSearching) {
           setState(() {
             _isLoadingSearch = false;
           });
@@ -575,6 +599,7 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -711,6 +736,11 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
+            onSubmitted: (_) {
+              if (_searchResults.isNotEmpty) {
+                _selectAndOpenStock(_searchResults.first);
+              }
+            },
             style: GoogleFonts.inter(
               fontSize: 14,
               color: textColor,
@@ -744,7 +774,16 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
                         _onSearchChanged('');
                       },
                     )
-                  : null,
+                  : (_isLoadingSearch
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : null),
             ),
           ),
         ),
@@ -817,98 +856,102 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
         separatorBuilder: (_, __) => Divider(height: 1, color: borderColor),
         itemBuilder: (context, index) {
           final s = _searchResults[index];
-          return AnimatedPressCard(
-            onTap: () {
-              StockRepository.registerStock(s);
-              setState(() {
-                _selectedStock = s;
-                _selectedTab = 0;
-                _isSearching = false;
-                _searchController.clear();
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  TickerLogo(
-                    ticker: s.ticker,
-                    logoUrl: s.logoUrl,
-                    logoColor: s.logoColor,
-                    size: 40,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              s.ticker,
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                color: textColor,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF0066CC).withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                s.exchange,
+          return Material(
+            key: ValueKey('search-res-${s.ticker}'),
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _selectAndOpenStock(s),
+              splashColor: const Color(0xFF0066CC).withOpacity(0.12),
+              highlightColor: const Color(0xFF0066CC).withOpacity(0.06),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    TickerLogo(
+                      ticker: s.ticker,
+                      logoUrl: s.logoUrl,
+                      logoColor: s.logoColor,
+                      size: 40,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                s.ticker,
                                 style: GoogleFonts.inter(
-                                  fontSize: 10,
-                                  color: const Color(0xFF0066CC),
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: textColor,
                                 ),
                               ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0066CC).withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  s.exchange,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    color: const Color(0xFF0066CC),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            s.fullName,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: const Color(0xFF8892A4),
+                              fontWeight: FontWeight.w400,
                             ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          s.priceFormatted,
+                          style: GoogleFonts.robotoMono(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: textColor,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          s.fullName,
+                          s.changePercentFormatted,
                           style: GoogleFonts.inter(
+                            color: s.isPositive
+                                ? const Color(0xFF00C853)
+                                : const Color(0xFFFF3B3B),
                             fontSize: 12,
-                            color: const Color(0xFF8892A4),
-                            fontWeight: FontWeight.w400,
+                            fontWeight: FontWeight.w600,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        s.priceFormatted,
-                        style: GoogleFonts.robotoMono(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        s.changePercentFormatted,
-                        style: GoogleFonts.inter(
-                          color: s.isPositive
-                              ? const Color(0xFF00C853)
-                              : const Color(0xFFFF3B3B),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 13,
+                      color: Color(0xFF8892A4),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
