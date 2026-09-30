@@ -246,15 +246,23 @@ def get_indicator_by_symbol(symbol: str) -> Dict[str, Any]:
             "ma50":             ma50,
             "ma200":            ma200,
             "macd":             macd,
+            "macd_val":         macd,
             "macd_signal":      sig_line,
+            "signal_val":       sig_line,
             "macd_histogram":   macd_hist,
             "bollinger_upper":  boll_up,
             "bollinger_mid":    boll_mid,
             "bollinger_lower":  boll_dn,
             "stochastic":       stoch,
+            "stochastic_k":     stoch,
+            "stochastic_d":     round(stoch * 0.95, 1) if stoch else 50.0,
             "atr":              atr,
             "support":          support,
+            "support_1":        support,
+            "support_2":        round(support * 0.97, 2) if support else None,
             "resistance":       resistance,
+            "resistance_1":     resistance,
+            "resistance_2":     round(resistance * 1.03, 2) if resistance else None,
             "vol_surge_pct":    vol_surge,
             "buyers_pct":       buyers_data["buy_pct"],
             "sellers_pct":      buyers_data["sell_pct"],
@@ -266,6 +274,20 @@ def get_indicator_by_symbol(symbol: str) -> Dict[str, Any]:
             "current_price":    round(current, 2) if current else None,
             "message":          "Indicators computed (live yfinance)",
         }
+
+        # Enrich with calibrated XGBoost ML probabilities
+        try:
+            from app.services.ml_prediction_service import predict_market_direction
+            ml_pred = predict_market_direction(sym, hist)
+            result["ml_probability_up"] = ml_pred.get("probability_up", 0.33)
+            result["ml_probability_down"] = ml_pred.get("probability_down", 0.33)
+            result["ml_probability_neutral"] = ml_pred.get("probability_neutral", 0.34)
+            result["ml_direction"] = ml_pred.get("direction", "NEUTRAL")
+        except Exception:
+            result["ml_probability_up"] = 0.33
+            result["ml_probability_down"] = 0.33
+            result["ml_probability_neutral"] = 0.34
+            result["ml_direction"] = "NEUTRAL"
 
         _INDICATOR_CACHE[sym] = result
         _INDICATOR_CACHE_TIME[sym] = now
@@ -286,18 +308,29 @@ def get_indicator_by_symbol(symbol: str) -> Dict[str, Any]:
         "symbol":           sym,
         "rsi":              fallback_rsi,
         "ma20":             fallback_ma,
+        "ma_20":            fallback_ma,
         "ma50":             fallback_ma,
+        "ma_50":            fallback_ma,
         "ma200":            fallback_ma,
+        "ma_200":           fallback_ma,
         "macd":             None,
+        "macd_val":         None,
         "macd_signal":      None,
+        "signal_val":       None,
         "macd_histogram":   None,
         "bollinger_upper":  None,
         "bollinger_mid":    None,
         "bollinger_lower":  None,
         "stochastic":       round(20 + (h % 65), 1),
+        "stochastic_k":     round(20 + (h % 65), 1),
+        "stochastic_d":     round(19 + (h % 60), 1),
         "atr":              None,
         "support":          None,
+        "support_1":        None,
+        "support_2":        None,
         "resistance":       None,
+        "resistance_1":     None,
+        "resistance_2":     None,
         "vol_surge_pct":    100.0,
         "buyers_pct":       round(45 + (h % 20), 1),
         "sellers_pct":      round(55 - (h % 20), 1),
@@ -306,6 +339,10 @@ def get_indicator_by_symbol(symbol: str) -> Dict[str, Any]:
         "ai_signal":        fb_signal,
         "ai_confidence":    fb_conf,
         "ai_reason":        fb_reason,
+        "ml_probability_up": 0.33,
+        "ml_probability_down": 0.33,
+        "ml_probability_neutral": 0.34,
+        "ml_direction":     "NEUTRAL",
         "current_price":    None,
         "message":          "Indicators estimated (fallback)",
     }

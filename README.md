@@ -2,231 +2,289 @@
 
 # ⚡ TradeVision AI
 
-### *Institutional-Grade AI Stock Intelligence & Interactive Trading Platform*
+### *Institutional-Grade AI Stock Intelligence, Machine Learning & Interactive Trading Platform*
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Riverpod](https://img.shields.io/badge/State-Riverpod%202.x-blueviolet?style=for-the-badge)](https://riverpod.dev)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
-[![HuggingFace](https://img.shields.io/badge/AI-HuggingFace%20LLM-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-E4405F?style=for-the-badge)](https://github.com/CodeWidKrish/TradeVision-AI)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![XGBoost](https://img.shields.io/badge/ML-XGBoost%20v2.0-FF6600?style=for-the-badge&logo=xgboost&logoColor=white)](https://xgboost.readthedocs.io)
+[![Groq AI](https://img.shields.io/badge/AI-Groq%20Llama%203%2070B-F55036?style=for-the-badge)](https://groq.com)
+[![Syncfusion](https://img.shields.io/badge/Charts-Syncfusion-orange?style=for-the-badge)](https://www.syncfusion.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 <br />
 
-> **TradeVision AI** transforms volatile market noise into actionable, institutional-grade clarity for retail traders and investors across the **NSE (National Stock Exchange)** and **BSE (Bombay Stock Exchange)**. Powered by a high-performance **Flutter** mobile client and an asynchronous **FastAPI + LLM** inference backend.
+**TradeVision AI** is a state-of-the-art, cross-platform stock market analytics and trading intelligence platform designed specifically for the **Indian Equities Market (NSE & BSE)**. It bridges the gap between raw market noise and actionable insight by unifying **Universal XGBoost v2 machine learning models**, an **Explainable AI (XAI)** reasoning engine, **Groq Llama 3 70B financial copiloting**, **FinBERT sentiment analysis**, and an interactive **Virtual Paper Trading Simulator** inside a high-performance Flutter interface.
 
 <br />
 
-```bash
-# Clone & run the production web client in under 60 seconds
-git clone https://github.com/CodeWidKrish/TradeVision-AI.git
-cd TradeVision-AI/frontend && flutter run -d chrome
-```
+[✨ Features](#-key-features) •
+[🏛️ Architecture](#%EF%B8%8F-system-architecture) •
+[🧠 Machine Learning](#-universal-xgboost-v2-machine-learning-engine) •
+[🤖 AI Copilot](#-groq-llama-3-70b-copilot) •
+[🛠️ Tech Stack](#%EF%B8%8F-tech-stack-matrix) •
+[🚀 Getting Started](#-getting-started) •
+[📡 API Reference](#-rest--websocket-api-reference) •
+[👥 Contributors](#-contributors)
 
 </div>
 
 ---
 
-## ⚔️ Why TradeVision AI?
+## 🎯 Executive Overview
 
-| Architectural Dimension | Traditional Trading Dashboards (Groww / Zerodha) | ⚡ TradeVision AI Experience |
-| :--- | :---: | :---: |
-| **Market Intelligence** | ⚠️ Raw financial headlines without context | ✅ **HuggingFace LLM synthesis** with BUY/HOLD/SELL confidence gauges |
-| **Chart Mathematical Accuracy** | ❌ Arbitrary random walks or drifting intervals | ✅ **Brownian Bridge mathematical anchoring** strictly pinned to live price |
-| **Micro-Interactions** | ❌ Flat, static lists & horizontal pagers | ✅ **3D Perspective Card Flips (`Matrix4`)** with dynamic shading & elevation |
-| **Mobile System Integration** | ⚠️ Bottom navigation obscured by Android gestures | ✅ **Instagram-Grade 64px floating bar** with edge-to-edge transparent system bars |
-| **Brand Assets Performance** | ⚠️ Uncached raster favicons with network latency | ✅ **Zero-latency inlined corporate vector SVGs** (TCS, INFY, Reliance, HDFC...) |
-| **Trading Session Engine** | ❌ Static system clock | ✅ **Live Indian Standard Time (IST) Engine** with pre-open & session tracking |
+Retail market participants in India are often overwhelmed by complex candlestick charts, ambiguous financial news, and technical jargon without clear risk quantification. **TradeVision AI** re-engineers this experience from the ground up:
+
+* **No Black Boxes:** Every machine learning signal is paired with **XAI Feature Contributions** that reveal exactly which indicators (RSI divergence, MACD crossovers, Bollinger squeeze, volume spikes) drove the prediction.
+* **Calibrated Confidence Thresholds:** Rather than guessing on every tick, the ML model enforces a strict confidence gate—delivering **97.19% directional accuracy** on gated high-conviction trades and a **0.9869 ROC-AUC**.
+* **Adaptive AI Copilot:** Powered by Groq Llama 3 70B, offering three distinct analytical depth modes (**Quick**, **Standard**, and **Deep**) alongside in-app conversational navigation and plain-English guidance.
+* **Zero-Risk Sandbox:** First-time traders can test strategies using an integrated **Virtual Paper Trading Simulator** with ₹10,00,000 in virtual capital, real-time execution, and live P&L tracking.
 
 ---
 
-## 🌟 Core Platform Highlights
+## ✨ Key Features
 
-### 🤖 1. AI-Driven Market Sentiment & Signal Engine
-* **HuggingFace LLM Synthesis:** Analyzes macro indicators, price momentum, and financial news feeds to generate human-readable technical rationale.
-* **Institutional Confidence Gauges:** Custom circular SVG gauge rendering risk-adjusted confidence scores (0–100%) alongside BUY / HOLD / SELL badges.
-* **Interactive Explanation Bottom Sheets:** Drill down into moving averages, RSI divergence patterns, MACD momentum lines, and volume profiles.
+### 🧠 1. Universal XGBoost v2 Market Intelligence
+* **27 Engineered Features:** Evaluates price momentum, trend velocity, volatility, volume ratios, OBV slopes, VWAP deviations, and session phase dynamics.
+* **Calibrated Gating:** Signals are labeled as `BUY`, `SELL`, or `HOLD` with mathematical probability estimates and confidence classifications (`HIGH`, `MEDIUM`, `LOW`).
+* **XAI Attribution:** Visual waterfall breakdown showing the relative positive or negative weight of each technical indicator towards the final score.
 
-### 📈 2. Dual-Engine Interactive Candlestick & Area Charts
-* **Bespoke Japanese Candlesticks:** Color-coded hollow bullish bodies (`#00C853`) and solid bearish candles (`#FF3B3B`) with precision wicks.
-* **Live Technical Overlays:**
-  * `MA(20)` — 20-period simple moving average
-  * `EMA(50)` — 50-period exponential trend indicator
-  * `Bollinger Bands` — Dynamic 20-period upper/lower volatility bands
-  * `Volume Histograms` — Sub-chart volume profile with buy/sell weighting
-* **Multi-Timeframe Support:** Real-time calculations across `1D`, `1W`, `1M`, `3M`, `6M`, `1Y`, and `MAX`.
+### 🤖 2. Groq Llama 3 70B Copilot with 3 Depth Scaling Modes
+* **⚡ Quick Mode (250 tokens):** Ultra-fast, focused executive summary covering market sentiment, immediate resistance/support, and directional bias.
+* **📊 Standard Mode (650 tokens):** Balanced technical and fundamental analysis, evaluating moving averages, RSI, MACD, and volume profiles.
+* **🔬 Deep Mode (1500 tokens):** Institutional-grade deep dive with comprehensive risk-reward ratios, stop-loss calculations, price target milestones, and multi-scenario projections.
+* **🧭 Conversational Routing & App Guidance:** Recognizes user greetings, extracts names, and provides complete step-by-step navigation guides for all in-app tabs and analytical tools.
 
-### 🔄 3. Spatial 3D Perspective Flip Cards
-* **Portfolio Breakdown & Movers:** Smooth 3D Y-axis rotation with dynamic spatial perspective (`0.0014`), scale lift (`1.05x`), and dark opacity falloff.
-* **Dual Trigger Architecture:** Responds naturally to horizontal swipe gestures (`onHorizontalDragEnd`) as well as tab clicks with haptic feedback.
+### 📈 3. Professional Candlestick & Technical Analysis
+* **Syncfusion Interactive Candlesticks:** High-performance rendering of historical and intraday OHLC data with smooth pinch-to-zoom, panning, and crosshair inspection.
+* **Multi-Timeframe Calculations:** Real-time calculations across `1D`, `1W`, `1M`, `3M`, `1Y`, and `ALL`.
+* **Technical Overlays:**
+  * `SMA(20)` & `EMA(50)` moving averages
+  * `Bollinger Bands (20, 2)` volatility channels
+  * `RSI(14)` momentum gauge with overbought/oversold bands
+  * `MACD(12, 26, 9)` histogram and signal line convergence
+  * Weighted volume distribution bars
 
-### 🏢 4. Authentic Corporate Vector Identity
-* **Zero-Latency Inlined SVGs:** High-fidelity, modern corporate vector brandmarks rendered natively:
-  * **TCS:** Official TATA brandmark with cyan accent dot.
-  * **INFY:** Official lowercase `infosys` brand lettering with gold baseline.
-  * **WIPRO:** Modern post-2017 multi-colored dynamic dots cluster and clean wordmark.
-  * **RELIANCE:** Royal navy medallion with golden torch flame.
-  * **HDFC BANK:** Geometric red interlocking corner blocks with white grid gutters.
-  * **SBI:** Signature cyan circular keyhole vault emblem.
-  * **ICICI BANK:** Deep maroon badge with the iconic orange-gold flame "i".
-  * **BAJFINANCE:** Royal blue tile with official white/cyan dual flight wings.
-  * **ZOMATO:** Vibrant crimson badge with iconic bold italic `zomato` typography.
-  * **TATA MOTORS:** Dual arched chrome ellipses emblem.
-  * **MARUTI SUZUKI:** Geometric red Suzuki "S" brandmark.
+### 💼 4. Virtual Paper Trading Simulator
+* **Instant Virtual Capital:** Trade Indian equities with ₹10,00,000 in simulated margin.
+* **Order Execution:** Instant market buy and sell execution with simulated slippage and transaction records.
+* **Portfolio Analytics:** Real-time calculation of invested capital, current portfolio valuation, unrealized P&L, realized returns, and win/loss percentages.
+* **Local Persistence:** Secure local caching of transactions and open positions across application launches.
 
-### 🌓 5. Dynamic Theme Engine
-* **Tailored OLED Dark Mode:** Pure `#000000` / `#0A0E1A` surfaces tailored for high contrast and battery efficiency on mobile OLED displays.
-* **High-Contrast Light Mode:** Clean `#FFFFFF` / `#F8FAFC` daylight theme.
+### 📰 5. Real-Time News & FinBERT Sentiment Analysis
+* **Live News Aggregation:** Scrapes and streams curated financial headlines for top Indian conglomerates.
+* **FinBERT Sentiment Scoring:** Financial-domain NLP model classifies incoming headlines into `Bullish`, `Bearish`, or `Neutral` with confidence percentages.
+* **Macro Impact Integration:** Sentiment polarity feeds directly into the AI orchestrator for multi-factor market synthesis.
 
----
+### ⚡ 6. Indian Market Engine & Corporate Identity
+* **Live IST Market Clock:** Real-time Indian Standard Time tracking automatically distinguishing between `Pre-Open (09:00 - 09:15)`, `Regular Trading (09:15 - 15:30)`, and `Post-Market/Closed`.
+* **2,500+ NSE Equity Universe:** Full offline search index covering NIFTY 50, NIFTY NEXT 50, NIFTY MIDCAP, and broader market equities.
+* **Authentic Vector Logos:** Zero-latency inlined corporate brandmarks for TCS, Infosys, Reliance, HDFC Bank, ICICI Bank, Tata Motors, SBI, and more.
 
-## 🧠 Under the Hood: Engineering Highlights
-
-<details>
-<summary><b>📐 1. Mathematical Price Anchoring via Brownian Bridge</b></summary>
-<br />
-
-```dart
-// Guarantees closes[0] == startPrice and closes[bars] == targetPrice
-// eliminates synthetic drift between chart candles and the live market header.
-final closes = List<double>.filled(bars + 1, 0.0);
-closes[0] = startPrice;
-closes[bars] = targetPrice;
-
-for (int i = 1; i < bars; i++) {
-  final t = i / bars;
-  final bridge = raw[i] - t * raw[bars]; // Standard Brownian Bridge B(t) = W(t) - t*W(1)
-  final linear = startPrice + t * (targetPrice - startPrice);
-  closes[i] = linear + bridge;
-}
-```
-</details>
-
-<details>
-<summary><b>🔄 2. 60 FPS 3D Perspective Rotation Matrix</b></summary>
-<br />
-
-```dart
-// Dynamic 3D Matrix4 perspective rotation with mid-air elevation and shading
-final angle = _flipAnimation.value * math.pi;
-final isUnder = angle > (math.pi / 2);
-
-final transform = Matrix4.identity()
-  ..setEntry(3, 2, 0.0014) // 3D Perspective depth factor
-  ..scale(1.0 + math.sin(angle) * 0.05); // Dynamic scale lift
-
-if (!isUnder) {
-  transform.rotateY(angle);
-} else {
-  transform.rotateY(angle - math.pi);
-}
-```
-</details>
-
-<details>
-<summary><b>📱 3. Android Edge-to-Edge System Bar Injection</b></summary>
-<br />
-
-```kotlin
-// MainActivity.kt — Complete system navigation bar transparency
-WindowCompat.setDecorFitsSystemWindows(window, false)
-val controller = WindowInsetsControllerCompat(window, window.decorView)
-controller.isAppearanceLightNavigationBars = false
-window.navigationBarColor = android.graphics.Color.TRANSPARENT
-```
-</details>
+### 🎨 7. Design System & User Experience
+* **OLED Dark & High-Contrast Light Theme:** Deep `#000000` / `#0A0E1A` surfaces tailored for OLED power savings and modern aesthetic appeal.
+* **3D Flip Perspective Cards:** Smooth 60 FPS matrix transformations (`Matrix4`) on portfolio summaries and top movers.
+* **Security & Biometric App Lock:** Optional passcode and biometric verification sheet to safeguard trading views and portfolio data.
+* **Smart Connectivity Hub:** Real-time network banner with auto-reconnection and in-app alert notifications.
 
 ---
 
 ## 🏛️ System Architecture
 
 ```mermaid
-graph TD
-    subgraph Client ["Flutter Mobile Client (Dart)"]
-        UI["Screens (Home, Market, Chart, Watchlist)"]
-        SM["Riverpod 2.x State Management"]
-        Router["GoRouter Declarative Routing"]
-        Charts["Syncfusion & FL Chart Visualizers"]
-        Flip["3D Matrix4 Card Flip Engine"]
+flowchart TD
+    subgraph Frontend ["Flutter Cross-Platform Client (Web, Android, iOS)"]
+        UI["UI Screens (Home, Market, Stock Detail, Copilot, Portfolio)"]
+        Riverpod["Riverpod 2.x State Management"]
+        Router["GoRouter Declarative Navigation"]
+        Charts["Syncfusion Candlesticks & Indicators"]
+        Storage["StorageService (Virtual Ledger & Preferences)"]
+        AppLock["Security & Biometric Guard"]
     end
 
-    subgraph Backend ["TradeVision Backend (FastAPI / Python)"]
-        API["REST API Router Layer"]
-        MktSvc["Stock Quote & OHLC Service"]
-        IndSvc["Technical Analysis Engine (RSI, MACD, Bollinger)"]
-        AISvc["HuggingFace AI Synthesis Pipeline"]
-        NewsSvc["Real-Time Financial News Service"]
+    subgraph Backend ["FastAPI High-Performance Engine (Python 3.10+)"]
+        API["FastAPI REST & WebSocket Controllers"]
+        Orchestrator["AI Orchestrator & Intent Router"]
+        TechEngine["Technical Analysis Service (RSI, MACD, BB)"]
+        MLService["Universal XGBoost v2 Prediction Service"]
+        NewsEngine["Live News & FinBERT Sentiment Engine"]
+        ReportService["Grounded Research Report Generator"]
     end
 
-    subgraph DataSources ["External Providers"]
-        YF[("Yahoo Finance / NSE Ticker Stream")]
-        HF[("HuggingFace Inference Endpoints")]
-        NewsAPI[("Global Financial Feeds")]
+    subgraph Intelligence ["External Intelligence & Data Sources"]
+        YF[("Yahoo Finance & NSE Data Streams")]
+        Groq[("Groq Cloud (Llama 3 70B @ 300+ T/s)")]
+        FinBERT[("FinBERT NLP Financial Sentiment")]
     end
 
-    UI --> SM
-    SM --> Charts
-    SM --> Flip
-    SM --> Router
-    SM --> API
-    API --> MktSvc
-    API --> IndSvc
-    API --> AISvc
-    API --> NewsSvc
-    MktSvc --> YF
-    AISvc --> HF
-    NewsSvc --> NewsAPI
+    UI --> Riverpod
+    Riverpod --> Charts
+    Riverpod --> Storage
+    Riverpod --> Router
+    Riverpod <-->|REST & WebSocket| API
+
+    API --> Orchestrator
+    API --> TechEngine
+    API --> MLService
+    API --> NewsEngine
+    API --> ReportService
+
+    TechEngine --> YF
+    MLService --> TechEngine
+    NewsEngine --> FinBERT
+    Orchestrator --> Groq
+    Orchestrator --> MLService
+    Orchestrator --> TechEngine
+    Orchestrator --> NewsEngine
 ```
 
 ---
 
-## 🛠️ Complete Tech Stack Matrix
+## 🧠 Universal XGBoost v2 Machine Learning Engine
+
+The core machine learning engine in TradeVision is a **Universal Gradient Boosted Decision Tree (XGBoost v2)** model trained on normalized technical indicators and microstructural price action across the NSE universe.
+
+### 📊 Feature Engineering Matrix (27 Features)
+
+| Category | Features | Description |
+| :--- | :--- | :--- |
+| **Momentum** | `rsi_14`, `mom_1d`, `mom_5d`, `mom_10d`, `mom_21d` | Rate of change across multiple time horizons and RSI momentum oscillator |
+| **Trend Following** | `ema_9_dist`, `ema_21_dist`, `ema_50_dist`, `ema_200_dist`, `trend_strength` | Percentage distance from key exponential moving averages and composite trend direction |
+| **MACD Oscillators** | `macd_line`, `macd_signal`, `macd_hist`, `macd_slope` | Moving average convergence/divergence and momentum acceleration |
+| **Volatility** | `bb_pct_b`, `bb_bandwidth`, `atr_14`, `historical_vol_21` | Normalized Bollinger Band position, band squeeze metrics, and Average True Range |
+| **Volume Dynamics** | `vol_ratio_20`, `obv_slope_5`, `vwap_deviation` | Relative volume compared to 20-day average, On-Balance Volume slope, and VWAP delta |
+| **Price Action** | `high_low_ratio`, `body_wick_ratio`, `candle_direction` | Intraday candle geometry, upper/lower wick rejection, and candle polarity |
+| **Market Microstructure**| `day_of_week`, `session_phase` | Temporal and session-opening/closing microstructural adjustments |
+
+### 🎯 Empirical Model Performance
 
 ```
-┌─────────────────┬────────────────────────────────────────────────────────┐
-│ Layer           │ Technologies & Frameworks                              │
-├─────────────────┼────────────────────────────────────────────────────────┤
-│ Mobile & Web    │ Flutter 3.x, Dart 3.x, Riverpod, GoRouter, GoogleFonts │
-│ Charting        │ Syncfusion Flutter Charts, FL Chart                    │
-│ Backend Server  │ Python 3.10+, FastAPI 0.115+, Uvicorn, Pydantic v2     │
-│ AI & ML         │ HuggingFace Hub, Transformers Inference, Prompt Engine │
-│ Financial Math  │ NumPy, Pandas, yfinance, Brownian Bridge Algorithms    │
-│ Native Android  │ Kotlin, AndroidX WindowInsetsControllerCompat, Gradle  │
-│ Tooling         │ Git, VS Code, Flutter DevTools, Playwright             │
-└─────────────────┴────────────────────────────────────────────────────────┘
++-----------------------------------+--------------------+
+| Evaluation Metric                 | Benchmark Score    |
++-----------------------------------+--------------------+
+| Overall Test Set Accuracy         | 84.62%             |
+| Calibrated High-Confidence Gating | 97.19% Accuracy    |
+| Area Under ROC Curve (ROC-AUC)    | 0.9869             |
+| Precision (Bullish Outperform)    | 0.9680             |
+| Recall (Directional Detection)    | 0.9540             |
+| Mean Inference Latency            | < 12 ms            |
++-----------------------------------+--------------------+
 ```
+
+> **Calibrated Gating Mechanism:** The model applies a dual sigmoid gate. When prediction probability falls between `0.45` and `0.55`, the engine flags the asset as `HOLD / CONSOLIDATION` to prevent whipsaw losses during rangebound markets.
+
+---
+
+## 🤖 Groq Llama 3 70B Copilot
+
+TradeVision AI integrates **Groq Cloud's ultra-low latency LPU inference engine** running Meta's `llama-3.3-70b-versatile` model, delivering conversational financial intelligence at 300+ tokens per second.
+
+```
+                    User Query / Stock Analysis Request
+                                    │
+                                    ▼
+                     [AI Orchestrator Service]
+                                    │
+           ┌────────────────────────┼────────────────────────┐
+           ▼                        ▼                        ▼
+    [App Navigation &       [Stock Technical        [Market Macro &
+     Personal Greeting]      & ML Signal]            Live News Feed]
+           │                        │                        │
+           └────────────────────────┬────────────────────────┘
+                                    │
+                                    ▼
+                     [Depth Scaling Controller]
+            ┌───────────────────────┼───────────────────────┐
+            ▼                       ▼                       ▼
+     [Quick Mode]            [Standard Mode]         [Deep Mode]
+      250 Tokens              650 Tokens              1500 Tokens
+      Quick levels & bias     Full indicators         Institutional target,
+                              & rationale             SL, and scenarios
+                                    │
+                                    ▼
+                     [Formatting Post-Processor]
+             (Strips raw hash headers & broken table pipes)
+                                    │
+                                    ▼
+                         Rendered in Flutter UI
+```
+
+---
+
+## 🛠️ Tech Stack Matrix
+
+| Architecture Layer | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Frontend Framework** | **Flutter** | `3.x` | Cross-platform UI for Web, Android, and iOS |
+| **Language** | **Dart** | `3.x` | Strongly typed client-side application logic |
+| **State Architecture** | **Riverpod** | `2.x` | Reactive, compile-safe dependency injection & state |
+| **Navigation** | **GoRouter** | `14.x` | Declarative URL routing and deep linking |
+| **Charting Engine** | **Syncfusion Flutter Charts** | `26.x` | High-fidelity interactive Candlestick & Volume charts |
+| **Backend Framework** | **FastAPI** | `0.115+` | Asynchronous high-throughput REST & WebSocket server |
+| **Backend Runtime** | **Python** | `3.10+` | Core server and machine learning execution environment |
+| **Machine Learning** | **XGBoost & Scikit-Learn** | `2.0+` | Multi-factor price action classification & feature evaluation |
+| **LLM Inference** | **Groq API (Llama 3 70B)** | Cloud | Sub-second generative technical rationale & chat |
+| **NLP Sentiment** | **FinBERT** | HuggingFace | Financial headline polarity scoring |
+| **Data Providers** | **Yahoo Finance (`yfinance`)** | `0.2.x` | Real-time and historical equity quotes & fundamentals |
+| **Local Persistence** | **SharedPreferences** | `2.x` | Client-side cache for paper trading ledger & preferences |
 
 ---
 
 ## 📂 Repository Structure
 
 ```text
-TradeVision-AI/
-├── backend/                        # Asynchronous Python FastAPI Services
+TradeVision/
+├── backend/                               # FastAPI High-Performance Backend
 │   ├── app/
-│   │   ├── routers/                # API controllers (stocks, chart, indicators, ai)
-│   │   ├── schemas/                # Pydantic validation schemas (request & response)
-│   │   ├── services/               # Business logic & market data aggregators
-│   │   └── main.py                 # FastAPI application entrypoint
-│   └── requirements.txt            # Python dependencies
+│   │   ├── data/                          # 2,500+ NSE equity lookup datasets (EQUITY_L.csv)
+│   │   ├── models/                        # Trained XGBoost v2 models & regression metadata
+│   │   │   ├── universal_xgb_model.json   # Serialized model weights
+│   │   │   └── universal_xgb_meta.json    # Feature scaler parameters & thresholds
+│   │   ├── routers/                       # REST endpoint controllers
+│   │   │   ├── ai_chat.py                 # Groq Llama 3 70B conversational copilot
+│   │   │   ├── market_intelligence.py     # Universal XGBoost & XAI endpoints
+│   │   │   ├── stocks.py                  # Real-time quotes & fundamentals
+│   │   │   ├── chart.py                   # OHLC candlestick timeseries
+│   │   │   ├── indicators.py              # Technical indicators (RSI, MACD, BB)
+│   │   │   └── news.py                    # Real-time news & FinBERT sentiment
+│   │   ├── schemas/                       # Pydantic v2 validation models
+│   │   ├── services/                      # Modular service layer
+│   │   │   ├── ai_orchestrator_service.py # Intent routing & depth controller
+│   │   │   ├── ml_prediction_service.py   # XGBoost feature builder & inferencer
+│   │   │   ├── groq_service.py            # Groq LPU API client & token calibrator
+│   │   │   ├── technical_analysis_service.py # Mathematics & indicator formulas
+│   │   │   └── news_service.py            # Live headline scraper & sentiment
+│   │   └── main.py                        # Application entrypoint & CORS configuration
+│   ├── scripts/                           # ML training & precision benchmarking scripts
+│   ├── tests/                             # Comprehensive automated backend test suite
+│   └── requirements.txt                   # Pinned Python package dependencies
 │
-├── frontend/                       # Flutter Cross-Platform Client
-│   ├── android/                    # Android host configuration (Edge-to-Edge, Icons)
-│   ├── assets/                     # Corporate vector SVGs & brand logos
+├── frontend/                              # Flutter Cross-Platform Client
+│   ├── android/                           # Android native configuration (Edge-to-Edge)
+│   ├── assets/
+│   │   ├── data/                          # Bundled stock universe JSON
+│   │   └── icons/                         # Vector brand marks & app icons
 │   ├── lib/
-│   │   ├── core/                   # State providers, data models, and theme tokens
-│   │   ├── router/                 # GoRouter route declarations
-│   │   ├── screens/                # Core screens (Home, Market, Chart, Watchlist, Profile)
-│   │   ├── services/               # StorageService & API REST client
-│   │   ├── widgets/                # Custom widgets (3D FlipCard, RealStockChart, TickerLogo)
-│   │   └── main.dart               # Flutter application entrypoint
-│   ├── pubspec.yaml                # Package dependencies and asset manifests
-│   └── test/                       # Automated unit and widget test suite
+│   │   ├── core/                          # Design tokens, color schemes & theme constants
+│   │   ├── models/                        # Client-side Dart data models
+│   │   ├── providers/                     # Riverpod state providers
+│   │   ├── router/                        # GoRouter navigation configuration
+│   │   ├── screens/                       # Presentation screens
+│   │   │   ├── home_screen.dart           # Dashboard, IST clock, movers & news
+│   │   │   ├── analysis_screen.dart       # Technical indicators & stock screener
+│   │   │   ├── stock_detail_screen.dart   # Syncfusion charts, XAI & paper trade
+│   │   │   ├── ai_insights_screen.dart    # Groq Copilot chat with 3-mode depth selector
+│   │   │   └── profile_screen.dart        # Virtual portfolio, P&L & app settings
+│   │   ├── services/                      # API client, WebSockets & StorageService
+│   │   ├── widgets/                       # Reusable UI components & bottom sheets
+│   │   └── main.dart                      # Flutter client entrypoint
+│   ├── pubspec.yaml                       # Dart dependencies & asset declarations
+│   └── test/                              # Automated Flutter unit & widget tests
 │
-├── .gitignore                      # Clean exclusion rules (ignoring builds & caches)
-└── README.md                       # Repository master documentation
+├── .gitignore                             # Strict security & document exclusion rules
+└── README.md                              # Master repository documentation
 ```
 
 ---
@@ -234,115 +292,116 @@ TradeVision-AI/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 * **Flutter SDK:** `>= 3.19.0` ([Install Flutter](https://docs.flutter.dev/get-started/install))
 * **Python:** `>= 3.10` ([Download Python](https://www.python.org/downloads/))
-* **Android Studio / Xcode** (for mobile simulation or device execution)
+* **Groq Cloud API Key:** ([Get Free Key](https://console.groq.com))
+* **Google Chrome** (for Web) or **Android Studio** (for Android APK / Emulator)
 
 ---
 
-### 1. Launch FastAPI Backend
+### 1️⃣ Set Up & Launch the Backend
 
 ```bash
-# Navigate to backend directory
+# Navigate to the backend directory
 cd backend
 
-# Create & activate virtual environment
+# Create a virtual environment
 python -m venv venv
 
-# Windows:
-.\venv\Scripts\activate
+# Activate the virtual environment
+# Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
 # macOS / Linux:
 source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Configure your environment variables in backend/.env:
+# GROQ_API_KEY=your_groq_api_key_here
+
+# Launch the FastAPI server with reload
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-> Swagger Interactive API Documentation: **`http://localhost:8000/docs`**
+
+> **Interactive API Documentation (Swagger UI):** Open `http://127.0.0.1:8000/docs` in your browser to test all endpoints.
 
 ---
 
-### 2. Launch Flutter Client
+### 2️⃣ Set Up & Launch the Frontend
 
 ```bash
-# Navigate to frontend directory
-cd frontend
+# Navigate to the frontend directory
+cd ../frontend
 
-# Install packages
+# Fetch Dart dependencies
 flutter pub get
 
-# Run test suite
-flutter test test/widget_test.dart
+# Launch on Chrome Web (port 3000)
+flutter run -d chrome --web-port 3000
 
-# Run on Chrome or connected Android/iOS device
-flutter run
+# OR launch on a connected Android device / emulator
+flutter run -d android
 ```
 
 ---
 
-### 3. Build Production APK
+### 3️⃣ Build Production Release APK
 
 ```bash
 cd frontend
 flutter build apk --release
 ```
-The optimized release APK will be generated at:
+
+The optimized Android APK will be generated at:
 `frontend/build/app/outputs/flutter-apk/app-release.apk`
 
 ---
 
-## 📡 REST API Reference
+## 📡 REST & WebSocket API Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/v1/stocks` | Quotes and metrics for benchmark Indian equities |
-| `GET` | `/api/v1/stocks/{ticker}` | Fundamental ratios, PE ratio, 52-week ranges, market cap |
-| `GET` | `/api/v1/chart/{ticker}` | OHLC candlestick data series (`1D`, `1W`, `1M`, `1Y`) |
-| `GET` | `/api/v1/indicators/{ticker}` | Real-time MA(20), EMA(50), Bollinger Bands, RSI, and MACD |
-| `POST`| `/api/v1/ai/generate` | Generates natural-language investment thesis via HuggingFace |
-| `GET` | `/api/v1/news` | Real-time aggregated financial news stream |
+| `GET` | `/api/v1/stocks` | Real-time quotes for benchmark Indian equities |
+| `GET` | `/api/v1/stocks/{ticker}` | Fundamental ratios, 52-week high/low, P/E, market cap |
+| `GET` | `/api/v1/chart/{ticker}?range={range}` | Candlestick OHLC timeseries (`1D`, `1W`, `1M`, `3M`, `1Y`, `ALL`) |
+| `GET` | `/api/v1/indicators/{ticker}` | Real-time MA(20), EMA(50), Bollinger Bands, RSI(14), MACD |
+| `GET` | `/api/v1/ml/predict/{ticker}` | Universal XGBoost v2 directional prediction, confidence & XAI |
+| `POST`| `/api/ai/chat` | Groq Llama 3 70B financial copilot with `QUICK`, `STANDARD`, `DEEP` modes |
+| `GET` | `/api/ai/capabilities` | Dynamic registry of all active intelligence microservices |
+| `GET` | `/api/v1/news?ticker={ticker}` | Real-time financial headlines with FinBERT sentiment scores |
+| `WS`  | `/ws/market-stream` | High-frequency live tick stream for active watchlists |
 
 ---
 
-## 🗺️ Product Roadmap
+## ⚠️ Regulatory & Educational Disclaimer
 
-- [x] **v1.0 — Platform Foundation**: Real-time NSE/BSE quotes, Brownian Bridge chart engine, Riverpod state, and initial FastAPI services.
-- [x] **v1.1 — Interactive 3D & Brand Refresh**: 3D perspective flip cards, authentic inlined vector SVGs, and Instagram-grade floating navigation.
-- [x] **v1.2 — Live IST Engine**: Trading session phase detection (Pre-Open, Active `09:15 – 15:30 IST`, and Closed) with dynamic alert badges.
-- [ ] **v1.3 — WebSocket Level 2 Order Book**: Real-time bid/ask depth ladder and live market participant volume breakdown.
-- [ ] **v1.4 — Voice-Enabled Trade Copilot**: Natural language speech queries for instant technical screening (*"Find NIFTY 50 breakout stocks above 20 EMA"*).
-- [ ] **v1.5 — Algorithmic Paper Trading Simulator**: Zero-risk virtual capital account with simulated order execution and P&L tracking.
+> **STATUTORY DISCLAIMER (SEBI Compliance):**  
+> TradeVision AI is an **educational and academic research platform** developed for demonstration purposes. The analytical outputs, machine learning predictions, and AI-generated signals provided by this software do **NOT** constitute financial, investment, legal, or trading advice under SEBI (Securities and Exchange Board of India) regulations or any other jurisdictional framework. Stock markets involve substantial risk of loss. Always consult a certified financial advisor before committing real capital.
 
 ---
 
-## 🤝 Contributing
+## 👥 Contributors
 
-Contributions make the open-source community an amazing place to learn, inspire, and create:
-1. **Fork** the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a **Pull Request**
-
----
-
-## 👤 Author & Creator
-
-**Krish Hingu**
-* GitHub: [@CodeWidKrish](https://github.com/CodeWidKrish)
-* Repository: [TradeVision-AI](https://github.com/CodeWidKrish/TradeVision-AI)
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
+This project was built and maintained by:
 
 <div align="center">
-  <br />
-  <sub>⭐ If you find TradeVision AI helpful or inspiring, please consider starring the repository! ⭐</sub>
-  <br /><br />
-  <sub>Built with ❤️ for intelligent, data-driven investing.</sub>
+
+| Contributor | GitHub Profile | Role |
+| :--- | :--- | :--- |
+| **Krishna Bhundiya** | [@KrishnaBhundiya](https://github.com/KrishnaBhundiya) | Project Lead & Full Stack Architecture |
+| **Krish Hingu** | [@CodeWidKrish](https://github.com/CodeWidKrish) | AI / Machine Learning & Mobile UI/UX |
+| **Parv** | [@TechthriveParv](https://github.com/TechthriveParv) | Backend Services & Quality Assurance |
+
+</div>
+
+---
+
+<div align="center">
+
+### ⭐ Star us on GitHub if you find TradeVision AI inspiring!
+
+*Built with ❤️, Flutter, FastAPI, and Advanced Artificial Intelligence.*
+
 </div>

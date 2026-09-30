@@ -596,12 +596,25 @@ def analyze_chart_screenshot(image_bytes: bytes, filename: str = "", symbol_hint
     sym_candidate = None
     clean_fn = re.sub(r'[^a-zA-Z0-9]', ' ', filename).upper()
     tokens = clean_fn.split()
+    known_symbols = (
+        "RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "SBIN", "BHARTIARTL",
+        "TATAMOTORS", "ITC", "KOTAKBANK", "LT", "HINDUNILVR", "NIFTY", "BANKNIFTY",
+        "MARUTI", "WIPRO", "BAJFINANCE", "AXISBANK", "SUNPHARMA", "TITAN",
+        "ULTRACEMCO", "ASIANPAINT", "TATASTEEL", "ADANIENT", "ZOMATO", "PAYTM",
+        "JIOFIN", "HCLTECH", "TECHM", "POWERGRID", "NTPC", "ONGC", "COALINDIA"
+    )
     for tok in tokens:
-        if tok in ("RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "SBIN", "BHARTIARTL", "TATAMOTORS", "ITC", "KOTAKBANK", "LT", "HINDUNILVR", "NIFTY", "BANKNIFTY"):
+        if tok in known_symbols:
             sym_candidate = tok
             break
 
-    sym = clean_symbol(sym_candidate or symbol_hint or "RELIANCE").upper()
+    # Prioritize user-provided symbol_hint, then filename candidate, then NIFTY benchmark
+    if symbol_hint and symbol_hint.strip() and symbol_hint.strip().upper() not in ("UNKNOWN", "NONE", ""):
+        sym = clean_symbol(symbol_hint.strip()).upper()
+    elif sym_candidate:
+        sym = clean_symbol(sym_candidate).upper()
+    else:
+        sym = "NIFTY"
     quote = get_live_quote(sym)
     current_price = quote.get("current_price", 1000.0)
     day_high = quote.get("day_high", current_price * 1.015)

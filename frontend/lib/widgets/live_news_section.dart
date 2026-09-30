@@ -236,16 +236,79 @@ class _NewsShimmer extends StatelessWidget {
   );
 }
 
-class _NewsError extends StatelessWidget {
+class _NewsError extends ConsumerWidget {
   const _NewsError();
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(16),
-    child: Text(
-      'Unable to load news. Check connection.',
-      style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF8892A4)),
-    ),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF111827) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? const Color(0xFF1E2733) : const Color(0xFFE2E6EA),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0066CC).withValues(alpha: 0.10),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.newspaper_rounded,
+              size: 16,
+              color: Color(0xFF0066CC),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Live Feed Standby',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? const Color(0xFFE8ECF0) : const Color(0xFF1A1A2E),
+                  ),
+                ),
+                Text(
+                  'Tap refresh to reload market stream',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.5,
+                    color: const Color(0xFF8892A4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => ref.read(newsProvider.notifier).refresh(),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              'Reload',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF0066CC),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _NewsEmpty extends StatelessWidget {

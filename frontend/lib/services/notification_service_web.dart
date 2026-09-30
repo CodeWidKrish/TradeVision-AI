@@ -32,29 +32,49 @@ class NotificationService {
     String? payload,
   }) async {
     debugPrint('[NotificationService] [Web] $title: $body');
-    if (kIsWeb) {
-      try {
-        if (html.Notification.supported) {
-          if (html.Notification.permission == 'granted') {
-            html.Notification(
-              title,
-              body: body,
-              icon: 'favicon.png',
-            );
-          } else if (html.Notification.permission == 'default') {
-            final res = await html.Notification.requestPermission();
-            if (res == 'granted') {
-              html.Notification(
-                title,
-                body: body,
-                icon: 'favicon.png',
-              );
+    if (!kIsWeb) return;
+
+    try {
+      if (!html.Notification.supported) return;
+
+      var permission = html.Notification.permission;
+      if (permission == 'default') {
+        permission = await html.Notification.requestPermission();
+      }
+
+      if (permission == 'granted') {
+        // 1. Try ServiceWorker showNotification first (required on Android Chrome / PWA)
+        try {
+          final sw = html.window.navigator.serviceWorker;
+          if (sw != null) {
+            final reg = await sw.ready;
+            if (reg != null) {
+              reg.showNotification(title, {
+                'body': body,
+                'icon': 'icons/Icon-192.png',
+                'badge': 'icons/Icon-192.png',
+                'tag': 'tv_${id.abs()}',
+                'renotify': true,
+              });
+              return;
             }
           }
+        } catch (_) {}
+
+        // 2. Desktop Web Notification fallback (Desktop Chrome, Edge, Safari, Firefox)
+        try {
+          html.Notification(
+            title,
+            body: body,
+            icon: 'icons/Icon-192.png',
+            tag: 'tv_${id.abs()}',
+          );
+        } catch (e) {
+          debugPrint('[NotificationService] Web Notification fallback error: $e');
         }
-      } catch (e) {
-        debugPrint('[NotificationService] Web showNotification popup error: $e');
       }
+    } catch (e) {
+      debugPrint('[NotificationService] Web showNotification popup error: $e');
     }
   }
 }

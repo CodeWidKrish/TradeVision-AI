@@ -77,11 +77,30 @@ class NewsArticle {
     this.imageUrl,
   });
 
+  static String _clean(dynamic val) {
+    if (val == null) return '';
+    var s = val.toString();
+    s = s.replaceAll('<![CDATA[', '').replaceAll(']]>', '').replaceAll(']>', '');
+    s = s.replaceAll(RegExp(r'<[^>]*>'), ' ');
+    s = s.replaceAll(RegExp(r'</?[a-zA-Z0-9_-]*>?'), ' ');
+    s = s
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'")
+        .replaceAll('&apos;', "'")
+        .replaceAll('&nbsp;', ' ');
+    s = s.replaceAll(RegExp(r'[\s\]></]+$'), '');
+    s = s.replaceAll(RegExp(r'^[\s\]></]+'), '');
+    return s.trim().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
   factory NewsArticle.fromJson(Map<String, dynamic> j) => NewsArticle(
     id: j['id'] ?? j['title'],
-    title: j['title']?.toString() ?? '',
-    description: j['description']?.toString() ?? '',
-    source: j['source']?.toString() ?? 'Financial News',
+    title: _clean(j['title']),
+    description: _clean(j['description'] ?? j['summary']),
+    source: _clean(j['source'] ?? 'Financial News'),
     url: j['url']?.toString() ?? '',
     publishedAt: j['publishedAt']?.toString() ?? '',
     timeAgo: j['timeAgo']?.toString() ?? 'Recently',

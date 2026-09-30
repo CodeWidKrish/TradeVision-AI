@@ -6,7 +6,6 @@ import 'package:tradevision_ai/widgets/ticker_flash_price.dart';
 import 'package:tradevision_ai/widgets/chart_type_selector.dart';
 import 'package:tradevision_ai/core/data/stock_data.dart';
 import 'package:tradevision_ai/core/models/ohlc_point.dart';
-import 'package:tradevision_ai/core/providers/chart_pattern_provider.dart';
 import 'package:tradevision_ai/widgets/ticker_logo.dart';
 import 'package:tradevision_ai/widgets/swipe_to_execute_button.dart';
 import 'package:tradevision_ai/widgets/app_bottom_nav.dart';

@@ -9,6 +9,10 @@ class XaiContributionWidget extends StatelessWidget {
   final double? macd;
   final double buyersPct;
   final double sellersPct;
+  final double? mlProbabilityUp;
+  final double? mlProbabilityDown;
+  final double? mlProbabilityNeutral;
+  final String? mlDirection;
   final bool isDark;
 
   const XaiContributionWidget({
@@ -20,6 +24,10 @@ class XaiContributionWidget extends StatelessWidget {
     this.macd,
     this.buyersPct = 54.0,
     this.sellersPct = 46.0,
+    this.mlProbabilityUp,
+    this.mlProbabilityDown,
+    this.mlProbabilityNeutral,
+    this.mlDirection,
     required this.isDark,
   });
 
@@ -146,6 +154,108 @@ class XaiContributionWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ...features.map((f) => _buildFeatureRow(f, isDark)),
+          if (mlProbabilityUp != null && mlProbabilityDown != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0066CC).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'UNIVERSAL XGBOOST (V2)',
+                          style: GoogleFonts.inter(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                            color: const Color(0xFF0066CC),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '93.15% Precision',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF00C853),
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        (mlDirection ?? 'NEUTRAL').toUpperCase(),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: (mlDirection ?? '').toUpperCase().contains('UP') || (mlDirection ?? '').toUpperCase().contains('BULL')
+                              ? const Color(0xFF00C853)
+                              : ((mlDirection ?? '').toUpperCase().contains('DOWN') || (mlDirection ?? '').toUpperCase().contains('BEAR')
+                                  ? const Color(0xFFFF3B3B)
+                                  : const Color(0xFFFF8C00)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Tri-color probability bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: SizedBox(
+                      height: 8,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: ((mlProbabilityUp ?? 0.33) * 1000).toInt().clamp(1, 1000),
+                            child: Container(color: const Color(0xFF00C853)),
+                          ),
+                          Expanded(
+                            flex: ((mlProbabilityNeutral ?? 0.34) * 1000).toInt().clamp(1, 1000),
+                            child: Container(color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8)),
+                          ),
+                          Expanded(
+                            flex: ((mlProbabilityDown ?? 0.33) * 1000).toInt().clamp(1, 1000),
+                            child: Container(color: const Color(0xFFFF3B3B)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '▲ Bullish: ${((mlProbabilityUp ?? 0.33) * 100).toStringAsFixed(1)}%',
+                        style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF00C853)),
+                      ),
+                      Text(
+                        '■ Neutral: ${((mlProbabilityNeutral ?? 0.34) * 100).toStringAsFixed(1)}%',
+                        style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF8892A4)),
+                      ),
+                      Text(
+                        '▼ Bearish: ${((mlProbabilityDown ?? 0.33) * 100).toStringAsFixed(1)}%',
+                        style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFFFF3B3B)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(10),

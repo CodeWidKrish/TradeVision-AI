@@ -37,20 +37,50 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Personal documents, presentations, design drafts & media
+# Personal documents, specifications, presentations & research papers
+*srs*
+*SRS*
+*prd*
+*PRD*
+*.doc
 *.docx
+*.ppt
 *.pptx
 *.pdf
-*.jpg
-*.jpeg
-*.png
+*.xls
+*.xlsx
+*.odt
+*.rtf
+TradeVision_AI_PRD.*
+TradeVision_AI_IEEE_Paper.*
+TradeVision AI demo ppt.*
+
+# Design drafts, prototypes & HTML previews
 tradevision_ui_preview.html
+splash_prototype.html
 design (1).md
 design*.md
+*.drawio
+
+# Raw logos & temp images in root
+Trade Vision final logo*.jpg
 frontend_backup/
 
+# Logs & crash dumps
+*.log
+hs_err_pid*
+replay_pid*
+
 # Local backup and generated virtual-environment folders
-backend/venv_broken_backup/
+.venv/
+backend/venv/
+backend/venv*/
+backend/.env
+backend/.env.*
+*.env
 *.backup.dart
 *.before-market-fix.dart
+scratch/
+AGENTS.md
+.agents/
 

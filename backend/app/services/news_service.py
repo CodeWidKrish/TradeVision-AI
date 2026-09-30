@@ -124,11 +124,30 @@ def _parse_av_time_ago(av_time_str: str) -> str:
         return "Today"
 
 
-def _strip_html(text: str) -> str:
+import html
+
+def _clean_news_text(text: str) -> str:
+    """Clean all CDATA, HTML tags, unclosed tags, and RSS artifacts from news strings."""
     if not text:
         return ""
-    clean = re.sub(r"<[^>]+>", "", text)
-    return " ".join(clean.split()).strip()
+    # Strip CDATA markers and leftovers
+    text = re.sub(r'<!\[CDATA\[', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'\]\]>', '', text)
+    text = re.sub(r'\]+>', '', text)
+    # Strip standard and dangling HTML tags like </, </p>, <br>
+    text = re.sub(r'<[^>]+>', ' ', text)
+    text = re.sub(r'</?[a-zA-Z0-9_-]*>?', ' ', text)
+    # Unescape HTML entities
+    text = html.unescape(text)
+    # Strip trailing and leading brackets, slashes, or whitespace
+    text = text.strip()
+    text = re.sub(r'[\s\]></]+$', '', text)
+    text = re.sub(r'^[\s\]></]+', '', text)
+    return " ".join(text.split()).strip()
+
+
+def _strip_html(text: str) -> str:
+    return _clean_news_text(text)
 
 
 def _fetch_alpha_vantage_news(topics: str = "financial_markets,economy_macro", limit: int = 15) -> List[Dict[str, Any]]:
@@ -227,18 +246,19 @@ def _fetch_official_indian_news(limit: int = 25) -> List[Dict[str, Any]]:
                 pub_date = item.findtext("pubDate") or ""
                 raw_desc = item.findtext("description") or ""
 
+                clean_title = _clean_news_text(raw_title)
                 source = default_source
-                clean_title = raw_title
-                if " - " in raw_title and default_source == "Google Business":
-                    parts = raw_title.rsplit(" - ", 1)
-                    clean_title = parts[0].strip()
-                    source = parts[1].strip()
-                elif " - " in raw_title and len(raw_title.rsplit(" - ", 1)[1]) < 30:
-                    parts = raw_title.rsplit(" - ", 1)
-                    clean_title = parts[0].strip()
-                    source = parts[1].strip()
+                if " - " in clean_title and default_source == "Google Business":
+                    parts = clean_title.rsplit(" - ", 1)
+                    clean_title = _clean_news_text(parts[0])
+                    source = _clean_news_text(parts[1])
+                elif " - " in clean_title and len(clean_title.rsplit(" - ", 1)[1]) < 30:
+                    parts = clean_title.rsplit(" - ", 1)
+                    clean_title = _clean_news_text(parts[0])
+                    source = _clean_news_text(parts[1])
 
-                summary = _strip_html(raw_desc)
+                clean_title = _clean_news_text(clean_title)
+                summary = _clean_news_text(raw_desc)
                 if not summary or summary == clean_title:
                     summary = clean_title
 
@@ -390,13 +410,14 @@ def _fetch_rss_articles(query: str, limit: int = 10) -> List[Dict[str, Any]]:
             link = item.findtext("link") or "#"
             pub_date = item.findtext("pubDate") or ""
             raw_desc = item.findtext("description") or ""
-            clean_title = raw_title
+            clean_title = _clean_news_text(raw_title)
             source = "Financial Media"
-            if " - " in raw_title:
-                parts = raw_title.rsplit(" - ", 1)
-                clean_title = parts[0].strip()
-                source = parts[1].strip()
-            summary = _strip_html(raw_desc) or clean_title
+            if " - " in clean_title:
+                parts = clean_title.rsplit(" - ", 1)
+                clean_title = _clean_news_text(parts[0])
+                source = _clean_news_text(parts[1])
+            clean_title = _clean_news_text(clean_title)
+            summary = _clean_news_text(raw_desc) or clean_title
             articles.append({
                 "title": clean_title,
                 "summary": summary,

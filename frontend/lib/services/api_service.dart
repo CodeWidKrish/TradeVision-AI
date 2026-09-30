@@ -401,7 +401,6 @@ class ApiService {
     final changeAmt = stock.change;
     final changePct = stock.changePercent;
     final isPos = stock.isPositive;
-    final pe = double.tryParse(stock.peRatio) ?? 24.5;
     final week52H = double.tryParse(stock.high52.replaceAll(RegExp(r'[^0-9.]'), '')) ?? (cmp * 1.15);
     final week52L = double.tryParse(stock.low52.replaceAll(RegExp(r'[^0-9.]'), '')) ?? (cmp * 0.85);
     final atr = (cmp * 0.018).clamp(1.5, 999.0);
@@ -519,6 +518,151 @@ class ApiService {
       );
       if (res != null && res is Map) {
         return Map<String, dynamic>.from(res);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<Map<String, dynamic>?> generateMarketIntelligenceReport({
+    required String symbol,
+    List<int>? imageBytes,
+    String? filename,
+    String? timeframe,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        'symbol': symbol,
+        'filename': filename ?? 'chart.png',
+        'timeframe': timeframe ?? '1D',
+      };
+      if (imageBytes != null && imageBytes.isNotEmpty) {
+        body['image_base64'] = base64Encode(imageBytes);
+      }
+      final res = await post(
+        '/api/generate-report',
+        body,
+        timeout: const Duration(seconds: 30),
+      );
+      if (res != null && res is Map) {
+        return Map<String, dynamic>.from(res);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<Map<String, dynamic>?> fetchStockTechnicals(String symbol) async {
+    try {
+      final res = await get('/api/stocks/$symbol/technical', retries: 0);
+      if (res is Map<String, dynamic>) return res;
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<Map<String, dynamic>?> fetchStockPrediction(String symbol) async {
+    try {
+      final res = await get('/api/stocks/$symbol/prediction', retries: 0);
+      if (res is Map<String, dynamic>) return res;
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchStockStructuredNews(String symbol, {int limit = 5}) async {
+    try {
+      final res = await get('/api/stocks/$symbol/news?limit=$limit', retries: 0);
+      if (res != null && res is Map && res['articles'] is List) {
+        return List<Map<String, dynamic>>.from(res['articles']);
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<Map<String, dynamic>?> sendAiChatMessage(
+    String message, {
+    String? symbol,
+    List<Map<String, dynamic>>? history,
+    String? mode,
+  }) async {
+    try {
+      final res = await post(
+        '/api/ai/chat',
+        {
+          'message': message,
+          if (symbol != null) 'symbol': symbol,
+          if (history != null) 'history': history,
+          if (mode != null) 'mode': mode,
+        },
+        timeout: const Duration(seconds: 25),
+      );
+      if (res is Map<String, dynamic>) {
+        return res;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Section 27: Dynamic AI Market Summary
+  static Future<Map<String, dynamic>?> fetchAiMarketSummary({String mode = 'STANDARD'}) async {
+    try {
+      final res = await get('/api/ai/market-summary?mode=$mode', timeout: const Duration(seconds: 25));
+      if (res is Map<String, dynamic>) {
+        return res;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Section 13 & 14: Deterministic AI Bias Signal
+  static Future<Map<String, dynamic>?> fetchAiSignal(String symbol) async {
+    try {
+      final res = await get('/api/ai/signals/$symbol', timeout: const Duration(seconds: 15));
+      if (res is Map<String, dynamic>) {
+        return res;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Section 28: Grounded Stock Comparison
+  static Future<Map<String, dynamic>?> compareStocks(
+    String symbolA,
+    String symbolB, {
+    String mode = 'STANDARD',
+  }) async {
+    try {
+      final res = await post(
+        '/api/ai/compare',
+        {
+          'symbol_a': symbolA,
+          'symbol_b': symbolB,
+          'mode': mode,
+        },
+        timeout: const Duration(seconds: 25),
+      );
+      if (res is Map<String, dynamic>) {
+        return res;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Section 12: Indicator Explanation Mode
+  static Future<Map<String, dynamic>?> explainIndicator(String name, {String? symbol}) async {
+    try {
+      final query = symbol != null ? '?symbol=$symbol' : '';
+      final res = await get('/api/ai/explain/indicator/$name$query', timeout: const Duration(seconds: 12));
+      if (res is Map<String, dynamic>) {
+        return res;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Section 4: All 25 Registered Capabilities
+  static Future<Map<String, dynamic>?> fetchAiCapabilities() async {
+    try {
+      final res = await get('/api/ai/capabilities', timeout: const Duration(seconds: 10));
+      if (res is Map<String, dynamic>) {
+        return res;
       }
     } catch (_) {}
     return null;

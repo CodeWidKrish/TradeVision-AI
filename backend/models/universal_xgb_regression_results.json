@@ -1,0 +1,243 @@
+{
+  "timestamp": "2026-09-29T13:32:45.037317",
+  "model_version": "tradevision-xgb-universal-v2",
+  "raw_metrics": {
+    "accuracy": 0.8283723875870804,
+    "error_rate": 0.17162761241291957,
+    "precision_w": 0.8344906013840859,
+    "recall_w": 0.8283723875870804,
+    "f1_w": 0.8300089779664642,
+    "kappa": 0.6398621085508016,
+    "mcc": 0.6422627145052354,
+    "log_loss": 0.33444870815655975,
+    "roc_auc": 0.9176172959419152,
+    "brier_score": 0.11344891317524552,
+    "specificity": 0.823327615780446,
+    "sensitivity": 0.8313253012048193,
+    "ppv": 0.8893662728249194,
+    "npv": 0.7407407407407407,
+    "n_samples": 1579
+  },
+  "gated_metrics": {
+    "accuracy": 0.9719101123595506,
+    "error_rate": 0.028089887640449396,
+    "precision_w": 0.9732942805819611,
+    "recall_w": 0.9719101123595506,
+    "f1_w": 0.9722963049338808,
+    "kappa": 0.912062982665539,
+    "mcc": 0.9130180339943192,
+    "log_loss": 0.09939694414154351,
+    "roc_auc": 0.9869132729831068,
+    "brier_score": 0.02848807296254864,
+    "specificity": 0.9649122807017544,
+    "sensitivity": 0.9735744089012517,
+    "ppv": 0.9915014164305949,
+    "npv": 0.8967391304347826,
+    "n_samples": 890
+  },
+  "per_stock": {
+    "RELIANCE.NS": {
+      "samples": 79,
+      "accuracy": 0.7974683544303798,
+      "correct": 63,
+      "wrong": 16
+    },
+    "TCS.NS": {
+      "samples": 79,
+      "accuracy": 0.9240506329113924,
+      "correct": 73,
+      "wrong": 6
+    },
+    "HDFCBANK.NS": {
+      "samples": 79,
+      "accuracy": 0.8481012658227848,
+      "correct": 67,
+      "wrong": 12
+    },
+    "INFY.NS": {
+      "samples": 79,
+      "accuracy": 0.9240506329113924,
+      "correct": 73,
+      "wrong": 6
+    },
+    "ICICIBANK.NS": {
+      "samples": 79,
+      "accuracy": 0.9746835443037974,
+      "correct": 77,
+      "wrong": 2
+    },
+    "SBIN.NS": {
+      "samples": 79,
+      "accuracy": 0.9620253164556962,
+      "correct": 76,
+      "wrong": 3
+    },
+    "BHARTIARTL.NS": {
+      "samples": 79,
+      "accuracy": 0.8860759493670886,
+      "correct": 70,
+      "wrong": 9
+    },
+    "ITC.NS": {
+      "samples": 79,
+      "accuracy": 0.8354430379746836,
+      "correct": 66,
+      "wrong": 13
+    },
+    "LT.NS": {
+      "samples": 79,
+      "accuracy": 0.8607594936708861,
+      "correct": 68,
+      "wrong": 11
+    },
+    "HINDUNILVR.NS": {
+      "samples": 79,
+      "accuracy": 0.8354430379746836,
+      "correct": 66,
+      "wrong": 13
+    },
+    "AXISBANK.NS": {
+      "samples": 79,
+      "accuracy": 0.6962025316455697,
+      "correct": 55,
+      "wrong": 24
+    },
+    "KOTAKBANK.NS": {
+      "samples": 79,
+      "accuracy": 0.8354430379746836,
+      "correct": 66,
+      "wrong": 13
+    },
+    "BAJFINANCE.NS": {
+      "samples": 79,
+      "accuracy": 0.9620253164556962,
+      "correct": 76,
+      "wrong": 3
+    },
+    "MARUTI.NS": {
+      "samples": 79,
+      "accuracy": 0.9240506329113924,
+      "correct": 73,
+      "wrong": 6
+    },
+    "TITAN.NS": {
+      "samples": 79,
+      "accuracy": 0.9240506329113924,
+      "correct": 73,
+      "wrong": 6
+    },
+    "SUNPHARMA.NS": {
+      "samples": 79,
+      "accuracy": 0.7341772151898734,
+      "correct": 58,
+      "wrong": 21
+    },
+    "ADANIPORTS.NS": {
+      "samples": 79,
+      "accuracy": 0.7215189873417721,
+      "correct": 57,
+      "wrong": 22
+    },
+    "ULTRACEMCO.NS": {
+      "samples": 78,
+      "accuracy": 0.8461538461538461,
+      "correct": 66,
+      "wrong": 12
+    },
+    "NTPC.NS": {
+      "samples": 79,
+      "accuracy": 0.2911392405063291,
+      "correct": 23,
+      "wrong": 56
+    },
+    "WIPRO.NS": {
+      "samples": 79,
+      "accuracy": 0.7848101265822784,
+      "correct": 62,
+      "wrong": 17
+    }
+  },
+  "confidence_sweep": [
+    {
+      "threshold": 0.5,
+      "samples": 1579,
+      "coverage_pct": 100.0,
+      "accuracy_pct": 82.84,
+      "precision_pct": 83.45,
+      "f1_pct": 83.0,
+      "ppv_pct": 88.94
+    },
+    {
+      "threshold": 0.55,
+      "samples": 1380,
+      "coverage_pct": 87.4,
+      "accuracy_pct": 87.39,
+      "precision_pct": 88.25,
+      "f1_pct": 87.58,
+      "ppv_pct": 93.9
+    },
+    {
+      "threshold": 0.6,
+      "samples": 1190,
+      "coverage_pct": 75.36,
+      "accuracy_pct": 91.43,
+      "precision_pct": 92.05,
+      "f1_pct": 91.57,
+      "ppv_pct": 96.63
+    },
+    {
+      "threshold": 0.65,
+      "samples": 1035,
+      "coverage_pct": 65.55,
+      "accuracy_pct": 94.88,
+      "precision_pct": 95.12,
+      "f1_pct": 94.94,
+      "ppv_pct": 97.96
+    },
+    {
+      "threshold": 0.7,
+      "samples": 890,
+      "coverage_pct": 56.36,
+      "accuracy_pct": 97.19,
+      "precision_pct": 97.33,
+      "f1_pct": 97.23,
+      "ppv_pct": 99.15
+    },
+    {
+      "threshold": 0.75,
+      "samples": 774,
+      "coverage_pct": 49.02,
+      "accuracy_pct": 98.71,
+      "precision_pct": 98.73,
+      "f1_pct": 98.72,
+      "ppv_pct": 99.43
+    },
+    {
+      "threshold": 0.8,
+      "samples": 707,
+      "coverage_pct": 44.78,
+      "accuracy_pct": 100.0,
+      "precision_pct": 100.0,
+      "f1_pct": 100.0,
+      "ppv_pct": 100.0
+    },
+    {
+      "threshold": 0.85,
+      "samples": 693,
+      "coverage_pct": 43.89,
+      "accuracy_pct": 100.0,
+      "precision_pct": 100.0,
+      "f1_pct": 100.0,
+      "ppv_pct": 100.0
+    },
+    {
+      "threshold": 0.9,
+      "samples": 689,
+      "coverage_pct": 43.64,
+      "accuracy_pct": 100.0,
+      "precision_pct": 100.0,
+      "f1_pct": 100.0,
+      "ppv_pct": 100.0
+    }
+  ]
+}

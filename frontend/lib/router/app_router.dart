@@ -18,6 +18,8 @@ import '../screens/ai_insights_screen.dart';
 import '../screens/analysis_screen.dart';
 import '../screens/paper_trading_screen.dart';
 import '../screens/sentiment_heatmap_screen.dart';
+import '../screens/legal/privacy_policy_screen.dart';
+import '../screens/legal/terms_conditions_screen.dart';
 import '../core/data/stock_data.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -367,6 +369,32 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: MarketChartsScreen(
             initialStock: StockRepository.stocks.first,
           ),
+          transitionsBuilder: (_, anim, secondaryAnim, child) {
+            return FadeTransition(
+              opacity: CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
+      ),
+      GoRoute(
+        path: '/privacy-policy',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const PrivacyPolicyScreen(),
+          transitionsBuilder: (_, anim, secondaryAnim, child) {
+            return FadeTransition(
+              opacity: CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
+      ),
+      GoRoute(
+        path: '/terms-conditions',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const TermsConditionsScreen(),
           transitionsBuilder: (_, anim, secondaryAnim, child) {
             return FadeTransition(
               opacity: CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),

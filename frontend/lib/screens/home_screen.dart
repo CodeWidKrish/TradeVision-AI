@@ -20,50 +20,8 @@ import '../widgets/section_header.dart';
 import '../widgets/ai_insight_strip.dart';
 import '../widgets/animated_press_card.dart';
 import '../widgets/market_news_widget.dart';
+import '../core/providers/portfolio_provider.dart';
 import '../widgets/ticker_logo.dart';
-
-final List<Map<String, dynamic>> marketPulseData = [
-  {
-    'name': 'NIFTY 50',
-    'value': '23,242.40',
-    'change': '+24.80',
-    'percent': '+0.11%',
-    'isPositive': true,
-  },
-  {
-    'name': 'SENSEX',
-    'value': '74,336.45',
-    'change': '+332.63',
-    'percent': '+0.45%',
-    'isPositive': true,
-  },
-  {
-    'name': 'NIFTY BANK',
-    'value': '56,262.40',
-    'change': '-30.05',
-    'percent': '-0.05%',
-    'isPositive': false,
-  },
-  {
-    'name': 'NIFTY IT',
-    'value': '28,833.05',
-    'change': '-254.60',
-    'percent': '-0.88%',
-    'isPositive': false,
-  },
-];
-
-final gainers = [
-  {'ticker': 'BAJFINANCE', 'name': 'Bajaj Finance Ltd.', 'price': '₹7,284.50', 'change': '+3.42%', 'isPositive': true},
-  {'ticker': 'RELIANCE',   'name': 'Reliance Industries', 'price': '₹2,896.25', 'change': '+1.82%', 'isPositive': true},
-  {'ticker': 'HDFCBANK',   'name': 'HDFC Bank Ltd.',      'price': '₹1,723.40', 'change': '+1.54%', 'isPositive': true},
-];
-
-final losers = [
-  {'ticker': 'TCS',    'name': 'Tata Consultancy Services', 'price': '₹3,538.30', 'change': '-0.93%', 'isPositive': false},
-  {'ticker': 'INFY',   'name': 'Infosys Ltd.',              'price': '₹1,775.60', 'change': '-0.67%', 'isPositive': false},
-  {'ticker': 'WIPRO',  'name': 'Wipro Ltd.',                'price': '₹558.10',   'change': '-0.74%', 'isPositive': false},
-];
 
 class HomeScreen extends StatefulWidget {
   final Function(StockModel) onSelectStock;
@@ -96,6 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? DarkSurface.card : Colors.white;
     final textColor = isDark ? DarkSurface.textPrimary : const Color(0xFF1A1A2E);
+    final portfolio = provider.Provider.of<PortfolioProvider>(context, listen: false);
+    final positions = portfolio.positions.values.toList();
+    final totalPortfolioValue = portfolio.totalPortfolioValue > 0 ? portfolio.totalPortfolioValue : 100000.0;
 
     showModalBottomSheet(
       context: context,
@@ -132,14 +93,47 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 20,
                 color: isDark ? DarkSurface.border : const Color(0xFFE2E6EA),
               ),
-              _buildAllocationRow(context, 'RELIANCE', '40% Allocation', '₹1,95,440.00', const Color(0xFF00C853)),
-              const SizedBox(height: 10),
-              _buildAllocationRow(context, 'TCS', '30% Allocation', '₹1,46,580.00', const Color(0xFF00C853)),
-              const SizedBox(height: 10),
-              _buildAllocationRow(context, 'HDFCBANK', '20% Allocation', '₹97,720.00', const Color(0xFF0066CC)),
-              const SizedBox(height: 10),
-              _buildAllocationRow(context, 'INFY', '10% Allocation', '₹48,860.00', const Color(0xFFFF8C00)),
-              const SizedBox(height: 20),
+              if (positions.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.pie_chart_outline_rounded, size: 40, color: DarkSurface.textMuted),
+                        const SizedBox(height: 8),
+                        Text(
+                          '100% Cash Balance (₹${NumberFormat('#,##0.00').format(portfolio.virtualCash)})',
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: textColor),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'No stock positions yet. Buy stocks in Market to track real allocations.',
+                          style: GoogleFonts.inter(fontSize: 12, color: DarkSurface.textMuted),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                ...positions.map((pos) {
+                  final stock = StockRepository.getStock(pos.ticker);
+                  final currentPrice = stock.price > 0 ? stock.price : pos.avgPrice;
+                  final currentVal = currentPrice * pos.quantity;
+                  final pct = (currentVal / totalPortfolioValue * 100).toStringAsFixed(1);
+                  final formattedVal = NumberFormat.currency(locale: 'en_IN', symbol: '₹').format(currentVal);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _buildAllocationRow(
+                      context,
+                      pos.ticker,
+                      '$pct% Allocation',
+                      formattedVal,
+                      stock.logoColor,
+                    ),
+                  );
+                }),
+              const SizedBox(height: 12),
             ],
           ),
         );
@@ -193,25 +187,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
   Widget _buildStaticPulseList() {
+    final tickerNotifier = provider.Provider.of<MarketTickerNotifier>(context, listen: false);
+    final indices = tickerNotifier.indices;
     return SizedBox(
       height: 130,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: marketPulseData.length,
+        itemCount: indices.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final item = marketPulseData[index];
+          final item = indices[index];
+          final val = (item['value'] as num?)?.toDouble() ?? 0.0;
+          final chg = (item['change'] as num?)?.toDouble() ?? 0.0;
+          final pct = (item['changePercent'] as num?)?.toDouble() ?? 0.0;
+          final isPos = (item['up'] as bool?) ?? (chg >= 0);
+          final sign = chg >= 0 ? '+' : '';
           return MarketPulseCard(
-            indexName: item['name'] as String,
-            value: item['value'] as String,
-            change: item['change'] as String,
-            changePercent: item['percent'] as String,
-            isPositive: item['isPositive'] as bool,
+            indexName: item['name'] as String? ?? 'INDEX',
+            value: NumberFormat('#,##0.00').format(val),
+            change: '$sign${chg.toStringAsFixed(2)}',
+            changePercent: '$sign${pct.toStringAsFixed(2)}%',
+            isPositive: isPos,
           );
         },
       ),
@@ -968,15 +967,22 @@ class _MoversList extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              s['ticker']!,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? const Color(0xFFE8ECF0)
-                                    : const Color(0xFF1A1A2E),
-                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  s['ticker']!,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark
+                                        ? const Color(0xFFE8ECF0)
+                                        : const Color(0xFF1A1A2E),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                _buildMoverAiBadge(s['ticker']!, isDark),
+                              ],
                             ),
                             Text(
                               s['name']!,
@@ -1029,6 +1035,33 @@ class _MoversList extends StatelessWidget {
             ),
           );
         }),
+      ),
+    );
+  }
+
+  Widget _buildMoverAiBadge(String ticker, bool isDark) {
+    final sym = ticker.replaceAll('.NS', '').replaceAll('.BO', '').toUpperCase();
+    final stock = StockRepository.getStock(sym);
+    final sig = stock.aiSignal.toUpperCase();
+    final isBuy = sig.contains('BUY');
+    final isSell = sig.contains('SELL');
+    final color = isBuy ? const Color(0xFF00C853) : (isSell ? const Color(0xFFFF3B3B) : const Color(0xFFFF8C00));
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: isDark ? 0.14 : 0.08),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 0.8),
+      ),
+      child: Text(
+        sig.isNotEmpty ? sig : 'HOLD',
+        style: GoogleFonts.inter(
+          fontSize: 8.5,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.3,
+          color: color,
+        ),
       ),
     );
   }

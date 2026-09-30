@@ -21,7 +21,9 @@ import '../core/providers/portfolio_provider.dart';
 import '../widgets/ticker_logo.dart';
 import '../widgets/swipe_to_execute_button.dart';
 import '../widgets/create_alert_sheet.dart';
+import 'dart:async';
 import '../services/alert_service.dart';
+import '../services/notification_service.dart';
 import '../widgets/xai_contribution_widget.dart';
 
 
@@ -1031,7 +1033,75 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 12),
+
+                      // TradeVision AI Order Recommendation Insight
+                      Builder(
+                        builder: (context) {
+                          final currentSig = (_technicals['ai_signal'] as String? ?? _stock.aiSignal).toUpperCase();
+                          final currentConf = _toI(_technicals['ai_confidence']) ?? 72;
+                          final currentReason = _technicals['ai_reason'] as String? ?? _stock.aiReason;
+                          final isBuySig = currentSig.contains('BUY');
+                          final isSellSig = currentSig.contains('SELL');
+                          final sigColor = isBuySig ? const Color(0xFF00C853) : (isSellSig ? const Color(0xFFFF3B3B) : const Color(0xFFFF8C00));
+
+                          return Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: sigColor.withValues(alpha: isDark ? 0.12 : 0.08),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: sigColor.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.auto_awesome_rounded, size: 16, color: sigColor),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'AI Signal: $currentSig',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w700,
+                                              color: sigColor,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '($currentConf% confidence)',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.w600,
+                                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        currentReason,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 10.5,
+                                          color: isDark ? const Color(0xFFCDD5E0) : const Color(0xFF334155),
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 14),
 
                       // Swipe To Execute Slider
                       SwipeToExecuteButton(
@@ -1040,6 +1110,7 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen>
                         priceFormatted: currencyFormatter.format(totalValue),
                         quantity: quantity,
                         onConfirmed: () {
+                          unawaited(NotificationService.instance.requestPermission());
                           final portfolio = provider.Provider.of<PortfolioProvider>(context, listen: false);
                           if (isLimitOrder) {
                             portfolio.placeLimitOrder(
@@ -1381,7 +1452,7 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen>
           ),
           const SizedBox(height: 16),
 
-          // ── Explainable AI (XAI) Feature Attribution (SHAP / LSTM) ──
+          // ── Explainable AI (XAI) Feature Attribution (SHAP / LSTM & XGBoost v2) ──
           XaiContributionWidget(
             ticker: _stock.ticker,
             signal: aiSignal,
@@ -1390,6 +1461,10 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen>
             macd: macd,
             buyersPct: buyersPct,
             sellersPct: sellersPct,
+            mlProbabilityUp: _toDbl(_technicals['ml_probability_up']),
+            mlProbabilityDown: _toDbl(_technicals['ml_probability_down']),
+            mlProbabilityNeutral: _toDbl(_technicals['ml_probability_neutral']),
+            mlDirection: _technicals['ml_direction'] as String?,
             isDark: isDark,
           ),
         ],

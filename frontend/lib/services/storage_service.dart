@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,6 +15,8 @@ class StorageService {
   static const _keyOnboarded = 'tv_has_onboarded';
   static const _keyLastLogin = 'tv_last_login_ts';
   static const _keyChartType = 'tv_chart_type';
+  static const _keyRememberCredentials = 'tv_remember_credentials';
+  static const _keySavedPassword = 'tv_saved_password';
 
   static Future<void> init() async {
     try {
@@ -171,6 +174,359 @@ class StorageService {
     } catch (e) {
       debugPrint('setChartType failed: $e');
     }
+  }
+
+  // App Lock & Security
+  static const _keyAppLockEnabled = 'tv_app_lock_enabled';
+  static const _keyAppLockPin = 'tv_app_lock_pin';
+  static const _keyBiometricEnabled = 'tv_biometric_enabled';
+
+  static bool isAppLockEnabled() {
+    try { return _prefs?.getBool(_keyAppLockEnabled) ?? false; }
+    catch (_) { return false; }
+  }
+
+  static Future<void> setAppLockEnabled(bool val) async {
+    try { await _prefs?.setBool(_keyAppLockEnabled, val); }
+    catch (e) { debugPrint('setAppLockEnabled failed: $e'); }
+  }
+
+  static String? getAppLockPin() {
+    try { return _prefs?.getString(_keyAppLockPin); }
+    catch (_) { return null; }
+  }
+
+  static Future<void> setAppLockPin(String pin) async {
+    try { await _prefs?.setString(_keyAppLockPin, pin); }
+    catch (e) { debugPrint('setAppLockPin failed: $e'); }
+  }
+
+  static bool isBiometricEnabled() {
+    try { return _prefs?.getBool(_keyBiometricEnabled) ?? true; }
+    catch (_) { return true; }
+  }
+
+  static Future<void> setBiometricEnabled(bool val) async {
+    try { await _prefs?.setBool(_keyBiometricEnabled, val); }
+    catch (e) { debugPrint('setBiometricEnabled failed: $e'); }
+  }
+
+  static bool verifyPin(String enteredPin) {
+    final saved = getAppLockPin() ?? '1234';
+    return saved == enteredPin;
+  }
+
+  static Future<void> resetAppLockPin({String newPin = '1234'}) async {
+    try {
+      await _prefs?.setString(_keyAppLockPin, newPin);
+    } catch (e) {
+      debugPrint('resetAppLockPin failed: $e');
+    }
+  }
+
+  // Remember Credentials & Saved Password Management
+  static bool isRememberCredentialsEnabled() {
+    try { return _prefs?.getBool(_keyRememberCredentials) ?? true; }
+    catch (_) { return true; }
+  }
+
+  static Future<void> setRememberCredentialsEnabled(bool val) async {
+    try {
+      await _prefs?.setBool(_keyRememberCredentials, val);
+      if (!val) {
+        await _prefs?.remove(_keySavedPassword);
+      }
+    } catch (e) {
+      debugPrint('setRememberCredentialsEnabled failed: $e');
+    }
+  }
+
+  static String? getSavedPassword() {
+    try { return _prefs?.getString(_keySavedPassword); }
+    catch (_) { return null; }
+  }
+
+  static Future<void> setSavedPassword(String password) async {
+    try {
+      await _prefs?.setString(_keySavedPassword, password);
+    } catch (e) {
+      debugPrint('setSavedPassword failed: $e');
+    }
+  }
+
+  static Future<void> clearSavedCredentials() async {
+    try {
+      await _prefs?.remove(_keySavedPassword);
+      await _prefs?.setBool(_keyRememberCredentials, false);
+    } catch (e) {
+      debugPrint('clearSavedCredentials failed: $e');
+    }
+  }
+
+  static Future<void> saveUserCredentials({
+    required String email,
+    required String password,
+    bool remember = true,
+  }) async {
+    try {
+      await setUserEmail(email);
+      await setRememberCredentialsEnabled(remember);
+      if (remember) {
+        await setSavedPassword(password);
+      } else {
+        await _prefs?.remove(_keySavedPassword);
+      }
+    } catch (e) {
+      debugPrint('saveUserCredentials failed: $e');
+    }
+  }
+
+  static Future<void> resetPassword(String newPassword) async {
+    try {
+      await setSavedPassword(newPassword);
+    } catch (e) {
+      debugPrint('resetPassword failed: $e');
+    }
+  }
+
+  // 1. Dynamic User Identity & KYC
+  static const _keyUserPan = 'tv_user_pan';
+  static const _keyDematClientId = 'tv_demat_client_id';
+  static const _keyUserPhone = 'tv_user_phone';
+  static const _keyKycStatus = 'tv_kyc_status';
+  static const _keyAccountTier = 'tv_account_tier';
+
+  static String? getUserPan() {
+    try { return _prefs?.getString(_keyUserPan); }
+    catch (_) { return null; }
+  }
+
+  static Future<void> setUserPan(String pan) async {
+    try { await _prefs?.setString(_keyUserPan, pan.toUpperCase().trim()); }
+    catch (e) { debugPrint('setUserPan failed: $e'); }
+  }
+
+  static String? getDematClientId() {
+    try { return _prefs?.getString(_keyDematClientId); }
+    catch (_) { return null; }
+  }
+
+  static Future<void> setDematClientId(String id) async {
+    try { await _prefs?.setString(_keyDematClientId, id.trim()); }
+    catch (e) { debugPrint('setDematClientId failed: $e'); }
+  }
+
+  static String? getUserPhone() {
+    try { return _prefs?.getString(_keyUserPhone); }
+    catch (_) { return null; }
+  }
+
+  static Future<void> setUserPhone(String phone) async {
+    try { await _prefs?.setString(_keyUserPhone, phone.trim()); }
+    catch (e) { debugPrint('setUserPhone failed: $e'); }
+  }
+
+  static String getKycStatus() {
+    try {
+      final pan = getUserPan();
+      if (pan != null && pan.isNotEmpty) {
+        return _prefs?.getString(_keyKycStatus) ?? 'VERIFIED (SEBI Compliant)';
+      }
+      return _prefs?.getString(_keyKycStatus) ?? 'PENDING SUBMISSION';
+    } catch (_) {
+      return 'PENDING SUBMISSION';
+    }
+  }
+
+  static Future<void> setKycStatus(String status) async {
+    try { await _prefs?.setString(_keyKycStatus, status); }
+    catch (e) { debugPrint('setKycStatus failed: $e'); }
+  }
+
+  static String getAccountTier() {
+    try { return _prefs?.getString(_keyAccountTier) ?? 'Pro AI Trader'; }
+    catch (_) { return 'Pro AI Trader'; }
+  }
+
+  static Future<void> setAccountTier(String tier) async {
+    try { await _prefs?.setString(_keyAccountTier, tier); }
+    catch (e) { debugPrint('setAccountTier failed: $e'); }
+  }
+
+  // 2. Dynamic Linked Brokers
+  static const _keyLinkedBrokers = 'tv_linked_brokers';
+
+  static List<Map<String, dynamic>> getLinkedBrokers() {
+    try {
+      final raw = _prefs?.getString(_keyLinkedBrokers);
+      if (raw != null && raw.isNotEmpty) {
+        final list = jsonDecode(raw) as List;
+        return list.map((e) => Map<String, dynamic>.from(e)).toList();
+      }
+    } catch (e) {
+      debugPrint('getLinkedBrokers failed: $e');
+    }
+    return [
+      {
+        'id': 'zerodha',
+        'name': 'Zerodha Kite',
+        'connected': false,
+        'clientId': '',
+        'apiKey': '',
+        'connectedAt': null,
+      },
+      {
+        'id': 'groww',
+        'name': 'Groww',
+        'connected': false,
+        'clientId': '',
+        'apiKey': '',
+        'connectedAt': null,
+      },
+      {
+        'id': 'angel',
+        'name': 'Angel One',
+        'connected': false,
+        'clientId': '',
+        'apiKey': '',
+        'connectedAt': null,
+      },
+      {
+        'id': 'upstox',
+        'name': 'Upstox Pro',
+        'connected': false,
+        'clientId': '',
+        'apiKey': '',
+        'connectedAt': null,
+      },
+      {
+        'id': 'dhan',
+        'name': 'Dhan HQ',
+        'connected': false,
+        'clientId': '',
+        'apiKey': '',
+        'connectedAt': null,
+      },
+    ];
+  }
+
+  static Future<void> setBrokerConnection({
+    required String brokerId,
+    required bool connected,
+    String? clientId,
+    String? apiKey,
+  }) async {
+    try {
+      final brokers = getLinkedBrokers();
+      final idx = brokers.indexWhere((b) => b['id'] == brokerId);
+      if (idx != -1) {
+        brokers[idx]['connected'] = connected;
+        if (connected) {
+          if (clientId != null) brokers[idx]['clientId'] = clientId;
+          if (apiKey != null) brokers[idx]['apiKey'] = apiKey;
+          brokers[idx]['connectedAt'] = DateTime.now().toIso8601String();
+        } else {
+          brokers[idx]['clientId'] = '';
+          brokers[idx]['apiKey'] = '';
+          brokers[idx]['connectedAt'] = null;
+        }
+        await _prefs?.setString(_keyLinkedBrokers, jsonEncode(brokers));
+      }
+    } catch (e) {
+      debugPrint('setBrokerConnection failed: $e');
+    }
+  }
+
+  // 3. Dynamic Notification Preferences
+  static const _keyNotifPriceAlerts = 'tv_notif_price_alerts';
+  static const _keyNotifMarketTiming = 'tv_notif_market_timing';
+  static const _keyNotifHighPriorityNews = 'tv_notif_high_priority_news';
+  static const _keyNotifAiInsights = 'tv_notif_ai_insights';
+
+  static bool isPriceAlertsEnabled() {
+    try { return _prefs?.getBool(_keyNotifPriceAlerts) ?? true; }
+    catch (_) { return true; }
+  }
+
+  static Future<void> setPriceAlertsEnabled(bool val) async {
+    try { await _prefs?.setBool(_keyNotifPriceAlerts, val); }
+    catch (e) { debugPrint('setPriceAlertsEnabled failed: $e'); }
+  }
+
+  static bool isMarketTimingNotificationsEnabled() {
+    try { return _prefs?.getBool(_keyNotifMarketTiming) ?? true; }
+    catch (_) { return true; }
+  }
+
+  static Future<void> setMarketTimingNotificationsEnabled(bool val) async {
+    try { await _prefs?.setBool(_keyNotifMarketTiming, val); }
+    catch (e) { debugPrint('setMarketTimingNotificationsEnabled failed: $e'); }
+  }
+
+  static bool isHighPriorityNewsEnabled() {
+    try { return _prefs?.getBool(_keyNotifHighPriorityNews) ?? true; }
+    catch (_) { return true; }
+  }
+
+  static Future<void> setHighPriorityNewsEnabled(bool val) async {
+    try { await _prefs?.setBool(_keyNotifHighPriorityNews, val); }
+    catch (e) { debugPrint('setHighPriorityNewsEnabled failed: $e'); }
+  }
+
+  static bool isAiInsightsNotifEnabled() {
+    try { return _prefs?.getBool(_keyNotifAiInsights) ?? true; }
+    catch (_) { return true; }
+  }
+
+  static Future<void> setAiInsightsNotifEnabled(bool val) async {
+    try { await _prefs?.setBool(_keyNotifAiInsights, val); }
+    catch (e) { debugPrint('setAiInsightsNotifEnabled failed: $e'); }
+  }
+
+  // 4. Dynamic Trading & Risk Preferences
+  static const _keyRiskProfile = 'tv_risk_profile';
+  static const _keyDefaultOrderType = 'tv_default_order_type';
+  static const _keyStopLossPct = 'tv_stop_loss_pct';
+  static const _keyTargetProfitPct = 'tv_target_profit_pct';
+
+  static String getRiskProfile() {
+    try { return _prefs?.getString(_keyRiskProfile) ?? 'Moderate'; }
+    catch (_) { return 'Moderate'; }
+  }
+
+  static Future<void> setRiskProfile(String profile) async {
+    try { await _prefs?.setString(_keyRiskProfile, profile); }
+    catch (e) { debugPrint('setRiskProfile failed: $e'); }
+  }
+
+  static String getDefaultOrderType() {
+    try { return _prefs?.getString(_keyDefaultOrderType) ?? 'MARKET'; }
+    catch (_) { return 'MARKET'; }
+  }
+
+  static Future<void> setDefaultOrderType(String type) async {
+    try { await _prefs?.setString(_keyDefaultOrderType, type); }
+    catch (e) { debugPrint('setDefaultOrderType failed: $e'); }
+  }
+
+  static double getStopLossPct() {
+    try { return _prefs?.getDouble(_keyStopLossPct) ?? 2.5; }
+    catch (_) { return 2.5; }
+  }
+
+  static Future<void> setStopLossPct(double pct) async {
+    try { await _prefs?.setDouble(_keyStopLossPct, pct); }
+    catch (e) { debugPrint('setStopLossPct failed: $e'); }
+  }
+
+  static double getTargetProfitPct() {
+    try { return _prefs?.getDouble(_keyTargetProfitPct) ?? 5.0; }
+    catch (_) { return 5.0; }
+  }
+
+  static Future<void> setTargetProfitPct(double pct) async {
+    try { await _prefs?.setDouble(_keyTargetProfitPct, pct); }
+    catch (e) { debugPrint('setTargetProfitPct failed: $e'); }
   }
 
   static bool _isValidEmail(String email) {

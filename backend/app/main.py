@@ -12,8 +12,10 @@ from app.routers.stock_details import router as stock_details_router
 from app.routers.stocks import router as stocks_router
 from app.routers.test import router as test_router
 from app.routers.ai_generate import router as ai_router
+from app.routers.ai_chat import router as ai_chat_router
 from app.routers.market_stream import router as live_market_router, ws_router as live_ws_router
 from app.routers.report import router as report_router
+from app.routers.market_intelligence import router as market_intelligence_router
 
 from app.services.market_service import (
     get_indices, get_live_quote, get_ohlc_history, get_top_movers
@@ -39,9 +41,11 @@ app.include_router(overview_router)
 app.include_router(recommendation_router)
 app.include_router(stocks_router)
 app.include_router(ai_router)
+app.include_router(ai_chat_router)
 app.include_router(live_market_router)
 app.include_router(live_ws_router)
 app.include_router(report_router)
+app.include_router(market_intelligence_router)
 
 # ── WEBSOCKET: Live price streaming ─────────────────────────────────────
 
@@ -86,6 +90,20 @@ async def websocket_market(websocket: WebSocket):
 
 @app.websocket('/ws/quote/{symbol}')
 async def websocket_quote(websocket: WebSocket, symbol: str):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Push live stock quote every 1 second
+            data = await get_live_quote(symbol.upper())
+            await websocket.send_json(data)
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception:
+        manager.disconnect(websocket)
+
+@app.websocket('/ws/stocks/{symbol}')
+async def websocket_stocks(websocket: WebSocket, symbol: str):
     await manager.connect(websocket)
     try:
         while True:

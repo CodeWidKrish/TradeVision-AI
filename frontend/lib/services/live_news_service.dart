@@ -119,10 +119,10 @@ class LiveNewsService {
   static List<Map<String, dynamic>> _parseRssXml(String xml, String defaultSource) {
     final List<Map<String, dynamic>> list = [];
     final itemRegex = RegExp(r'<item[\s>]([\s\S]*?)<\/item>', caseSensitive: false);
-    final titleRegex = RegExp(r'<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>', caseSensitive: false);
-    final linkRegex = RegExp(r'<link>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/link>', caseSensitive: false);
-    final pubDateRegex = RegExp(r'<pubDate>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/pubDate>', caseSensitive: false);
-    final descRegex = RegExp(r'<description>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/description>', caseSensitive: false);
+    final titleRegex = RegExp(r'<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>', caseSensitive: false);
+    final linkRegex = RegExp(r'<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>', caseSensitive: false);
+    final pubDateRegex = RegExp(r'<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>', caseSensitive: false);
+    final descRegex = RegExp(r'<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>', caseSensitive: false);
 
     final matches = itemRegex.allMatches(xml);
     for (final match in matches) {
@@ -132,7 +132,7 @@ class LiveNewsService {
       final pubDate = pubDateRegex.firstMatch(itemXml)?.group(1)?.trim() ?? '';
       var desc = descRegex.firstMatch(itemXml)?.group(1)?.trim() ?? '';
 
-      // Clean HTML tags and entities
+      // Clean HTML tags, CDATA, and entities
       title = _cleanHtml(title);
       desc = _cleanHtml(desc);
       if (desc.isEmpty || desc.length < 10) desc = title;
@@ -207,15 +207,27 @@ class LiveNewsService {
   }
 
   static String _cleanHtml(String str) {
-    return str
-        .replaceAll(RegExp(r'<[^>]*>'), '')
+    if (str.isEmpty) return '';
+    var s = str;
+    // Strip CDATA artifacts
+    s = s.replaceAll('<![CDATA[', '').replaceAll(']]>', '').replaceAll(']>', '');
+    // Strip standard HTML tags
+    s = s.replaceAll(RegExp(r'<[^>]*>'), ' ');
+    // Strip trailing or malformed closing tags like </, </p, <div
+    s = s.replaceAll(RegExp(r'</?[a-zA-Z0-9_-]*>?'), ' ');
+    // Decode HTML entities
+    s = s
         .replaceAll('&amp;', '&')
         .replaceAll('&lt;', '<')
         .replaceAll('&gt;', '>')
         .replaceAll('&quot;', '"')
         .replaceAll('&#39;', "'")
-        .replaceAll('&nbsp;', ' ')
-        .trim();
+        .replaceAll('&apos;', "'")
+        .replaceAll('&nbsp;', ' ');
+    // Strip trailing or leading garbage brackets/tags
+    s = s.replaceAll(RegExp(r'[\s\]></]+$'), '');
+    s = s.replaceAll(RegExp(r'^[\s\]></]+'), '');
+    return s.trim().replaceAll(RegExp(r'\s+'), ' ');
   }
 
   static String _inferSentiment(String title, String summary) {

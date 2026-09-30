@@ -85,6 +85,7 @@ class NotificationService {
     String? payload,
   }) async {
     try {
+      final safeId = (id.abs()) % 2147483647;
       final androidDetails = AndroidNotificationDetails(
         'tradevision_price_alerts',
         'TradeVision Price Alerts',
@@ -95,7 +96,7 @@ class NotificationService {
         icon: '@mipmap/ic_launcher',
         enableVibration: true,
         playSound: true,
-        category: AndroidNotificationCategory.alarm,
+        category: AndroidNotificationCategory.status,
         visibility: NotificationVisibility.public,
         styleInformation: BigTextStyleInformation(
           body,
@@ -116,7 +117,7 @@ class NotificationService {
       );
 
       await _plugin.show(
-        id: id,
+        id: safeId,
         title: title,
         body: body,
         notificationDetails: notificationDetails,

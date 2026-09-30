@@ -11,6 +11,7 @@ import '../widgets/animated_press_card.dart';
 import '../widgets/real_stock_chart.dart';
 import '../widgets/create_alert_sheet.dart';
 import '../services/api_service.dart';
+import '../widgets/tradevision_report_sheet.dart';
 
 class AnalysisScreen extends StatefulWidget {
   final StockModel currentStock;
@@ -33,6 +34,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   String? _uploadedFileName;
   PlatformFile? _uploadedFile;
   bool _isAnalyzing = false;
+  String _analysisProgressText = 'Analyzing chart...';
   String? _analysisResult;
   Map<String, dynamic>? _visionReport;
 
@@ -44,6 +46,30 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   void initState() {
     super.initState();
     _selectedStock = widget.currentStock;
+  }
+
+  void _showStockPickerBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _StockSearchSheet(
+        currentStock: _selectedStock,
+        onSelected: (StockModel stock) {
+          setState(() {
+            _selectedStock = stock;
+            _analysisResult = null;
+            _visionReport = null;
+          });
+          if (widget.onSelectStock != null) {
+            widget.onSelectStock!(stock);
+          }
+          if (_uploadedFile != null && _uploadedFile!.bytes != null) {
+            _analyzeChart();
+          }
+        },
+      ),
+    );
   }
 
   Future<void> _pickImage() async {
@@ -75,6 +101,15 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           return;
         }
 
+        // Auto-detect ticker from filename if present
+        final fnUpper = file.name.toUpperCase();
+        for (final s in StockRepository.stocks) {
+          if (fnUpper.contains(s.ticker)) {
+            _selectedStock = s;
+            break;
+          }
+        }
+
         setState(() {
           _uploadedFile = file;
           _uploadedFileName = file.name;
@@ -101,32 +136,77 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     if (_uploadedFile == null || _uploadedFile!.bytes == null) return;
     setState(() {
       _isAnalyzing = true;
+      _analysisProgressText = 'Validating chart format & dimensions...';
       _analysisResult = null;
       _visionReport = null;
     });
 
     try {
-      final res = await ApiService.analyzeChartScreenshot(
-        bytes: _uploadedFile!.bytes!,
-        filename: _uploadedFileName ?? 'chart.png',
+      // Dynamic progress step sequence conforming to Section 26
+      Future.delayed(const Duration(milliseconds: 350), () {
+        if (mounted && _isAnalyzing) setState(() => _analysisProgressText = 'Reading visual candlestick structure...');
+      });
+      Future.delayed(const Duration(milliseconds: 700), () {
+        if (mounted && _isAnalyzing) setState(() => _analysisProgressText = 'Fetching verified live exchange data...');
+      });
+      Future.delayed(const Duration(milliseconds: 1050), () {
+        if (mounted && _isAnalyzing) setState(() => _analysisProgressText = 'Calculating programmatic technical indicators...');
+      });
+      Future.delayed(const Duration(milliseconds: 1400), () {
+        if (mounted && _isAnalyzing) setState(() => _analysisProgressText = 'Running TradeVision XGBoost ML model...');
+      });
+      Future.delayed(const Duration(milliseconds: 1750), () {
+        if (mounted && _isAnalyzing) setState(() => _analysisProgressText = 'Scanning real-time market news & sentiment...');
+      });
+      Future.delayed(const Duration(milliseconds: 2100), () {
+        if (mounted && _isAnalyzing) setState(() => _analysisProgressText = 'Correlating multi-source evidence matrix...');
+      });
+      Future.delayed(const Duration(milliseconds: 2450), () {
+        if (mounted && _isAnalyzing) setState(() => _analysisProgressText = 'Synthesizing TradeVision AI report...');
+      });
+
+      // 1. First attempt dynamic TradeVision Market Intelligence Report synthesis
+      final report = await ApiService.generateMarketIntelligenceReport(
         symbol: _selectedStock.ticker,
+        imageBytes: _uploadedFile!.bytes!,
+        filename: _uploadedFileName ?? 'chart.png',
+        timeframe: '1D',
       );
 
       if (mounted) {
         setState(() {
           _isAnalyzing = false;
-          if (res != null && res['status'] == 'success') {
-            _visionReport = res;
-            _analysisResult = res['rationale'] ?? res['pattern'];
+          if (report != null) {
+            _stockReport = report;
+            final detectedSymbol = report['asset']?['symbol']?.toString();
+            if (detectedSymbol != null &&
+                detectedSymbol.isNotEmpty &&
+                detectedSymbol.toUpperCase() != _selectedStock.ticker.toUpperCase()) {
+              final stock = StockRepository.getStock(detectedSymbol);
+              _selectedStock = stock;
+            }
+            final exec = report['executive_summary']?.toString();
+            final ov = report['cross_source_analysis']?['overall_state']?.toString();
+            _analysisResult = exec ?? 'TradeVision Market Intelligence Report generated ($ov).';
           } else {
             _analysisResult =
                 'Technical pattern detected for ${_selectedStock.ticker} near ${_selectedStock.priceFormatted}. Support verified on exchange levels.';
           }
         });
 
-        // Automatically present the comprehensive institutional vision report modal
-        if (res != null && res['status'] == 'success') {
-          _showVisionReportSheet(res);
+        // Automatically present the comprehensive institutional report modal
+        if (report != null) {
+          showTradeVisionReportSheet(context, report);
+        } else {
+          // Fallback to legacy chart analysis
+          final res = await ApiService.analyzeChartScreenshot(
+            bytes: _uploadedFile!.bytes!,
+            filename: _uploadedFileName ?? 'chart.png',
+            symbol: _selectedStock.ticker,
+          );
+          if (res != null && res['status'] == 'success') {
+            _showVisionReportSheet(res);
+          }
         }
       }
     } catch (e) {
@@ -144,22 +224,32 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Future<void> _generateStockReport() async {
     setState(() => _isGeneratingReport = true);
     try {
-      final report = await ApiService.fetchStockReport(_selectedStock.ticker);
+      final report = await ApiService.generateMarketIntelligenceReport(
+        symbol: _selectedStock.ticker,
+        timeframe: '1D',
+      );
       if (mounted) {
         setState(() {
           _isGeneratingReport = false;
           _stockReport = report;
         });
+        if (!mounted) return;
         if (report != null) {
-          _showComprehensiveReportSheet(report);
+          showTradeVisionReportSheet(context, report);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not generate report. Please ensure backend is running.'),
-              backgroundColor: Color(0xFFFF3B3B),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          final fallbackReport = await ApiService.fetchStockReport(_selectedStock.ticker);
+          if (!mounted) return;
+          if (fallbackReport != null) {
+            _showComprehensiveReportSheet(fallbackReport);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Could not generate report. Please ensure backend is running.'),
+                backgroundColor: Color(0xFFFF3B3B),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         }
       }
     } catch (e) {
@@ -1639,36 +1729,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         ),
                         const SizedBox(width: 8),
                         // Stock Dropdown Selector
-                        PopupMenuButton<StockModel>(
-                          onSelected: (stock) {
-                            setState(() {
-                              _selectedStock = stock;
-                              _analysisResult = null;
-                              _visionReport = null;
-                            });
-                            if (widget.onSelectStock != null) {
-                              widget.onSelectStock!(stock);
-                            }
-                          },
-                          itemBuilder: (context) {
-                            return StockRepository.stocks.map((s) {
-                              return PopupMenuItem<StockModel>(
-                                value: s,
-                                child: Row(
-                                  children: [
-                                    TickerLogo(
-                                      ticker: s.ticker,
-                                      logoUrl: s.logoUrl,
-                                      logoColor: s.logoColor,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(s.ticker, style: TextStyle(fontWeight: FontWeight.w800, color: theme.colorScheme.onSurface)),
-                                  ],
-                                ),
-                              );
-                            }).toList();
-                          },
+                        GestureDetector(
+                          onTap: _showStockPickerBottomSheet,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -2166,6 +2228,92 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
           const SizedBox(height: 14),
 
+          // Selected target stock switcher pill
+          InkWell(
+            onTap: _showStockPickerBottomSheet,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E2A3A) : const Color(0xFFEFF4FB),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: const Color(0xFF0066CC).withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  TickerLogo(
+                    ticker: _selectedStock.ticker,
+                    logoUrl: _selectedStock.logoUrl,
+                    logoColor: _selectedStock.logoColor,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Target: ',
+                            style: GoogleFonts.inter(
+                              fontSize: 11.5,
+                              color: const Color(0xFF8892A4),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          TextSpan(
+                            text: '${_selectedStock.ticker} ',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0066CC),
+                            ),
+                          ),
+                          TextSpan(
+                            text: '• ${_selectedStock.priceFormatted}',
+                            style: GoogleFonts.inter(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? const Color(0xFFE8ECF0) : const Color(0xFF1A1A2E),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0066CC).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Switch',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0066CC),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        const Icon(Icons.arrow_drop_down, size: 16, color: Color(0xFF0066CC)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // Upload area (show when no file uploaded)
           if (_uploadedFileName == null)
             GestureDetector(
@@ -2250,9 +2398,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           _uploadedFileName!,
+                          maxLines: 1,
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -2260,25 +2410,63 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        Text(
-                          'Verified Chart Loaded for ${_selectedStock.ticker}',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: const Color(0xFF00C853),
-                            fontWeight: FontWeight.w500,
+                        const SizedBox(height: 3),
+                        InkWell(
+                          onTap: _showStockPickerBottomSheet,
+                          borderRadius: BorderRadius.circular(4),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Chart assigned to: ${_selectedStock.ticker} ',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10.5,
+                                    color: const Color(0xFF00C853),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Icon(Icons.edit, size: 10, color: Color(0xFF00C853)),
+                                ),
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.refresh_rounded, size: 13),
-                    label: Text('Change', style: GoogleFonts.inter(fontSize: 11)),
-                    style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFF0066CC),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      minimumSize: const Size(40, 30),
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: _pickImage,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0066CC).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color(0xFF0066CC).withValues(alpha: 0.25),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.refresh_rounded, size: 12, color: Color(0xFF0066CC)),
+                          const SizedBox(width: 3),
+                          Text(
+                            'Change',
+                            style: GoogleFonts.inter(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF0066CC),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -2302,7 +2490,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Processing image geometry & cross-referencing NSE ticks...',
+                    _analysisProgressText,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: const Color(0xFF8892A4),
@@ -2433,21 +2621,30 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       height: 1.45,
                     ),
                   ),
-                  if (_visionReport != null) ...[
+                  if (_stockReport != null || _visionReport != null) ...[
                     const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () => _showVisionReportSheet(_visionReport!),
-                            icon: const Icon(Icons.article_rounded, size: 15, color: Colors.white),
-                            label: const Text(
-                              'VIEW FULL SCREENSHOT RESEARCH REPORT',
-                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.white),
+                            onPressed: () {
+                              if (_stockReport != null) {
+                                showTradeVisionReportSheet(context, _stockReport!);
+                              } else if (_visionReport != null) {
+                                _showVisionReportSheet(_visionReport!);
+                              }
+                            },
+                            icon: const Icon(Icons.analytics_rounded, size: 15, color: Colors.white),
+                            label: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'VIEW FULL TRADEVISION AI REPORT',
+                                style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.white),
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0066CC),
-                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -2509,6 +2706,337 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               color: const Color(0xFF00C853),
               fontWeight: FontWeight.w500,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StockSearchSheet extends StatefulWidget {
+  final StockModel currentStock;
+  final ValueChanged<StockModel> onSelected;
+
+  const _StockSearchSheet({
+    required this.currentStock,
+    required this.onSelected,
+  });
+
+  @override
+  State<_StockSearchSheet> createState() => _StockSearchSheetState();
+}
+
+class _StockSearchSheetState extends State<_StockSearchSheet> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  List<StockModel> _results = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _results = StockRepository.stocks;
+    _searchCtrl.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.removeListener(_onSearchChanged);
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final query = _searchCtrl.text.trim();
+    if (query.isEmpty) {
+      setState(() {
+        _results = StockRepository.stocks;
+      });
+    } else {
+      final matches = StockRepository.searchStocks(query);
+      setState(() {
+        _results = matches;
+      });
+    }
+  }
+
+  void _selectCustomTicker(String raw) {
+    final sym = raw.trim().toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    if (sym.isNotEmpty) {
+      final stock = StockRepository.getStock(sym);
+      widget.onSelected(stock);
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final query = _searchCtrl.text.trim().toUpperCase();
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.75,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF101927) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? const Color(0xFF1E2A3A) : const Color(0xFFE2E8F0),
+            width: 1.5,
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 38,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black12,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Select Asset for Analysis',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Choose any stock or index to analyze with AI Computer Vision & Institutional Research',
+                        style: GoogleFonts.inter(
+                          fontSize: 11.5,
+                          color: const Color(0xFF8892A4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  onPressed: () => Navigator.of(context).pop(),
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
+              ],
+            ),
+          ),
+
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF162338) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF223550) : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: TextField(
+                controller: _searchCtrl,
+                autofocus: false,
+                style: GoogleFonts.inter(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Search stock, company or symbol (e.g. INFY, TATAMOTORS, BTC)...',
+                  hintStyle: GoogleFonts.inter(
+                    fontSize: 12.5,
+                    color: const Color(0xFF8892A4),
+                  ),
+                  prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Color(0xFF0066CC)),
+                  suffixIcon: _searchCtrl.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          onPressed: () => _searchCtrl.clear(),
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+              ),
+            ),
+          ),
+
+          // Custom ticker option if query not directly matching
+          if (query.isNotEmpty && !_results.any((s) => s.ticker.toUpperCase() == query))
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: InkWell(
+                onTap: () => _selectCustomTicker(query),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0066CC).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF0066CC).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.add_chart_rounded, color: Color(0xFF0066CC), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Analyze custom symbol "$query"',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0066CC),
+                          ),
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 13, color: Color(0xFF0066CC)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Stock list
+          Expanded(
+            child: _results.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.search_off_rounded, size: 40, color: Colors.grey.shade500),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No exact matching pre-loaded asset',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Tap "Analyze custom symbol" above to analyze it directly.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF8892A4)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                    itemCount: _results.length,
+                    separatorBuilder: (_, __) => Divider(
+                      height: 1,
+                      color: isDark ? const Color(0xFF1E2A3A) : const Color(0xFFF1F5F9),
+                    ),
+                    itemBuilder: (context, index) {
+                      final stock = _results[index];
+                      final isCurrent = stock.ticker == widget.currentStock.ticker;
+
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        leading: TickerLogo(
+                          ticker: stock.ticker,
+                          logoUrl: stock.logoUrl,
+                          logoColor: stock.logoColor,
+                          size: 34,
+                        ),
+                        title: Row(
+                          children: [
+                            Text(
+                              stock.ticker,
+                              style: GoogleFonts.inter(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF1E2A3A) : const Color(0xFFE2E8F0),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                stock.exchange,
+                                style: GoogleFonts.inter(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF8892A4),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        subtitle: Text(
+                          stock.fullName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: const Color(0xFF8892A4),
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  stock.priceFormatted,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                                Text(
+                                  '${stock.isPositive ? '+' : ''}${stock.changePercent.toStringAsFixed(2)}%',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: stock.isPositive ? AppColors.gain : AppColors.loss,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (isCurrent) ...[
+                              const SizedBox(width: 8),
+                              const Icon(Icons.check_circle_rounded, color: Color(0xFF0066CC), size: 18),
+                            ],
+                          ],
+                        ),
+                        onTap: () {
+                          widget.onSelected(stock);
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),

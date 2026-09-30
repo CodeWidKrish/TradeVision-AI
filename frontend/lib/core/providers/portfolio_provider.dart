@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/stock_data.dart';
 import '../../services/notification_service.dart';
 import '../../services/secure_storage_service.dart';
+import '../../services/app_notification_hub.dart';
+import '../../models/app_notification_model.dart';
 
 class PaperTrade {
   final String id;
@@ -142,6 +144,7 @@ class PortfolioProvider extends ChangeNotifier {
   final List<double> _equityHistory = [initialCapital];
   double _realizedPnL = 0.0;
   final List<StockModel> _watchlist = List.from(StockRepository.stocks);
+  final Set<String> _alertedRangeThresholds = {};
   static PortfolioProvider? instance;
 
   PortfolioProvider() {
@@ -330,6 +333,27 @@ class PortfolioProvider extends ChangeNotifier {
       ),
     );
 
+    // Reset range tracking thresholds for fresh position
+    _alertedRangeThresholds.removeWhere((k) => k.startsWith('${ticker}_'));
+
+    // Trigger system notification & notification center entry
+    try {
+      AppNotificationHub.instance.notify(
+        AppNotificationItem(
+          id: 'trade_buy_${ticker}_${DateTime.now().millisecondsSinceEpoch}',
+          type: NotificationType.priceAlert,
+          categoryTag: 'TRADE EXECUTED',
+          title: 'Bought $qty shares of $ticker',
+          body: 'Order filled at ₹${stock.price.toStringAsFixed(2)}. Range alerts active for +1% & +2% moves.',
+          accentColor: const Color(0xFF00C853),
+          iconAsset: 'assets/images/logo_icon.png',
+          route: '/paper-trading',
+          priority: NotificationPriority.high,
+          actionLabel: 'VIEW PORTFOLIO',
+        ),
+      );
+    } catch (_) {}
+
     _recordEquityPoint();
     _saveToPrefs();
     notifyListeners();
@@ -355,6 +379,7 @@ class PortfolioProvider extends ChangeNotifier {
 
     if (pos.quantity <= 0) {
       _positions.remove(ticker);
+      _alertedRangeThresholds.removeWhere((k) => k.startsWith('${ticker}_'));
     }
 
     _tradeHistory.insert(
@@ -369,6 +394,25 @@ class PortfolioProvider extends ChangeNotifier {
         realizedPnL: tradePnL,
       ),
     );
+
+    // Trigger system notification for closed/partial trade
+    try {
+      final pnlPrefix = tradePnL >= 0 ? '+₹' : '-₹';
+      AppNotificationHub.instance.notify(
+        AppNotificationItem(
+          id: 'trade_sell_${ticker}_${DateTime.now().millisecondsSinceEpoch}',
+          type: NotificationType.priceAlert,
+          categoryTag: 'TRADE EXECUTED',
+          title: 'Sold $qty shares of $ticker',
+          body: 'Order filled at ₹${stock.price.toStringAsFixed(2)}. Realized P&L: $pnlPrefix${tradePnL.abs().toStringAsFixed(2)}.',
+          accentColor: const Color(0xFFFF3B3B),
+          iconAsset: 'assets/images/logo_icon.png',
+          route: '/paper-trading',
+          priority: NotificationPriority.high,
+          actionLabel: 'VIEW PORTFOLIO',
+        ),
+      );
+    } catch (_) {}
 
     _recordEquityPoint();
     _saveToPrefs();
@@ -439,6 +483,79 @@ class PortfolioProvider extends ChangeNotifier {
           payload: order.ticker,
         );
       }
+    }
+
+    // Evaluate live range alerts (+1% / +2% gain or loss) for active paper holdings
+    _evaluatePositionRangeAlerts(stock);
+  }
+
+  void _evaluatePositionRangeAlerts(StockModel stock) {
+    final ticker = stock.ticker.toUpperCase();
+    final pos = _positions[ticker];
+    if (pos == null || pos.avgPrice <= 0 || pos.quantity <= 0) return;
+
+    final currentPrice = stock.price;
+    final pctMove = ((currentPrice - pos.avgPrice) / pos.avgPrice) * 100;
+    final floatingPnL = (currentPrice - pos.avgPrice) * pos.quantity;
+
+    // Milestone 1: +1% increase
+    final key1 = '${ticker}_plus_1';
+    if (pctMove >= 1.0 && !_alertedRangeThresholds.contains(key1)) {
+      _alertedRangeThresholds.add(key1);
+      AppNotificationHub.instance.notify(
+        AppNotificationItem(
+          id: 'range_${ticker}_plus1_${DateTime.now().millisecondsSinceEpoch}',
+          type: NotificationType.priceAlert,
+          categoryTag: 'POSITION ALERT',
+          title: '$ticker is UP +${pctMove.toStringAsFixed(1)}%',
+          body: '$ticker rose to ₹${currentPrice.toStringAsFixed(2)} (bought at ₹${pos.avgPrice.toStringAsFixed(2)}). Floating gain: +₹${floatingPnL.toStringAsFixed(2)}.',
+          accentColor: const Color(0xFF00C853),
+          iconAsset: 'assets/images/logo_icon.png',
+          route: '/paper-trading',
+          priority: NotificationPriority.high,
+          actionLabel: 'VIEW POSITION',
+        ),
+      );
+    }
+
+    // Milestone 2: +2% increase
+    final key2 = '${ticker}_plus_2';
+    if (pctMove >= 2.0 && !_alertedRangeThresholds.contains(key2)) {
+      _alertedRangeThresholds.add(key2);
+      AppNotificationHub.instance.notify(
+        AppNotificationItem(
+          id: 'range_${ticker}_plus2_${DateTime.now().millisecondsSinceEpoch}',
+          type: NotificationType.priceAlert,
+          categoryTag: 'TARGET HIT',
+          title: '🎯 $ticker Target Hit (+${pctMove.toStringAsFixed(1)}%)',
+          body: '$ticker crossed +2% target at ₹${currentPrice.toStringAsFixed(2)}! Total gain: +₹${floatingPnL.toStringAsFixed(2)}.',
+          accentColor: const Color(0xFF00C853),
+          iconAsset: 'assets/images/logo_icon.png',
+          route: '/paper-trading',
+          priority: NotificationPriority.high,
+          actionLabel: 'VIEW POSITION',
+        ),
+      );
+    }
+
+    // Risk milestone: -1.5% decrease
+    final keyNeg = '${ticker}_neg_1';
+    if (pctMove <= -1.5 && !_alertedRangeThresholds.contains(keyNeg)) {
+      _alertedRangeThresholds.add(keyNeg);
+      AppNotificationHub.instance.notify(
+        AppNotificationItem(
+          id: 'range_${ticker}_neg1_${DateTime.now().millisecondsSinceEpoch}',
+          type: NotificationType.priceAlert,
+          categoryTag: 'RISK ALERT',
+          title: '⚠️ $ticker Position Alert (${pctMove.toStringAsFixed(1)}%)',
+          body: '$ticker declined to ₹${currentPrice.toStringAsFixed(2)} (${pctMove.toStringAsFixed(2)}% from entry). Review risk and stop levels.',
+          accentColor: const Color(0xFFFF3B3B),
+          iconAsset: 'assets/images/logo_icon.png',
+          route: '/paper-trading',
+          priority: NotificationPriority.high,
+          actionLabel: 'VIEW POSITION',
+        ),
+      );
     }
   }
 

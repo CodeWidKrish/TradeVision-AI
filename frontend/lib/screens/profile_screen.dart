@@ -10,6 +10,12 @@ import '../core/providers/theme_provider.dart';
 import '../core/providers/auth_provider.dart';
 import '../services/storage_service.dart';
 import '../core/security_service.dart';
+import '../widgets/help_support_sheet.dart';
+import '../widgets/app_lock_sheet.dart';
+import '../widgets/account_info_sheet.dart';
+import '../widgets/portfolio_settings_sheet.dart';
+import '../services/app_notification_hub.dart';
+import '../models/app_notification_model.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -19,8 +25,19 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _priceAlertsEnabled = true;
-  bool _aiInsightsEnabled = true;
+  late bool _priceAlertsEnabled;
+  late bool _marketTimingEnabled;
+  late bool _highPriorityNewsEnabled;
+  late bool _aiInsightsEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _priceAlertsEnabled = StorageService.isPriceAlertsEnabled();
+    _marketTimingEnabled = StorageService.isMarketTimingNotificationsEnabled();
+    _highPriorityNewsEnabled = StorageService.isHighPriorityNewsEnabled();
+    _aiInsightsEnabled = StorageService.isAiInsightsNotifEnabled();
+  }
 
   void _confirmLogout() {
     HapticFeedback.heavyImpact();
@@ -47,103 +64,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             child: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),
-        ],
-      ),
-    );
-  }
-
-  void _showAccountInfoDialog() {
-    final name = StorageService.getUserDisplayName() ?? 'Investor';
-    final email = StorageService.getUserEmail() ?? 'user@example.com';
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Account Details & KYC', style: TextStyle(fontWeight: FontWeight.w800)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Name: $name', style: const TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 4),
-              Text('Email: $email'),
-              SizedBox(height: 4),
-              Text('PAN: ABCDE1234F'),
-              SizedBox(height: 4),
-              Text('Demat Client ID: 1208160001234567'),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.verified, color: AppColors.gain, size: 18),
-                  SizedBox(width: 6),
-                  Text('KYC Status: VERIFIED (SEBI Compliant)', style: TextStyle(color: AppColors.gain, fontWeight: FontWeight.w800, fontSize: 12)),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK', style: TextStyle(fontWeight: FontWeight.w800)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showDematLinkageSheet() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Linked Demat & Trading Brokers', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-              const Divider(height: 20),
-              _buildBrokerTile('Zerodha Kite', 'ID: AB1234 • Connected', Icons.check_circle, AppColors.gain),
-              const SizedBox(height: 8),
-              _buildBrokerTile('Groww', 'ID: GW9876 • Connected', Icons.check_circle, AppColors.gain),
-              const SizedBox(height: 8),
-              _buildBrokerTile('Angel One', 'Tap to Connect', Icons.add_circle_outline, AppColors.primary),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBrokerTile(String name, String sub, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.borderStrong),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-                  Text(sub, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                ],
-              ),
-            ],
-          ),
-          const Icon(Icons.chevron_right, color: AppColors.textSecondary),
         ],
       ),
     );
@@ -229,7 +149,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
+        color: isSelected ? AppColors.primary.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected ? AppColors.primary : AppColors.borderStrong,
@@ -278,36 +198,244 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           builder: (context, setModalState) {
             return Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Notifications & Alerts', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                  const Divider(height: 20),
-                  SwitchListTile(
-                    title: const Text('Real-time Price Alerts', style: TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: const Text('Get instant alerts when stock hits support/resistance'),
-                    value: _priceAlertsEnabled,
-                    activeTrackColor: AppColors.primary,
-                    onChanged: (val) {
-                      setModalState(() => _priceAlertsEnabled = val);
-                      setState(() => _priceAlertsEnabled = val);
-                    },
-                  ),
-                  SwitchListTile(
-                    title: const Text('AI Trading Signals', style: TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: const Text('Push alerts for high-probability AI catalysts'),
-                    value: _aiInsightsEnabled,
-                    activeTrackColor: AppColors.primary,
-                    onChanged: (val) {
-                      setModalState(() => _aiInsightsEnabled = val);
-                      setState(() => _aiInsightsEnabled = val);
-                    },
-                  ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Notifications & Alerts Engine', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                    const Divider(height: 20),
+                    SwitchListTile(
+                      title: const Text('Real-time Price Alerts', style: TextStyle(fontWeight: FontWeight.w700)),
+                      subtitle: const Text('Instant heads-up notification when target prices breach'),
+                      value: _priceAlertsEnabled,
+                      activeTrackColor: AppColors.primary,
+                      onChanged: (val) async {
+                        await StorageService.setPriceAlertsEnabled(val);
+                        setModalState(() => _priceAlertsEnabled = val);
+                        setState(() => _priceAlertsEnabled = val);
+                      },
+                    ),
+                    SwitchListTile(
+                      title: const Text('Market Timing Announcements', style: TextStyle(fontWeight: FontWeight.w700)),
+                      subtitle: const Text('Real-time alerts for Pre-Open (9:00 AM), Market Open (9:15 AM), and Close (3:30 PM)'),
+                      value: _marketTimingEnabled,
+                      activeTrackColor: AppColors.primary,
+                      onChanged: (val) async {
+                        await StorageService.setMarketTimingNotificationsEnabled(val);
+                        setModalState(() => _marketTimingEnabled = val);
+                        setState(() => _marketTimingEnabled = val);
+                      },
+                    ),
+                    SwitchListTile(
+                      title: const Text('High-Priority Breaking News', style: TextStyle(fontWeight: FontWeight.w700)),
+                      subtitle: const Text('Urgent market catalysts and corporate action alerts'),
+                      value: _highPriorityNewsEnabled,
+                      activeTrackColor: AppColors.primary,
+                      onChanged: (val) async {
+                        await StorageService.setHighPriorityNewsEnabled(val);
+                        setModalState(() => _highPriorityNewsEnabled = val);
+                        setState(() => _highPriorityNewsEnabled = val);
+                      },
+                    ),
+                    SwitchListTile(
+                      title: const Text('AI Insights & Momentum Triggers', style: TextStyle(fontWeight: FontWeight.w700)),
+                      subtitle: const Text('Deep learning buy/sell signals & FinBERT sentiment catalysts'),
+                      value: _aiInsightsEnabled,
+                      activeTrackColor: AppColors.primary,
+                      onChanged: (val) async {
+                        await StorageService.setAiInsightsNotifEnabled(val);
+                        setModalState(() => _aiInsightsEnabled = val);
+                        setState(() => _aiInsightsEnabled = val);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    const Text('Test Real-Time Notifications', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              AppNotificationHub.instance.triggerMarketTimingNotification(MarketTimingMilestone.marketOpen);
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(Icons.notifications_active_outlined, size: 16),
+                            label: const Text('Test Market Open', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              AppNotificationHub.instance.notify(
+                                AppNotificationItem.breakingNews(
+                                  id: 'demo_news_${DateTime.now().millisecondsSinceEpoch}',
+                                  title: 'RELIANCE secures ₹12,000 Cr green energy contract',
+                                  body: 'Economic Times reports significant order win. AI momentum probability shifted to 89% Strong Buy.',
+                                  relatedTicker: 'RELIANCE',
+                                ),
+                              );
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(Icons.flash_on_rounded, size: 16, color: Color(0xFFFF8C00)),
+                            label: const Text('Test News Alert', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showAboutDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+        final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
+        return AlertDialog(
+          backgroundColor: cardBg,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  'assets/images/logo_icon.png',
+                  width: 36,
+                  height: 36,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.show_chart, color: AppColors.primary, size: 36),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'TradeVision AI',
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textColor),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text('v2.4.0 (Build 2026.09)', style: TextStyle(fontSize: 12, color: subtextColor)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TradeVision is an advanced real-time Indian stock market analytics and algorithmic intelligence platform.',
+                  style: TextStyle(fontSize: 13, color: textColor, height: 1.4),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.verified_user_outlined, size: 16, color: AppColors.primary),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Compliance & Regulatory Framework',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '• SEBI (Research Analysts) Regulations 2014 compliant analytics engine.\n• Digital Personal Data Protection Act 2023 compliant zero-knowledge telemetry.\n• Real-time data mapped to NSE & BSE equity tickers.',
+                        style: TextStyle(fontSize: 11, color: subtextColor, height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Open-Source Licenses & Attribution:',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'TradeVision uses official open-source packages licensed under MIT, Apache 2.0, and BSD licenses.',
+                  style: TextStyle(fontSize: 11, color: subtextColor),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text('Close', style: TextStyle(color: subtextColor, fontWeight: FontWeight.w700)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      showLicensePage(
+                        context: context,
+                        applicationName: 'TradeVision AI',
+                        applicationVersion: 'v2.4.0 (Build 2026.09)',
+                        applicationIcon: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.asset(
+                              'assets/images/logo_icon.png',
+                              width: 60,
+                              height: 60,
+                              errorBuilder: (_, __, ___) => const Icon(Icons.show_chart, color: AppColors.primary, size: 60),
+                            ),
+                          ),
+                        ),
+                        applicationLegalese: '© 2026 TradeVision AI Inc. All rights reserved.\nLicensed under MIT and Apache 2.0 open-source dependencies.\nMarket data and FinBERT models configured for Indian Equity markets.',
+                      );
+                    },
+                    icon: const Icon(Icons.library_books_rounded, size: 15),
+                    label: const Text('View All Licenses', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         );
       },
     );
@@ -318,6 +446,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final themeMode = ref.watch(themeProvider);
     final isDarkMode = themeMode == ThemeMode.dark;
 
+    final displayName = StorageService.getUserDisplayName() ?? 'Investor';
+    final email = StorageService.getUserEmail() ?? 'user@example.com';
+    final initial = displayName.trim().isNotEmpty
+        ? displayName.trim()[0].toUpperCase()
+        : (email.isNotEmpty ? email[0].toUpperCase() : 'T');
+    final accountTier = StorageService.getAccountTier();
+    final kycStatus = StorageService.getKycStatus();
+    final isKycVerified = kycStatus.toUpperCase().contains('VERIFIED');
+    final pan = StorageService.getUserPan();
+    final watchlistCount = StorageService.getWatchlistSymbols().length;
+    final isLockActive = StorageService.isAppLockEnabled();
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.5,
@@ -326,7 +466,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'My Profile',
+          'My Profile & Settings',
           style: TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 18,
@@ -339,7 +479,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           padding: const EdgeInsets.symmetric(horizontal: AppDim.screenH, vertical: 16),
           child: Column(
             children: [
-              // User Card Avatar & Identity
+              // User Card Avatar & Dynamic Identity
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -376,7 +516,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              (StorageService.getUserDisplayName() ?? 'K')[0].toUpperCase(),
+                              initial,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 34,
@@ -387,17 +527,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         Container(
                           padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: AppColors.gain,
+                          decoration: BoxDecoration(
+                            color: isKycVerified ? AppColors.gain : const Color(0xFFFF8C00),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.check, size: 14, color: Colors.white),
+                          child: Icon(
+                            isKycVerified ? Icons.check : Icons.hourglass_top,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      StorageService.getUserDisplayName() ?? 'Investor',
+                      displayName,
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
@@ -405,8 +549,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      SecurityService.maskEmail(
-                          StorageService.getUserEmail() ?? 'user@example.com'),
+                      SecurityService.maskEmail(email),
                       style: const TextStyle(
                         fontSize: 13,
                         color: AppColors.textSecondary,
@@ -415,19 +558,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                     const SizedBox(height: 10),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                       ),
-                      child: const Text(
-                        'TradeVision Member',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.workspace_premium_rounded, size: 14, color: AppColors.primary),
+                          const SizedBox(width: 6),
+                          Text(
+                            accountTier,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -463,13 +614,33 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // Account & Portfolio Section
+              // Account & Portfolio Section - Completely Dynamic
               _buildSectionTitle('Account & Portfolio'),
               _buildSettingCard([
-                _buildTile(Icons.person_outline, 'Account Information', 'Personal details & KYC status', _showAccountInfoDialog),
-                _buildTile(Icons.pie_chart_outline_rounded, 'My Holdings', 'View portfolio asset breakdown', () => context.push('/holdings')),
-                _buildTile(Icons.bookmark_border, 'Watchlist Management', 'Manage custom saved stocks', () => context.push('/watchlist')),
-                _buildTile(Icons.account_balance_wallet_outlined, 'Portfolio Settings', 'Link Demat & Trading Account', _showDematLinkageSheet),
+                _buildTile(
+                  Icons.person_outline,
+                  'Account Information',
+                  'KYC: ${kycStatus.split(' ').first} • PAN: ${pan != null && pan.isNotEmpty ? pan : "Pending"}',
+                  () => AccountInfoSheet.show(context, onUpdated: () => setState(() {})),
+                ),
+                _buildTile(
+                  Icons.pie_chart_outline_rounded,
+                  'My Holdings',
+                  'View portfolio asset breakdown & equity balance',
+                  () => context.push('/holdings'),
+                ),
+                _buildTile(
+                  Icons.bookmark_border,
+                  'Watchlist Management',
+                  '$watchlistCount stocks tracked in active watchlist',
+                  () => context.push('/watchlist'),
+                ),
+                _buildTile(
+                  Icons.tune_rounded,
+                  'Trading & Risk Preferences',
+                  'Risk: ${StorageService.getRiskProfile()} • ${StorageService.getDefaultOrderType()} • SL: ${StorageService.getStopLossPct()}%',
+                  () => PortfolioSettingsSheet.show(context, onUpdated: () => setState(() {})),
+                ),
               ]),
 
               const SizedBox(height: 16),
@@ -503,32 +674,56 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   },
                 ),
                 const Divider(height: 1),
-                _buildTile(Icons.notifications_none, 'Price Alerts', 'Get notified when stock prices change', _showNotificationsSheet),
-                _buildTile(Icons.color_lens_outlined, 'App Theme', 'Change how the app looks', () => _showThemeSelectionSheet(themeMode)),
-                _buildTile(Icons.lock_outline, 'App Lock & Security', 'Use fingerprint or PIN to lock the app', () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('App Lock Enabled'), behavior: SnackBarBehavior.floating),
-                  );
-                }),
+                _buildTile(
+                  Icons.notifications_none,
+                  'Notifications & Alerts',
+                  '${_priceAlertsEnabled ? "Alerts Active" : "Alerts Muted"} • Market Milestones',
+                  _showNotificationsSheet,
+                ),
+                _buildTile(
+                  Icons.color_lens_outlined,
+                  'App Theme',
+                  themeMode == ThemeMode.dark
+                      ? 'Dark Mode (OLED Active)'
+                      : (themeMode == ThemeMode.light ? 'Light Mode Active' : 'System Default'),
+                  () => _showThemeSelectionSheet(themeMode),
+                ),
+                _buildTile(
+                  Icons.lock_outline,
+                  'App Lock & Security',
+                  isLockActive ? 'PIN Protected • Biometric Guard' : 'Disabled • Tap to configure',
+                  () => AppLockSheet.show(context),
+                ),
               ]),
 
               const SizedBox(height: 16),
 
               _buildSectionTitle('Support & Legal'),
               _buildSettingCard([
-                _buildTile(Icons.help_outline, 'Help & Support', 'Ask a question or report a problem', () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Connecting to Help & Support...'), behavior: SnackBarBehavior.floating),
-                  );
-                }),
-                _buildTile(Icons.info_outline, 'About This App', 'Version 2.4.0', () {
-                  showAboutDialog(
-                    context: context,
-                    applicationName: 'TradeVision AI',
-                    applicationVersion: '2.4.0',
-                    applicationLegalese: '© 2026 TradeVision AI Inc. All rights reserved.',
-                  );
-                }),
+                _buildTile(
+                  Icons.help_outline,
+                  'Help & Support',
+                  'Interactive FAQs, support desk & tickets',
+                  () => HelpSupportSheet.show(context),
+                ),
+                _buildTile(
+                  Icons.privacy_tip_outlined,
+                  'Privacy Policy',
+                  'DPDP Act 2023 & data encryption architecture',
+                  () => context.push('/privacy-policy'),
+                ),
+                _buildTile(
+                  Icons.description_outlined,
+                  'Terms & Conditions',
+                  'Service terms & mandatory SEBI risk disclaimers',
+                  () => context.push('/terms-conditions'),
+                ),
+                _buildTile(
+                  Icons.info_outline,
+                  'About This App',
+                  'Official licenses, version & technology stack',
+                  _showAboutDialog,
+                ),
               ]),
 
               const SizedBox(height: 24),

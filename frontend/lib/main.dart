@@ -12,6 +12,7 @@ import 'router/app_router.dart';
 import 'services/storage_service.dart';
 import 'services/alert_service.dart';
 import 'services/notification_service.dart';
+import 'services/app_notification_hub.dart';
 import 'widgets/connectivity_banner.dart';
 import 'widgets/in_app_notification_banner.dart';
 
@@ -46,6 +47,7 @@ void main() async {
     await StorageService.init();
     await AlertService.instance.init();
     await NotificationService.instance.init();
+    await AppNotificationHub.instance.init();
     await StockRepository.loadStockUniverse();
   } catch (e) {
     debugPrint('StorageService / StockRepository init failed: $e');
