@@ -55,7 +55,7 @@
 [🛠️ Built With](#%EF%B8%8F-built-with) •
 [🚀 Quick Start](#-quick-start) •
 [📡 API Reference](#-rest--websocket-api-reference) •
-[👥 Contributors](#-contributors)
+[👨‍💻 Author](#-author--creator)
 
 </div>
 
@@ -504,39 +504,17 @@ The optimized Android APK will be generated at:
 
 ---
 
-## 👥 Contributors
+## 👨‍💻 Author & Creator
 
 <div align="center">
 
-<table border="0">
-  <tr>
-    <td align="center" width="220">
-      <a href="https://github.com/CodeWidKrish">
-        <img src="https://github.com/CodeWidKrish.png" width="100" style="border-radius: 50%;" alt="Krish Hingu"/><br /><br />
-        <b>Krish Hingu</b><br />
-        <code>@CodeWidKrish</code>
-      </a>
-    </td>
-    <td align="center" width="220">
-      <a href="https://github.com/KrishnaBhundiya">
-        <img src="https://github.com/KrishnaBhundiya.png" width="100" style="border-radius: 50%;" alt="Krishna Bhundiya"/><br /><br />
-        <b>Krishna Bhundiya</b><br />
-        <code>@KrishnaBhundiya</code>
-      </a>
-    </td>
-    <td align="center" width="220">
-      <a href="https://github.com/TechthriveParv">
-        <img src="https://github.com/TechthriveParv.png" width="100" style="border-radius: 50%;" alt="Parv"/><br /><br />
-        <b>Parv</b><br />
-        <code>@TechthriveParv</code>
-      </a>
-    </td>
-  </tr>
-</table>
+<a href="https://github.com/CodeWidKrish">
+  <img src="https://github.com/CodeWidKrish.png" width="120" style="border-radius: 50%; border: 3px solid #00E5FF;" alt="Krish Hingu"/><br /><br />
+  <h3><b>Krish Hingu</b></h3>
+</a>
 
-<br />
-
-[![CodeWidKrish GitHub Stats](https://github-readme-stats.vercel.app/api?username=CodeWidKrish&show_icons=true&theme=dark&hide_border=true&bg_color=0A0E1A&title_color=00E5FF&icon_color=76FF03&text_color=FFFFFF)](https://github.com/CodeWidKrish)
+[![GitHub](https://img.shields.io/badge/GitHub-CodeWidKrish-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CodeWidKrish)
+[![Repository](https://img.shields.io/badge/Repository-TradeVision--AI-00E5FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/CodeWidKrish/TradeVision-AI)
 
 </div>
 
