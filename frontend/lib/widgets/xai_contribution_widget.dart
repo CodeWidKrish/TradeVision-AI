@@ -170,36 +170,47 @@ class XaiContributionWidget extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0066CC).withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'UNIVERSAL XGBOOST (V2)',
-                          style: GoogleFonts.inter(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                            color: const Color(0xFF0066CC),
-                          ),
+                      Flexible(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0066CC).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'UNIVERSAL XGBOOST (V2)',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5,
+                                    color: const Color(0xFF0066CC),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '93.15% Precision',
+                              style: GoogleFonts.inter(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF00C853),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '93.15% Precision',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF00C853),
-                        ),
-                      ),
-                      const Spacer(),
+                      const SizedBox(width: 6),
                       Text(
                         (mlDirection ?? 'NEUTRAL').toUpperCase(),
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w800,
                           color: (mlDirection ?? '').toUpperCase().contains('UP') || (mlDirection ?? '').toUpperCase().contains('BULL')
                               ? const Color(0xFF00C853)
@@ -236,19 +247,38 @@ class XaiContributionWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        '▲ Bullish: ${((mlProbabilityUp ?? 0.33) * 100).toStringAsFixed(1)}%',
-                        style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF00C853)),
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '▲ Bullish: ${((mlProbabilityUp ?? 0.33) * 100).toStringAsFixed(1)}%',
+                            style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF00C853)),
+                          ),
+                        ),
                       ),
-                      Text(
-                        '■ Neutral: ${((mlProbabilityNeutral ?? 0.34) * 100).toStringAsFixed(1)}%',
-                        style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF8892A4)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Text(
+                            '■ Neutral: ${((mlProbabilityNeutral ?? 0.34) * 100).toStringAsFixed(1)}%',
+                            style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF8892A4)),
+                          ),
+                        ),
                       ),
-                      Text(
-                        '▼ Bearish: ${((mlProbabilityDown ?? 0.33) * 100).toStringAsFixed(1)}%',
-                        style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFFFF3B3B)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '▼ Bearish: ${((mlProbabilityDown ?? 0.33) * 100).toStringAsFixed(1)}%',
+                            style: GoogleFonts.robotoMono(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFFFF3B3B)),
+                          ),
+                        ),
                       ),
                     ],
                   ),
