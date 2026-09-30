@@ -1,14 +1,13 @@
 <div align="center">
 
-# ⚡ TradeVision AI
-
-### *Institutional-Grade AI Stock Intelligence, Machine Learning & Interactive Trading Platform*
+![Header](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,17,23,28&height=250&section=header&text=⚡%20TradeVision%20AI&fontSize=62&fontColor=ffffff&animation=twinkling&fontAlignY=38&desc=Institutional-Grade%20AI%20Stock%20Intelligence%20%7C%20Universal%20XGBoost%20v2%20%7C%20Groq%20Copilot&descAlignY=58&descAlign=50)
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-🟢%20All%20Systems%20Operational-00C853?style=for-the-badge&labelColor=0A0E1A" alt="Status" />
   <img src="https://img.shields.io/badge/NSE%20Universe-2%2C500%2B%20Equities-00B0FF?style=for-the-badge&labelColor=0A0E1A" alt="NSE Universe" />
   <img src="https://img.shields.io/badge/ML%20Gated%20Accuracy-97.19%25-7C4DFF?style=for-the-badge&labelColor=0A0E1A" alt="Accuracy" />
   <img src="https://img.shields.io/badge/Copilot%20Speed-300%2B%20T%2Fs-FF6D00?style=for-the-badge&labelColor=0A0E1A" alt="Speed" />
+  <img src="https://img.shields.io/badge/Paper%20Capital-₹10%2C00%2C000-FFD600?style=for-the-badge&labelColor=0A0E1A" alt="Paper Capital" />
 </p>
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
@@ -23,9 +22,24 @@
 
 <br />
 
-**TradeVision AI** is a state-of-the-art, cross-platform stock market analytics and trading intelligence platform designed specifically for the **Indian Equities Market (NSE & BSE)**. It bridges the gap between raw market noise and actionable insight by unifying **Universal XGBoost v2 machine learning models**, an **Explainable AI (XAI)** reasoning engine, **Groq Llama 3 70B financial copiloting**, **FinBERT sentiment analysis**, and an interactive **Virtual Paper Trading Simulator** inside a high-performance Flutter interface.
+**TradeVision AI** is a state-of-the-art, cross-platform stock market analytics and trading intelligence platform designed specifically for the **Indian Equities Market (NSE & BSE)**. It bridges the gap between raw market noise and actionable insight by unifying **Universal XGBoost v2 machine learning models**, an **Explainable AI (XAI)** reasoning engine, **Groq Llama 3 70B financial copiloting**, **FinBERT sentiment analysis**, and an interactive **Virtual Paper Trading Simulator** inside a high-performance Flutter client.
 
 <br />
+
+<p align="center">
+  <a href="https://github.com/CodeWidKrish/TradeVision-AI">
+    <img src="https://img.shields.io/badge/🚀%20Explore%20Codebase-TradeVision-00E5FF?style=for-the-badge&labelColor=0A0E1A" alt="Explore Codebase" />
+  </a>
+  <a href="http://127.0.0.1:8000/docs">
+    <img src="https://img.shields.io/badge/📖%20Swagger%20API-Interactive%20Docs-76FF03?style=for-the-badge&labelColor=0A0E1A" alt="API Docs" />
+  </a>
+  <a href="https://github.com/CodeWidKrish/TradeVision-AI/issues">
+    <img src="https://img.shields.io/badge/🐛%20Report%20Bug-Issues-FF5252?style=for-the-badge&labelColor=0A0E1A" alt="Report Bug" />
+  </a>
+  <a href="https://github.com/CodeWidKrish/TradeVision-AI/pulls">
+    <img src="https://img.shields.io/badge/💡%20Contribute-PRs%20Welcome-E040FB?style=for-the-badge&labelColor=0A0E1A" alt="Contribute" />
+  </a>
+</p>
 
 ```
   ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -38,8 +52,8 @@
 [🧠 Machine Learning](#-universal-xgboost-v2-machine-learning-engine) •
 [🤖 AI Copilot](#-groq-llama-3-70b-copilot) •
 [💼 Paper Trading](#-virtual-paper-trading-simulator) •
-[🛠️ Tech Stack](#%EF%B8%8F-tech-stack-matrix) •
-[🚀 Getting Started](#-getting-started) •
+[🛠️ Built With](#%EF%B8%8F-built-with) •
+[🚀 Quick Start](#-quick-start) •
 [📡 API Reference](#-rest--websocket-api-reference) •
 [👥 Contributors](#-contributors)
 
@@ -51,7 +65,7 @@
 
 <div align="center">
 
-| Metric | Score | Benchmark Target | Production Status |
+| Metric | Benchmark Score | Target Threshold | Production Status |
 | :--- | :---: | :---: | :---: |
 | **Gated Directional Precision** | `97.19%` | `> 90.00%` | 🟢 Verified on Out-of-Sample NSE Data |
 | **Area Under ROC Curve (ROC-AUC)** | `0.9869` | `> 0.9500` | 🟢 Calibrated Dual-Sigmoid Thresholds |
@@ -64,14 +78,16 @@
 
 ---
 
-## 🎯 Executive Overview
+## ⚔️ Why TradeVision AI?
 
-Retail market participants in India are often overwhelmed by complex candlestick charts, ambiguous financial news, and technical jargon without clear risk quantification. **TradeVision AI** re-engineers this experience from the ground up:
-
-* 🛡️ **No Black Boxes:** Every machine learning signal is paired with **XAI Feature Contributions** that reveal exactly which indicators (RSI divergence, MACD crossovers, Bollinger squeeze, volume spikes) drove the prediction.
-* 🎯 **Calibrated Confidence Thresholds:** Rather than guessing on every tick, the ML model enforces a strict confidence gate—delivering **97.19% directional accuracy** on gated high-conviction trades and a **0.9869 ROC-AUC**.
-* 🤖 **Adaptive AI Copilot:** Powered by Groq Llama 3 70B, offering three distinct analytical depth modes (**Quick**, **Standard**, and **Deep**) alongside in-app conversational navigation and plain-English guidance.
-* 💼 **Zero-Risk Sandbox:** First-time traders can test strategies using an integrated **Virtual Paper Trading Simulator** with ₹10,00,000 in virtual capital, real-time execution, and live P&L tracking.
+| Architectural Dimension | Traditional Trading Apps (Groww / Zerodha) | ⚡ TradeVision AI Experience |
+| :--- | :---: | :---: |
+| **Market Intelligence** | ⚠️ Raw financial headlines without risk context | ✅ **XGBoost v2 ML Engine + Groq LPU** synthesis with XAI feature weights |
+| **Chart Mathematical Accuracy** | ❌ Arbitrary random walks or synthetic drift | ✅ **Syncfusion Japanese Candlesticks** with real OHLC precision |
+| **Predictive Transparency** | ❌ Opaque recommendations or black boxes | ✅ **XAI Feature Waterfall** revealing RSI, MACD, Volume & EMA contributions |
+| **Adaptive Financial Assistant** | ❌ Scripted FAQ bots or zero conversational memory | ✅ **Groq Copilot with 3 Scaling Modes** (Quick, Standard, Deep) |
+| **Risk-Free Practical Sandbox** | ⚠️ Real money required to understand volatility | ✅ **Virtual Paper Trading Simulator** with ₹10,00,000 in simulated capital |
+| **Trading Session Engine** | ❌ Static device clock | ✅ **Live Indian Standard Time (IST) Engine** with Pre-Open & Closing phases |
 
 ---
 
@@ -146,11 +162,34 @@ Retail market participants in India are often overwhelmed by complex candlestick
 
 ---
 
+## 🛠️ Built With
+
+<div align="center">
+
+[![My Skills](https://skillicons.dev/icons?i=flutter,dart,fastapi,py,docker,sqlite,git,github,githubactions,linux,vscode,postman)](https://skillicons.dev)
+
+</div>
+
+<br />
+
+| Layer | Technologies & Libraries | Version / Specs |
+| :--- | :--- | :--- |
+| **Mobile & Web Client** | **Flutter**, **Dart**, Riverpod 2.x, GoRouter, Google Fonts (Inter, Roboto Mono) | Flutter 3.x / Dart 3.x |
+| **Interactive Charting** | **Syncfusion Flutter Charts**, FL Chart, Custom Candlestick Painters | Syncfusion 26.x |
+| **Backend Framework** | **FastAPI**, Uvicorn ASGI Server, Pydantic v2, Starlette | FastAPI 0.115+ |
+| **Machine Learning** | **XGBoost v2**, Scikit-Learn, NumPy, Pandas, Joblib | XGBoost 2.0+ |
+| **AI Copilot Inference** | **Groq Cloud LPU**, Meta Llama-3.3-70b-versatile Engine | 300+ Tokens/Sec |
+| **Financial NLP** | **FinBERT**, Transformers, HuggingFace Hub | NLP Polarity Classifier |
+| **Market Data Providers** | **Yahoo Finance (`yfinance`)**, NSE Data Stream | Real-time & Intraday |
+| **Persistence & Cache** | **SharedPreferences**, SQLite Local Storage | Instant Load Times |
+
+---
+
 ## 🏛️ System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph Frontend ["Flutter Cross-Platform Client (Web, Android, iOS)"]
+    subgraph Client ["Flutter Cross-Platform Client (Web, Android, iOS)"]
         UI["UI Screens (Home, Market, Stock Detail, Copilot, Portfolio)"]
         Riverpod["Riverpod 2.x State Management"]
         Router["GoRouter Declarative Navigation"]
@@ -301,25 +340,6 @@ POST /api/ai/chat                    200 OK  [412 ms]  -> Tokens: 648 (Mode: STA
 
 ---
 
-## 🛠️ Tech Stack Matrix
-
-| Architecture Layer | Technology | Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Frontend Framework** | **Flutter** | `3.x` | Cross-platform UI for Web, Android, and iOS |
-| **Language** | **Dart** | `3.x` | Strongly typed client-side application logic |
-| **State Architecture** | **Riverpod** | `2.x` | Reactive, compile-safe dependency injection & state |
-| **Navigation** | **GoRouter** | `14.x` | Declarative URL routing and deep linking |
-| **Charting Engine** | **Syncfusion Flutter Charts** | `26.x` | High-fidelity interactive Candlestick & Volume charts |
-| **Backend Framework** | **FastAPI** | `0.115+` | Asynchronous high-throughput REST & WebSocket server |
-| **Backend Runtime** | **Python** | `3.10+` | Core server and machine learning execution environment |
-| **Machine Learning** | **XGBoost & Scikit-Learn** | `2.0+` | Multi-factor price action classification & feature evaluation |
-| **LLM Inference** | **Groq API (Llama 3 70B)** | Cloud | Sub-second generative technical rationale & chat |
-| **NLP Sentiment** | **FinBERT** | HuggingFace | Financial headline polarity scoring |
-| **Data Providers** | **Yahoo Finance (`yfinance`)** | `0.2.x` | Real-time and historical equity quotes & fundamentals |
-| **Local Persistence** | **SharedPreferences** | `2.x` | Client-side cache for paper trading ledger & preferences |
-
----
-
 ## 📂 Repository Structure
 
 ```text
@@ -377,7 +397,7 @@ TradeVision/
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -463,6 +483,20 @@ The optimized Android APK will be generated at:
 
 ---
 
+## 🗺️ Product Roadmap
+
+- [x] **Universal XGBoost v2 ML Engine**: 27 engineered technical & microstructural features with calibrated gating.
+- [x] **Groq Llama 3 70B Copilot**: 3 depth modes (`Quick`, `Standard`, `Deep`) with conversational intent routing.
+- [x] **Interactive Virtual Paper Trading**: ₹10,00,000 capital account, instant order execution, and live P&L.
+- [x] **Syncfusion Candlestick Charts**: Multi-timeframe inspection with RSI, MACD, and Bollinger Bands overlays.
+- [x] **FinBERT Live Sentiment Engine**: Real-time financial headline scraping and polarity scoring.
+- [x] **Live Indian Standard Time (IST) Engine**: Automatic trading session phase detection.
+- [ ] **Level 2 Real-Time Order Book**: Visual bid/ask market depth ladder with live participant weighting.
+- [ ] **Algorithmic Strategy Backtesting**: Custom strategy builder with historical equity replay.
+- [ ] **Voice-Enabled Market Copilot**: Natural language voice queries for instant stock screening.
+
+---
+
 ## ⚠️ Regulatory & Educational Disclaimer
 
 > **STATUTORY DISCLAIMER (SEBI Compliance):**  
@@ -477,17 +511,17 @@ The optimized Android APK will be generated at:
 <table border="0">
   <tr>
     <td align="center" width="220">
-      <a href="https://github.com/KrishnaBhundiya">
-        <img src="https://github.com/KrishnaBhundiya.png" width="100" style="border-radius: 50%;" alt="Krishna Bhundiya"/><br /><br />
-        <b>Krishna Bhundiya</b><br />
-        <code>@KrishnaBhundiya</code>
-      </a>
-    </td>
-    <td align="center" width="220">
       <a href="https://github.com/CodeWidKrish">
         <img src="https://github.com/CodeWidKrish.png" width="100" style="border-radius: 50%;" alt="Krish Hingu"/><br /><br />
         <b>Krish Hingu</b><br />
         <code>@CodeWidKrish</code>
+      </a>
+    </td>
+    <td align="center" width="220">
+      <a href="https://github.com/KrishnaBhundiya">
+        <img src="https://github.com/KrishnaBhundiya.png" width="100" style="border-radius: 50%;" alt="Krishna Bhundiya"/><br /><br />
+        <b>Krishna Bhundiya</b><br />
+        <code>@KrishnaBhundiya</code>
       </a>
     </td>
     <td align="center" width="220">
@@ -500,11 +534,17 @@ The optimized Android APK will be generated at:
   </tr>
 </table>
 
+<br />
+
+[![CodeWidKrish GitHub Stats](https://github-readme-stats.vercel.app/api?username=CodeWidKrish&show_icons=true&theme=dark&hide_border=true&bg_color=0A0E1A&title_color=00E5FF&icon_color=76FF03&text_color=FFFFFF)](https://github.com/CodeWidKrish)
+
 </div>
 
 ---
 
 <div align="center">
+
+![Footer](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,17,23,28&height=120&section=footer)
 
 ### ⭐ Star us on GitHub if you find TradeVision AI inspiring!
 
