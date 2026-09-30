@@ -87,26 +87,34 @@ class _CommandPaletteState extends State<CommandPalette> {
     });
 
     // Snappy debounce for live API search across 2,595+ NSE/BSE stocks
-    _debounceTimer = Timer(const Duration(milliseconds: 120), () async {
+    _debounceTimer = Timer(const Duration(milliseconds: 140), () async {
       setState(() => _isLoading = true);
       try {
         final apiResults = await ApiService.searchStocks(query, limit: 40);
-        if (apiResults.isNotEmpty && mounted) {
+        if (apiResults.isNotEmpty && mounted && _searchController.text.trim() == query) {
           final mapped = apiResults.map((json) {
             final stock = StockModel.fromMasterJson(json);
             StockRepository.registerStock(stock);
             return stock;
           }).toList();
 
+          final existing = _filteredStocks.map((e) => e.ticker).toSet();
+          final merged = List<StockModel>.from(_filteredStocks);
+          for (final m in mapped) {
+            if (!existing.contains(m.ticker)) {
+              merged.add(m);
+            }
+          }
+
           setState(() {
-            _filteredStocks = mapped;
+            _filteredStocks = merged.isNotEmpty ? merged : mapped;
             _isLoading = false;
           });
           return;
         }
       } catch (_) {}
 
-      if (mounted) {
+      if (mounted && _searchController.text.trim() == query) {
         setState(() {
           _filteredStocks = StockRepository.searchStocks(query);
           _isLoading = false;
@@ -116,7 +124,10 @@ class _CommandPaletteState extends State<CommandPalette> {
   }
 
   void _onStockTapped(StockModel stock) {
+    FocusScope.of(context).unfocus();
     HapticFeedback.lightImpact();
+    _debounceTimer?.cancel();
+    StockRepository.registerStock(stock);
     Navigator.of(context).pop();
     if (widget.onSelectStock != null) {
       widget.onSelectStock!(stock);
@@ -315,9 +326,14 @@ class _CommandPaletteState extends State<CommandPalette> {
                           final isPositive = stock.change >= 0;
                           final changeColor = isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444);
 
-                          return InkWell(
-                            onTap: () => _onStockTapped(stock),
-                            child: Padding(
+                          return Material(
+                            key: ValueKey('cmd-stock-${stock.ticker}'),
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => _onStockTapped(stock),
+                              splashColor: const Color(0xFF0066CC).withValues(alpha: 0.12),
+                              highlightColor: const Color(0xFF0066CC).withValues(alpha: 0.06),
+                              child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                               child: Row(
                                 children: [
@@ -405,7 +421,8 @@ class _CommandPaletteState extends State<CommandPalette> {
                                 ],
                               ),
                             ),
-                          );
+                          ),
+                        );
                         },
                       ),
               ),

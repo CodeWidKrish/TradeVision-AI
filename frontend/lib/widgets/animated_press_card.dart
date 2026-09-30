@@ -22,15 +22,24 @@ class _AnimatedPressCardState extends State<AnimatedPressCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        if (widget.onTap != null) widget.onTap!();
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) {
+        if (mounted) setState(() => _isPressed = true);
       },
-      onTapCancel: () => setState(() => _isPressed = false),
+      onTapUp: (_) {
+        if (mounted) setState(() => _isPressed = false);
+      },
+      onTapCancel: () {
+        if (mounted) setState(() => _isPressed = false);
+      },
+      onTap: () {
+        if (widget.onTap != null) {
+          widget.onTap!();
+        }
+      },
       child: AnimatedScale(
         scale: _isPressed ? widget.scaleDown : 1.0,
-        duration: const Duration(milliseconds: 120),
+        duration: const Duration(milliseconds: 100),
         curve: Curves.easeOutCubic,
         child: widget.child,
       ),
