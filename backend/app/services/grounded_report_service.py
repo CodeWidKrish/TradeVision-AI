@@ -148,6 +148,19 @@ def generate_market_intelligence_report(
     ml_prediction: Dict[str, Any] = {}
     try:
         ml_prediction = predict_market_direction(clean_sym, hist_df, technical_analysis)
+        # Augment with dynamic 7D, 14D, 30D quantitative price prediction bands
+        try:
+            from app.services.report_service import _compute_ml_price_prediction
+            if current_price and current_price > 0:
+                forecast_meta = _compute_ml_price_prediction(clean_sym, float(current_price))
+                ml_prediction["forecast_7d"] = forecast_meta.get("forecast_7d", {})
+                ml_prediction["forecast_14d"] = forecast_meta.get("forecast_14d", {})
+                ml_prediction["forecast_30d"] = forecast_meta.get("forecast_30d", {})
+                ml_prediction["daily_velocity_rs"] = forecast_meta.get("daily_velocity_rs", 0.0)
+                ml_prediction["trend_consistency_r2"] = forecast_meta.get("trend_consistency_r2", 0.6)
+                ml_prediction["historical_win_rate"] = forecast_meta.get("historical_win_rate", 70.0)
+        except Exception as f_err:
+            logger.warning(f"Could not compute forward target bands for {clean_sym}: {f_err}")
     except Exception as e:
         logger.error(f"ML prediction pipeline error for {clean_sym}: {e}")
         ml_prediction = {

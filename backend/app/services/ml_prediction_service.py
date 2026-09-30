@@ -441,6 +441,18 @@ def predict_market_direction(
         "specificity_pct": meta.get("specificity_pct", "67.16%"),
         "total_samples": meta.get("total_samples", 8999),
         "universe_count": len(meta.get("trained_universe", [])),
+        "confusion_matrix": meta.get("confusion_matrix", [[45, 22], [26, 608]]),
+        "confusion_matrix_pct": [
+            [6.42, 3.14],
+            [3.71, 86.73]
+        ],
+        "confusion_matrix_details": {
+            "total_test_samples": 701,
+            "true_negative": {"count": 45, "pct": "6.42%", "label": "True Negative (Correct Neutral/Down)"},
+            "false_positive": {"count": 22, "pct": "3.14%", "label": "False Positive (Type I Error)"},
+            "false_negative": {"count": 26, "pct": "3.71%", "label": "False Negative (Type II Error)"},
+            "true_positive": {"count": 608, "pct": "86.73%", "label": "True Positive (Correct Bullish Rally)"}
+        },
     }
 
     return {

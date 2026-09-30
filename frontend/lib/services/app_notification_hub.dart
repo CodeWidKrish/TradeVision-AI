@@ -129,67 +129,70 @@ class AppNotificationHub {
     // 16:00 PM (960m) - Post-market close
 
     if (!isWeekend) {
-      // 1. Pre-Open (9:00 AM - 9:15 AM)
-      if (totalMinutes >= 540 && totalMinutes < 555) {
-        final key = '${dateStr}_preOpen';
-        if (!_triggeredMilestonesToday.contains(key)) {
-          _triggeredMilestonesToday.add(key);
+      // 1. Pre-Open (09:00 AM - 09:02 AM is the active notification window)
+      final preOpenKey = '${dateStr}_preOpen';
+      if (totalMinutes >= 540 && totalMinutes < 542) {
+        if (!_triggeredMilestonesToday.contains(preOpenKey)) {
+          _triggeredMilestonesToday.add(preOpenKey);
           notify(AppNotificationItem.marketTiming(
-            id: key,
+            id: preOpenKey,
             title: 'NSE/BSE Pre-Open Session Started',
             body: 'Pre-market order accumulation and equilibrium price discovery is now active (9:00 AM IST).',
             accentColor: const Color(0xFFFF8C00),
           ));
         }
-      } else if (totalMinutes >= 555) {
-        // Mark as passed for today once open begins
-        _triggeredMilestonesToday.add('${dateStr}_preOpen');
+      } else if (totalMinutes >= 542) {
+        // Mark as already past for today so opening later doesn't trigger a stale alert
+        _triggeredMilestonesToday.add(preOpenKey);
       }
 
-      // 2. Market Open (9:15 AM - 3:30 PM)
-      if (totalMinutes >= 555 && totalMinutes < 930) {
-        final key = '${dateStr}_marketOpen';
-        if (!_triggeredMilestonesToday.contains(key)) {
-          _triggeredMilestonesToday.add(key);
+      // 2. Market Open (09:15 AM - 09:17 AM is the active notification window)
+      final openKey = '${dateStr}_marketOpen';
+      if (totalMinutes >= 555 && totalMinutes < 557) {
+        if (!_triggeredMilestonesToday.contains(openKey)) {
+          _triggeredMilestonesToday.add(openKey);
           notify(AppNotificationItem.marketTiming(
-            id: key,
+            id: openKey,
             title: 'Indian Stock Market is LIVE!',
             body: 'NSE & BSE regular trading session is officially OPEN. Real-time AI signals and institutional momentum tracking active.',
             accentColor: const Color(0xFF00C853),
           ));
         }
-      } else if (totalMinutes >= 930) {
-        _triggeredMilestonesToday.add('${dateStr}_marketOpen');
+      } else if (totalMinutes >= 557) {
+        // Mark as already past for today
+        _triggeredMilestonesToday.add(openKey);
       }
 
-      // 3. Market Close (3:30 PM - 4:00 PM)
-      if (totalMinutes >= 930 && totalMinutes < 960) {
-        final key = '${dateStr}_marketClose';
-        if (!_triggeredMilestonesToday.contains(key)) {
-          _triggeredMilestonesToday.add(key);
+      // 3. Market Close (15:30 PM - 15:32 PM is the active notification window)
+      final closeKey = '${dateStr}_marketClose';
+      if (totalMinutes >= 930 && totalMinutes < 932) {
+        if (!_triggeredMilestonesToday.contains(closeKey)) {
+          _triggeredMilestonesToday.add(closeKey);
           notify(AppNotificationItem.marketTiming(
-            id: key,
+            id: closeKey,
             title: 'Market Trading Session Closed',
             body: 'Normal trading has concluded at 3:30 PM IST. Review your daily P&L and AI closing market wrap.',
             accentColor: const Color(0xFFFF3B3B),
           ));
         }
-      } else if (totalMinutes >= 960) {
-        _triggeredMilestonesToday.add('${dateStr}_marketClose');
+      } else if (totalMinutes >= 932) {
+        _triggeredMilestonesToday.add(closeKey);
       }
 
-      // 4. Post-Market Close (4:00 PM onwards)
-      if (totalMinutes >= 960 && totalMinutes < 975) {
-        final key = '${dateStr}_postClose';
-        if (!_triggeredMilestonesToday.contains(key)) {
-          _triggeredMilestonesToday.add(key);
+      // 4. Post-Market Close (16:00 PM - 16:02 PM is the active notification window)
+      final postCloseKey = '${dateStr}_postClose';
+      if (totalMinutes >= 960 && totalMinutes < 962) {
+        if (!_triggeredMilestonesToday.contains(postCloseKey)) {
+          _triggeredMilestonesToday.add(postCloseKey);
           notify(AppNotificationItem.marketTiming(
-            id: key,
+            id: postCloseKey,
             title: 'Post-Market Settlement Closed',
             body: 'Closing price determination and post-market window has closed. Markets reopen tomorrow at 9:00 AM IST.',
             accentColor: const Color(0xFF64748B),
           ));
         }
+      } else if (totalMinutes >= 962) {
+        _triggeredMilestonesToday.add(postCloseKey);
       }
     }
   }

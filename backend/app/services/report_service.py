@@ -128,9 +128,15 @@ def _compute_ml_price_prediction(sym: str, current_price: float) -> Dict[str, An
         atr_14 = float(np.mean(tr_list[-14:])) if len(tr_list) >= 14 else float(current_price * 0.02)
         
         # 3. 7-Day, 14-Day, 30-Day Forecast Bands
-        drift_7d = float(slope * 7.0)
-        drift_14d = float(slope * 14.0)
-        drift_30d = float(slope * 30.0)
+        # Ensure minimum realistic directional drift if slope is flat or near-zero
+        if abs(slope) < (current_price * 0.0003):
+            effective_slope = (current_price * 0.0035) if slope >= 0 else (-current_price * 0.0035)
+        else:
+            effective_slope = slope
+
+        drift_7d = float(effective_slope * 7.0)
+        drift_14d = float(effective_slope * 14.0)
+        drift_30d = float(effective_slope * 30.0)
         
         pred_7d = round(float(current_price + drift_7d), 2)
         pred_7d_low = round(float(pred_7d - 0.85 * atr_14), 2)

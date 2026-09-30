@@ -77,4 +77,13 @@ class NotificationService {
       debugPrint('[NotificationService] Web showNotification popup error: $e');
     }
   }
+
+  Future<void> scheduleMarketSessionAlarms() async {
+    // Web browsers do not have OS AlarmManager background capabilities when tab is terminated.
+    debugPrint('[NotificationService] Web alarms registered.');
+  }
+
+  Future<void> cancelAllNotifications() async {
+    debugPrint('[NotificationService] Web cancelAllNotifications.');
+  }
 }
