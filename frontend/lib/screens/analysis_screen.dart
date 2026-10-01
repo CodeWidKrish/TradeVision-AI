@@ -12,6 +12,7 @@ import '../widgets/animated_press_card.dart';
 import '../widgets/real_stock_chart.dart';
 import '../widgets/create_alert_sheet.dart';
 import '../services/api_service.dart';
+import '../services/report_pdf_service.dart';
 import '../widgets/tradevision_report_sheet.dart';
 
 class AnalysisScreen extends StatefulWidget {
@@ -241,11 +242,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           final fallbackReport = await ApiService.fetchStockReport(_selectedStock.ticker);
           if (!mounted) return;
           if (fallbackReport != null) {
-            _showComprehensiveReportSheet(fallbackReport);
+            showTradeVisionReportSheet(context, fallbackReport);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Could not generate report. Please ensure backend is running.'),
+                content: Text('Could not generate report. Please try again.'),
                 backgroundColor: Color(0xFFFF3B3B),
                 behavior: SnackBarBehavior.floating,
               ),
@@ -386,6 +387,34 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         ],
                       ),
                     ),
+                    InkWell(
+                      onTap: () => ReportPdfService.downloadReportPdf(context, report),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0066CC).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF0066CC).withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.picture_as_pdf_rounded, size: 14, color: Color(0xFF0066CC)),
+                            const SizedBox(width: 5),
+                            Text(
+                              'PDF',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF0066CC),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
                     IconButton(
                       icon: const Icon(Icons.close_rounded),
                       onPressed: () => Navigator.pop(ctx),
@@ -754,7 +783,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                               children: [
                                 Expanded(
                                   child: Container(
-                                    padding: const EdgeInsets.all(10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: isDark ? const Color(0xFF0F172A) : Colors.white,
                                       borderRadius: BorderRadius.circular(10),
@@ -764,26 +793,41 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text('7-Day ML Target', style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600)),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '₹${(f7d['target'] as num?)?.toStringAsFixed(2) ?? target1.toStringAsFixed(2)}',
-                                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: const Color(0xFF00C853)),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('7-Day ML Target', style: GoogleFonts.inter(fontSize: 9.5, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600), maxLines: 1),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '₹${(f7d['target'] as num?)?.toStringAsFixed(2) ?? target1.toStringAsFixed(2)}',
+                                            style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.w800, color: const Color(0xFF00C853)),
+                                            maxLines: 1,
+                                          ),
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(
-                                          'Band: ₹${(f7d['range_low'] as num?)?.toStringAsFixed(0) ?? (cmp*0.98).toStringAsFixed(0)}–${(f7d['range_high'] as num?)?.toStringAsFixed(0) ?? (cmp*1.04).toStringAsFixed(0)}',
-                                          style: GoogleFonts.inter(fontSize: 9, color: const Color(0xFF8892A4)),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Band: ₹${(f7d['range_low'] as num?)?.toStringAsFixed(0) ?? (cmp*0.98).toStringAsFixed(0)}–${(f7d['range_high'] as num?)?.toStringAsFixed(0) ?? (cmp*1.04).toStringAsFixed(0)}',
+                                            style: GoogleFonts.inter(fontSize: 8.5, color: const Color(0xFF8892A4)),
+                                            maxLines: 1,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 Expanded(
                                   child: Container(
-                                    padding: const EdgeInsets.all(10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: isDark ? const Color(0xFF0F172A) : Colors.white,
                                       borderRadius: BorderRadius.circular(10),
@@ -793,26 +837,41 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text('14-Day ML Target', style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600)),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '₹${(f14d['target'] as num?)?.toStringAsFixed(2) ?? ((target1+target2)/2).toStringAsFixed(2)}',
-                                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: const Color(0xFF00B0FF)),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('14-Day ML Target', style: GoogleFonts.inter(fontSize: 9.5, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600), maxLines: 1),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '₹${(f14d['target'] as num?)?.toStringAsFixed(2) ?? ((target1+target2)/2).toStringAsFixed(2)}',
+                                            style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.w800, color: const Color(0xFF00B0FF)),
+                                            maxLines: 1,
+                                          ),
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(
-                                          'Band: ₹${(f14d['range_low'] as num?)?.toStringAsFixed(0) ?? (cmp*0.97).toStringAsFixed(0)}–${(f14d['range_high'] as num?)?.toStringAsFixed(0) ?? (cmp*1.07).toStringAsFixed(0)}',
-                                          style: GoogleFonts.inter(fontSize: 9, color: const Color(0xFF8892A4)),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Band: ₹${(f14d['range_low'] as num?)?.toStringAsFixed(0) ?? (cmp*0.97).toStringAsFixed(0)}–${(f14d['range_high'] as num?)?.toStringAsFixed(0) ?? (cmp*1.07).toStringAsFixed(0)}',
+                                            style: GoogleFonts.inter(fontSize: 8.5, color: const Color(0xFF8892A4)),
+                                            maxLines: 1,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 Expanded(
                                   child: Container(
-                                    padding: const EdgeInsets.all(10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: isDark ? const Color(0xFF0F172A) : Colors.white,
                                       borderRadius: BorderRadius.circular(10),
@@ -822,17 +881,32 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text('30-Day ML Target', style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600)),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '₹${(f30d['target'] as num?)?.toStringAsFixed(2) ?? target2.toStringAsFixed(2)}',
-                                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w800, color: const Color(0xFF8B5CF6)),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('30-Day ML Target', style: GoogleFonts.inter(fontSize: 9.5, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600), maxLines: 1),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '₹${(f30d['target'] as num?)?.toStringAsFixed(2) ?? target2.toStringAsFixed(2)}',
+                                            style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.w800, color: const Color(0xFF8B5CF6)),
+                                            maxLines: 1,
+                                          ),
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(
-                                          'Band: ₹${(f30d['range_low'] as num?)?.toStringAsFixed(0) ?? (cmp*0.96).toStringAsFixed(0)}–${(f30d['range_high'] as num?)?.toStringAsFixed(0) ?? (cmp*1.11).toStringAsFixed(0)}',
-                                          style: GoogleFonts.inter(fontSize: 9, color: const Color(0xFF8892A4)),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Band: ₹${(f30d['range_low'] as num?)?.toStringAsFixed(0) ?? (cmp*0.96).toStringAsFixed(0)}–${(f30d['range_high'] as num?)?.toStringAsFixed(0) ?? (cmp*1.11).toStringAsFixed(0)}',
+                                            style: GoogleFonts.inter(fontSize: 8.5, color: const Color(0xFF8892A4)),
+                                            maxLines: 1,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1222,11 +1296,29 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
                       const SizedBox(height: 20),
 
-                      // Copy & Actions Bar
+                      // Download PDF & Copy Actions Bar
                       Row(
                         children: [
                           Expanded(
+                            flex: 3,
                             child: ElevatedButton.icon(
+                              onPressed: () => ReportPdfService.downloadReportPdf(context, report),
+                              icon: const Icon(Icons.download_rounded, size: 16, color: Colors.white),
+                              label: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('DOWNLOAD REPORT (PDF)', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: Colors.white)),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0066CC),
+                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 2,
+                            child: OutlinedButton.icon(
                               onPressed: () {
                                 if (textSummary.isNotEmpty) {
                                   Clipboard.setData(ClipboardData(text: textSummary));
@@ -1239,11 +1331,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                   );
                                 }
                               },
-                              icon: const Icon(Icons.copy_rounded, size: 16, color: Colors.white),
-                              label: const Text('COPY FULL REPORT', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: Colors.white)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0066CC),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                              icon: const Icon(Icons.copy_rounded, size: 15, color: Color(0xFF0066CC)),
+                              label: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('COPY', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11, color: Color(0xFF0066CC))),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFF0066CC), width: 1.2),
+                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                             ),
@@ -1271,10 +1366,17 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title, style: GoogleFonts.inter(fontSize: 8.5, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(title, style: GoogleFonts.inter(fontSize: 8.5, color: const Color(0xFF8892A4), fontWeight: FontWeight.w600), maxLines: 1),
+          ),
           const SizedBox(height: 2),
-          Text(val, style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w800, color: isDark ? Colors.white : Colors.black87), maxLines: 1, overflow: TextOverflow.ellipsis),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(val, style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w800, color: isDark ? Colors.white : Colors.black87), maxLines: 1),
+          ),
         ],
       ),
     );
@@ -1337,6 +1439,34 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         ),
                       ),
                     ),
+                    InkWell(
+                      onTap: () => ReportPdfService.downloadReportPdf(context, report),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0066CC).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF0066CC).withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.picture_as_pdf_rounded, size: 14, color: Color(0xFF0066CC)),
+                            const SizedBox(width: 5),
+                            Text(
+                              'PDF',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF0066CC),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(ctx),
@@ -1487,26 +1617,53 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       ],
 
                       const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          if (fullText.isNotEmpty) {
-                            Clipboard.setData(ClipboardData(text: fullText));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Full ML Vision Report copied to clipboard!'),
-                                backgroundColor: Color(0xFF0066CC),
-                                behavior: SnackBarBehavior.floating,
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: ElevatedButton.icon(
+                              onPressed: () => ReportPdfService.downloadReportPdf(context, report),
+                              icon: const Icon(Icons.download_rounded, size: 16, color: Colors.white),
+                              label: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('DOWNLOAD REPORT (PDF)', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: Colors.white)),
                               ),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.copy_rounded, size: 16, color: Colors.white),
-                        label: const Text('COPY ML VISION REPORT', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0066CC),
-                          minimumSize: const Size(double.infinity, 46),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0066CC),
+                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 2,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                if (fullText.isNotEmpty) {
+                                  Clipboard.setData(ClipboardData(text: fullText));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Full ML Vision Report copied to clipboard!'),
+                                      backgroundColor: Color(0xFF0066CC),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.copy_rounded, size: 15, color: Color(0xFF0066CC)),
+                              label: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('COPY', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11, color: Color(0xFF0066CC))),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFF0066CC), width: 1.2),
+                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
