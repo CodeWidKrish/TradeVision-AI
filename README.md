@@ -27,16 +27,16 @@
 <br />
 
 <p align="center">
-  <a href="https://github.com/CodeWidKrish/TradeVision-AI">
+  <a href="https://github.com/KrishnaBhundiya/TradeVision">
     <img src="https://img.shields.io/badge/🚀%20Explore%20Codebase-TradeVision-00E5FF?style=for-the-badge&labelColor=0A0E1A" alt="Explore Codebase" />
   </a>
   <a href="http://127.0.0.1:8000/docs">
     <img src="https://img.shields.io/badge/📖%20Swagger%20API-Interactive%20Docs-76FF03?style=for-the-badge&labelColor=0A0E1A" alt="API Docs" />
   </a>
-  <a href="https://github.com/CodeWidKrish/TradeVision-AI/issues">
+  <a href="https://github.com/KrishnaBhundiya/TradeVision/issues">
     <img src="https://img.shields.io/badge/🐛%20Report%20Bug-Issues-FF5252?style=for-the-badge&labelColor=0A0E1A" alt="Report Bug" />
   </a>
-  <a href="https://github.com/CodeWidKrish/TradeVision-AI/pulls">
+  <a href="https://github.com/KrishnaBhundiya/TradeVision/pulls">
     <img src="https://img.shields.io/badge/💡%20Contribute-PRs%20Welcome-E040FB?style=for-the-badge&labelColor=0A0E1A" alt="Contribute" />
   </a>
 </p>
@@ -55,7 +55,7 @@
 [🛠️ Built With](#%EF%B8%8F-built-with) •
 [🚀 Quick Start](#-quick-start) •
 [📡 API Reference](#-rest--websocket-api-reference) •
-[👨‍💻 Author](#-author--creator)
+[👥 Contributors](#-contributors)
 
 </div>
 
@@ -504,17 +504,40 @@ The optimized Android APK will be generated at:
 
 ---
 
-## 👨‍💻 Author & Creator
+## 👥 Contributors
 
 <div align="center">
 
-<a href="https://github.com/CodeWidKrish">
-  <img src="https://github.com/CodeWidKrish.png" width="120" style="border-radius: 50%; border: 3px solid #00E5FF;" alt="Krish Hingu"/><br /><br />
-  <h3><b>Krish Hingu</b></h3>
-</a>
+<table border="0">
+  <tr>
+    <td align="center" width="220">
+      <a href="https://github.com/CodeWidKrish">
+        <img src="https://github.com/CodeWidKrish.png" width="100" style="border-radius: 50%;" alt="Krish Hingu"/><br /><br />
+        <b>Krish Hingu</b><br />
+        <code>@CodeWidKrish</code>
+      </a>
+    </td>
+    <td align="center" width="220">
+      <a href="https://github.com/KrishnaBhundiya">
+        <img src="https://github.com/KrishnaBhundiya.png" width="100" style="border-radius: 50%;" alt="Krishna Bhundiya"/><br /><br />
+        <b>Krishna Bhundiya</b><br />
+        <code>@KrishnaBhundiya</code>
+      </a>
+    </td>
+    <td align="center" width="220">
+      <a href="https://github.com/TechthriveParv">
+        <img src="https://github.com/TechthriveParv.png" width="100" style="border-radius: 50%;" alt="Parv"/><br /><br />
+        <b>Parv</b><br />
+        <code>@TechthriveParv</code>
+      </a>
+    </td>
+  </tr>
+</table>
 
-[![GitHub](https://img.shields.io/badge/GitHub-CodeWidKrish-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CodeWidKrish)
-[![Repository](https://img.shields.io/badge/Repository-TradeVision--AI-00E5FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/CodeWidKrish/TradeVision-AI)
+<br />
+
+[![GitHub](https://img.shields.io/badge/GitHub-KrishnaBhundiya-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/KrishnaBhundiya)
+[![Repository](https://img.shields.io/badge/Repository-TradeVision-00E5FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/KrishnaBhundiya/TradeVision)
 
 </div>
 
