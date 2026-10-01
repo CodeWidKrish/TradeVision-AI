@@ -8,71 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart' as provider;
 import '../core/providers/market_ticker_provider.dart';
 import '../core/providers/portfolio_provider.dart';
-import '../core/data/stock_data.dart';
+import '../core/data/user_holdings_data.dart';
 import 'ticker_logo.dart';
-
-class _HoldingItem {
-  final String ticker;
-  final String name;
-  final int quantity;
-  final double avgBuyPrice;
-  final Color color;
-
-  const _HoldingItem({
-    required this.ticker,
-    required this.name,
-    required this.quantity,
-    required this.avgBuyPrice,
-    required this.color,
-  });
-
-  double get invested => quantity * avgBuyPrice;
-}
-
-const List<_HoldingItem> _defaultHoldings = [
-  _HoldingItem(
-    ticker: 'RELIANCE',
-    name: 'Reliance Industries',
-    quantity: 120,
-    avgBuyPrice: 1180.00,
-    color: Color(0xFF0066CC),
-  ),
-  _HoldingItem(
-    ticker: 'HDFCBANK',
-    name: 'HDFC Bank',
-    quantity: 65,
-    avgBuyPrice: 1610.00,
-    color: Color(0xFF00C853),
-  ),
-  _HoldingItem(
-    ticker: 'TCS',
-    name: 'Tata Consultancy Services',
-    quantity: 25,
-    avgBuyPrice: 3350.00,
-    color: Color(0xFFFF8C00),
-  ),
-  _HoldingItem(
-    ticker: 'INFY',
-    name: 'Infosys',
-    quantity: 30,
-    avgBuyPrice: 1680.00,
-    color: Color(0xFF38BDF8),
-  ),
-  _HoldingItem(
-    ticker: 'SBIN',
-    name: 'State Bank of India',
-    quantity: 40,
-    avgBuyPrice: 740.00,
-    color: Color(0xFFA855F7),
-  ),
-  _HoldingItem(
-    ticker: 'TATAMOTORS',
-    name: 'Tata Motors',
-    quantity: 35,
-    avgBuyPrice: 890.00,
-    color: Color(0xFFEC4899),
-  ),
-];
 
 class PortfolioFlipCard extends StatefulWidget {
   const PortfolioFlipCard({super.key});
@@ -108,17 +45,9 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
     );
 
     // Instant synchronous baseline initialization (0ms delay)
-    double initStockVal = 0.0;
-    double initTodayGain = 0.0;
-    for (final h in _defaultHoldings) {
-      final stock = StockRepository.getStock(h.ticker);
-      final livePrice = stock.price > 0 ? stock.price : (h.avgBuyPrice * 1.15);
-      initStockVal += livePrice * h.quantity;
-      initTodayGain += stock.changeAmount * h.quantity;
-    }
-    final initTotal = initStockVal + 10288.0;
-    _lastPortfolioValue = initTotal;
-    _updateLiveHistory(initTotal, initTodayGain);
+    final snapshot = UserHoldingsRepository.computeSnapshot();
+    _lastPortfolioValue = snapshot.totalPortfolioValue;
+    _updateLiveHistory(snapshot.totalPortfolioValue, snapshot.todayGain);
   }
 
   @override
@@ -174,42 +103,17 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
     final _ = provider.Provider.of<MarketTickerNotifier>(context);
     final portfolioProvider = provider.Provider.of<PortfolioProvider>(context, listen: false);
 
-    // Compute dynamic real-time values across all holdings
-    double totalStockValue = 0.0;
-    double totalInvested = 0.0;
-    double todayGain = 0.0;
-
-    final Map<String, double> holdingValues = {};
-
-    for (final h in _defaultHoldings) {
-      final stock = StockRepository.getStock(h.ticker);
-      final livePrice = stock.price > 0 ? stock.price : (h.avgBuyPrice * 1.15);
-      final liveVal = livePrice * h.quantity;
-      totalStockValue += liveVal;
-      totalInvested += h.invested;
-      todayGain += stock.changeAmount * h.quantity;
-      holdingValues[h.ticker] = liveVal;
-    }
-
-    // Include paper trading positions if present
-    for (final pos in portfolioProvider.positions.values) {
-      final stock = StockRepository.getStock(pos.ticker);
-      final livePrice = stock.price > 0 ? stock.price : pos.avgPrice;
-      final liveVal = livePrice * pos.quantity;
-      totalStockValue += liveVal;
-      totalInvested += pos.totalInvested;
-      todayGain += stock.changeAmount * pos.quantity;
-      holdingValues[pos.ticker] = (holdingValues[pos.ticker] ?? 0.0) + liveVal;
-    }
-
-    const double cashReserve = 10288.0;
-    final double totalPortfolioValue = totalStockValue + cashReserve;
-    final double totalReturns = totalPortfolioValue - totalInvested;
-    final double returnsPercent =
-        totalInvested > 0 ? (totalReturns / totalInvested) * 100 : 0.0;
-    final double todayPercent = (totalPortfolioValue - todayGain) > 0
-        ? (todayGain / (totalPortfolioValue - todayGain)) * 100
-        : 0.0;
+    // Compute dynamic real-time values across all holdings via unified repository
+    final snapshot = UserHoldingsRepository.computeSnapshot(portfolioProvider: portfolioProvider);
+    final double totalStockValue = snapshot.totalStockValue;
+    final double totalInvested = snapshot.totalInvested;
+    final double todayGain = snapshot.todayGain;
+    final double cashReserve = snapshot.cashReserve;
+    final double totalPortfolioValue = snapshot.totalPortfolioValue;
+    final double totalReturns = snapshot.totalReturns;
+    final double returnsPercent = snapshot.returnsPercent;
+    final double todayPercent = snapshot.todayPercent;
+    final Map<String, double> holdingValues = snapshot.holdingCurrentValues;
 
     // Update real-time rolling wave history for the line chart
     _updateLiveHistory(totalPortfolioValue, todayGain);
