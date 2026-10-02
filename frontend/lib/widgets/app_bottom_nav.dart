@@ -29,7 +29,7 @@ class AppBottomNav extends StatelessWidget {
           top: BorderSide(
             color: isDark
                 ? const Color(0xFF1E2733)
-                : const Color(0xFFE2E6EA),
+                : const Color(0xFFE2E8F0),
             width: 1,
           ),
         ),
@@ -38,9 +38,9 @@ class AppBottomNav extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -3),
                 ),
               ],
       ),
@@ -138,6 +138,9 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = isDark ? const Color(0xFF38BDF8) : const Color(0xFF1E40AF);
+    final inactiveColor = isDark ? const Color(0xFF8892A4) : const Color(0xFF64748B);
+
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -152,7 +155,7 @@ class _NavItem extends StatelessWidget {
               height: isSelected ? 3 : 0,
               margin: const EdgeInsets.only(bottom: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFF0066CC),
+                color: activeColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -164,9 +167,7 @@ class _NavItem extends StatelessWidget {
                 isSelected ? activeIcon : icon,
                 key: ValueKey(isSelected),
                 size: 26, // bigger icon
-                color: isSelected
-                    ? const Color(0xFF0066CC)
-                    : const Color(0xFF8892A4),
+                color: isSelected ? activeColor : inactiveColor,
               ),
             ),
 
@@ -178,11 +179,9 @@ class _NavItem extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: isSelected
-                    ? FontWeight.w600
-                    : FontWeight.w400,
-                color: isSelected
-                    ? const Color(0xFF0066CC)
-                    : const Color(0xFF8892A4),
+                    ? FontWeight.w700
+                    : FontWeight.w500,
+                color: isSelected ? activeColor : inactiveColor,
               ),
             ),
           ],

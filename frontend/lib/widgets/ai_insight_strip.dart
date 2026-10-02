@@ -78,29 +78,38 @@ class _AiInsightStripState extends State<AiInsightStrip> {
           gradient: isDark
               ? LinearGradient(
                   colors: [
-                    const Color(0xFF0066CC).withOpacity(0.14),
+                    const Color(0xFF0066CC).withValues(alpha: 0.14),
                     const Color(0xFF0A0E1A),
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 )
               : null,
-          color: isDark ? null : const Color(0xFFEFF6FF),
+          color: isDark ? null : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDark
-                ? const Color(0xFF0066CC).withOpacity(0.25)
-                : const Color(0xFF0066CC).withOpacity(0.35),
+                ? const Color(0xFF0066CC).withValues(alpha: 0.25)
+                : const Color(0xFFE2E8F0),
             width: 1,
           ),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
         ),
         child: Row(
           children: [
             Container(
-              width: 3,
+              width: 3.5,
               height: 38,
               decoration: BoxDecoration(
-                color: const Color(0xFF0066CC),
+                color: isDark ? const Color(0xFF0066CC) : const Color(0xFF1E40AF),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -119,7 +128,7 @@ class _AiInsightStripState extends State<AiInsightStrip> {
                           style: GoogleFonts.inter(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF0066CC),
+                            color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF1E40AF),
                             letterSpacing: 1.5,
                           ),
                           maxLines: 1,
@@ -137,8 +146,8 @@ class _AiInsightStripState extends State<AiInsightStrip> {
                             margin: const EdgeInsets.only(left: 3),
                             decoration: BoxDecoration(
                               color: idx == _currentIndex
-                                  ? const Color(0xFF0066CC)
-                                  : const Color(0xFF0066CC).withOpacity(0.25),
+                                  ? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF1E40AF))
+                                  : (isDark ? const Color(0xFF0066CC).withValues(alpha: 0.25) : const Color(0xFFCBD5E1)),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),

@@ -3,41 +3,41 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // ── LIGHT ──────────────────────────────────────────────────────────────────
+  // ── LIGHT (Executive Wall Street / Ceramic Slate Edition) ───────────────────
   static ThemeData get light => ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
         colorScheme: const ColorScheme.light(
-          primary: Color(0xFF0066CC),
+          primary: Color(0xFF1E40AF), // Deep Institutional Cobalt / Royal Navy
           onPrimary: Colors.white,
-          secondary: Color(0xFF00C853),
-          surface: Color(0xFFF4F6F9),
-          onSurface: Color(0xFF1A1A2E),
-          outline: Color(0xFFE2E6EA),
-          error: Color(0xFFFF3B3B),
+          secondary: Color(0xFF059669), // Crisp Emerald
+          surface: Color(0xFFFFFFFF),
+          onSurface: Color(0xFF0F172A),
+          outline: Color(0xFFE2E8F0),
+          error: Color(0xFFDC2626), // Refined Crimson
         ),
-        scaffoldBackgroundColor: const Color(0xFFF4F6F9),
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Soothing Ceramic Pearl
         textTheme: GoogleFonts.interTextTheme().copyWith(
           displayLarge: GoogleFonts.inter(
-              fontWeight: FontWeight.w700, color: const Color(0xFF1A1A2E)),
-          bodyMedium: GoogleFonts.inter(color: const Color(0xFF1A1A2E)),
-          labelSmall: GoogleFonts.robotoMono(color: const Color(0xFF8892A4)),
+              fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)),
+          bodyMedium: GoogleFonts.inter(color: const Color(0xFF334155)),
+          labelSmall: GoogleFonts.robotoMono(color: const Color(0xFF64748B)),
         ),
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFF8FAFC),
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness: Brightness.dark,
-            systemNavigationBarColor: Colors.white, // matches light nav bar
+            systemNavigationBarColor: Colors.white,
             systemNavigationBarIconBrightness: Brightness.dark,
           ),
-          iconTheme: const IconThemeData(color: Color(0xFF1A1A2E)),
+          iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
           titleTextStyle: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             fontSize: 18,
-            color: const Color(0xFF1A1A2E),
+            color: const Color(0xFF0F172A),
           ),
         ),
         cardTheme: CardThemeData(
@@ -45,33 +45,33 @@ class AppTheme {
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: Color(0xFFE2E6EA)),
+            side: const BorderSide(color: Color(0xFFE2E8F0)),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFF8F9FA),
+          fillColor: const Color(0xFFF1F5F9),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE2E6EA)),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE2E6EA)),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF0066CC), width: 2),
+            borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 1.5),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFFF3B3B)),
+            borderSide: const BorderSide(color: Color(0xFFDC2626)),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0066CC),
+            backgroundColor: const Color(0xFF1E40AF),
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 52),
             shape: RoundedRectangleBorder(
@@ -85,13 +85,13 @@ class AppTheme {
           ),
         ),
         dividerTheme: const DividerThemeData(
-          color: Color(0xFFE2E6EA),
+          color: Color(0xFFE2E8F0),
           thickness: 1,
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: Colors.white,
-          selectedItemColor: Color(0xFF0066CC),
-          unselectedItemColor: Color(0xFF8892A4),
+          selectedItemColor: Color(0xFF1E40AF),
+          unselectedItemColor: Color(0xFF64748B),
           elevation: 0,
         ),
       );

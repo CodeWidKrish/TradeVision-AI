@@ -312,7 +312,7 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF142033) : null,
+        color: isDark ? const Color(0xFF142033) : const Color(0xFF0F1E36),
         gradient: isDark
             ? const LinearGradient(
                 colors: [Color(0xFF16253D), Color(0xFF0F1A2A)],
@@ -320,7 +320,7 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
                 end: Alignment.bottomRight,
               )
             : const LinearGradient(
-                colors: [Color(0xFF0066CC), Color(0xFF0044AA)],
+                colors: [Color(0xFF0D1B2A), Color(0xFF1B2A4A)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -332,7 +332,7 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
                   ? const Color(0xFFFF3366).withValues(alpha: 0.80)
                   : (isDark
                       ? const Color(0xFF0066CC).withValues(alpha: 0.40)
-                      : Colors.white.withValues(alpha: 0.25))),
+                      : const Color(0xFF38BDF8).withValues(alpha: 0.30))),
           width: _tickDirection != 0 ? 2.0 : 1.5,
         ),
         boxShadow: [
@@ -343,13 +343,13 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
                     ? const Color(0xFFFF3366).withValues(alpha: 0.35)
                     : (isDark
                         ? const Color(0xFF0066CC).withValues(alpha: 0.22)
-                        : const Color(0xFF0044AA).withValues(alpha: 0.35))),
+                        : const Color(0xFF0B192C).withValues(alpha: 0.20))),
             blurRadius: _tickDirection != 0 ? 26 : 20,
             spreadRadius: _tickDirection != 0 ? 2 : 1,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.15),
+            color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.12),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -696,7 +696,7 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF17253B) : const Color(0xFF004DAA),
+        color: isDark ? const Color(0xFF17253B) : const Color(0xFF0F1E36),
         gradient: isDark
             ? const LinearGradient(
                 colors: [Color(0xFF192A44), Color(0xFF111E32)],
@@ -704,13 +704,13 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
                 end: Alignment.bottomLeft,
               )
             : const LinearGradient(
-                colors: [Color(0xFF0055BB), Color(0xFF003D88)],
+                colors: [Color(0xFF1B2A4A), Color(0xFF0D1B2A)],
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
               ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF00C853).withValues(alpha: 0.45),
+          color: const Color(0xFF00C853).withValues(alpha: isDark ? 0.45 : 0.35),
           width: 1.5,
         ),
         boxShadow: [
