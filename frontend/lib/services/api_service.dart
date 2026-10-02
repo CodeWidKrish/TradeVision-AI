@@ -528,6 +528,12 @@ class ApiService {
     List<int>? imageBytes,
     String? filename,
     String? timeframe,
+    double? livePrice,
+    double? changeAmount,
+    double? changePercent,
+    double? dayHigh,
+    double? dayLow,
+    String? volume,
   }) async {
     try {
       final body = <String, dynamic>{
@@ -535,6 +541,12 @@ class ApiService {
         'filename': filename ?? 'chart.png',
         'timeframe': timeframe ?? '1D',
       };
+      if (livePrice != null && livePrice > 0) body['current_price'] = livePrice;
+      if (changeAmount != null) body['change_amount'] = changeAmount;
+      if (changePercent != null) body['change_percent'] = changePercent;
+      if (dayHigh != null && dayHigh > 0) body['day_high'] = dayHigh;
+      if (dayLow != null && dayLow > 0) body['day_low'] = dayLow;
+      if (volume != null && volume.isNotEmpty) body['volume'] = volume;
       if (imageBytes != null && imageBytes.isNotEmpty) {
         body['image_base64'] = base64Encode(imageBytes);
       }
@@ -547,21 +559,55 @@ class ApiService {
         return Map<String, dynamic>.from(res);
       }
     } catch (_) {}
-    return _generateLocalGroundedReport(symbol);
+    return _generateLocalGroundedReport(
+      symbol,
+      livePrice: livePrice,
+      changeAmount: changeAmount,
+      changePercent: changePercent,
+      dayHigh: dayHigh,
+      dayLow: dayLow,
+      volume: volume,
+    );
   }
+
+  static Map<String, dynamic> generateLocalReportForTesting(
+    String symbol, {
+    double? livePrice,
+    double? changeAmount,
+    double? changePercent,
+    double? dayHigh,
+    double? dayLow,
+    String? volume,
+  }) => _generateLocalGroundedReport(
+    symbol,
+    livePrice: livePrice,
+    changeAmount: changeAmount,
+    changePercent: changePercent,
+    dayHigh: dayHigh,
+    dayLow: dayLow,
+    volume: volume,
+  );
 
   static String _monthName(int month) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return (month >= 1 && month <= 12) ? months[month - 1] : 'Jan';
   }
 
-  static Map<String, dynamic> _generateLocalGroundedReport(String symbol) {
+  static Map<String, dynamic> _generateLocalGroundedReport(
+    String symbol, {
+    double? livePrice,
+    double? changeAmount,
+    double? changePercent,
+    double? dayHigh,
+    double? dayLow,
+    String? volume,
+  }) {
     final cleanSym = symbol.replaceAll(RegExp(r'\.NS$', caseSensitive: false), '').trim().toUpperCase();
     final stock = StockRepository.getStock(cleanSym);
-    final cmp = stock.price;
-    final changeAmt = stock.change;
-    final changePct = stock.changePercent;
-    final isPos = stock.isPositive;
+    final cmp = (livePrice != null && livePrice > 0) ? livePrice : stock.price;
+    final changeAmt = changeAmount ?? stock.change;
+    final changePct = changePercent ?? stock.changePercent;
+    final isPos = changePct >= 0;
     final atr = (cmp * 0.018).clamp(1.5, 999.0);
     final ema20 = cmp * (isPos ? 0.985 : 1.012);
     final ema50 = cmp * (isPos ? 0.965 : 1.028);
@@ -570,6 +616,9 @@ class ApiService {
     final target1 = (cmp + (atr * 2.2));
     final target2 = (cmp + (atr * 4.5));
     final stopLoss = (cmp - (atr * 1.6));
+    final highVal = (dayHigh != null && dayHigh > 0) ? dayHigh : (cmp + (atr * 0.8));
+    final lowVal = (dayLow != null && dayLow > 0) ? dayLow : (cmp - (atr * 0.7));
+    final volVal = (volume != null && volume.isNotEmpty) ? volume : (stock.volume.isNotEmpty ? stock.volume : '2.4M');
     final now = DateTime.now();
     final dateStr = '${now.day.toString().padLeft(2, '0')} ${_monthName(now.month)} ${now.year}, ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} IST';
 
@@ -583,7 +632,7 @@ class ApiService {
       },
       'generated_at': dateStr,
       'screenshot_timeframe': '1D',
-      'executive_summary': '${stock.fullName} ($cleanSym) demonstrates robust quantitative confluence across multiple analytical streams. Currently trading at Rs. ${cmp.toStringAsFixed(2)} (${isPos ? "+" : ""}${changePct.toStringAsFixed(2)}%) with 14-day ATR volatility of Rs. ${atr.toStringAsFixed(2)}. Structural moving average alignment (20-EMA at Rs. ${ema20.toStringAsFixed(2)}) confirms positive trend momentum.',
+      'executive_summary': '${stock.fullName} ($cleanSym) demonstrates robust quantitative confluence across multiple analytical streams. Currently trading at ₹${cmp.toStringAsFixed(2)} (${isPos ? "+" : ""}${changePct.toStringAsFixed(2)}%) with 14-day ATR volatility of ₹${atr.toStringAsFixed(2)}. Structural moving average alignment (20-EMA at ₹${ema20.toStringAsFixed(2)}) confirms positive trend momentum.',
       'screenshot_analysis': {
         'status': 'not_provided',
         'message': 'No screenshot uploaded. Report generated purely from live exchange feeds, technical engine, and ML model.',
@@ -596,9 +645,9 @@ class ApiService {
         'previous_close': cmp - changeAmt,
         'change_amount': changeAmt,
         'change_percent': changePct,
-        'day_high': cmp + (atr * 0.8),
-        'day_low': cmp - (atr * 0.7),
-        'volume': '2.4M',
+        'day_high': highVal,
+        'day_low': lowVal,
+        'volume': volVal,
         'sector': stock.sector.isNotEmpty ? stock.sector : 'Indian Equities',
       },
       'technical_analysis': {
@@ -704,12 +753,13 @@ class ApiService {
         ],
       },
       'risk_factors': [
-        'Invalidation floor set at strict stop-loss level of Rs. ${stopLoss.toStringAsFixed(2)}.',
+        'Invalidation floor set at strict stop-loss level of ₹${stopLoss.toStringAsFixed(2)}.',
         'Market-wide benchmark volatility could trigger whipsaws near critical pivot bands.',
         'Position sizing should not exceed 1.5% - 2.0% of total portfolio capital.',
+        'Capital preservation protocol: Exit immediately if daily candle closes below invalidation band.',
       ],
       'invalidation_level': double.parse(stopLoss.toStringAsFixed(2)),
-      'final_interpretation': '${stock.fullName} exhibits favorable risk-adjusted expectancy based on quantitative evidence correlation. Maintain strict risk discipline at Rs. ${stopLoss.toStringAsFixed(2)} while targeting multi-stage swing expansions at Rs. ${target1.toStringAsFixed(2)} and Rs. ${target2.toStringAsFixed(2)}.',
+      'final_interpretation': '${stock.fullName} exhibits favorable risk-adjusted expectancy based on quantitative evidence correlation. Maintain strict risk discipline at ₹${stopLoss.toStringAsFixed(2)} while targeting multi-stage swing expansions at ₹${target1.toStringAsFixed(2)} and ₹${target2.toStringAsFixed(2)}.',
       'sources': [
         {'category': 'Exchange Data', 'name': 'NSE Live Market Feed', 'status': 'Verified'},
         {'category': 'Quantitative Engine', 'name': 'TradeVision Technical Pipeline', 'status': 'Computed'},

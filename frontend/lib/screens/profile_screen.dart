@@ -451,7 +451,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final initial = displayName.trim().isNotEmpty
         ? displayName.trim()[0].toUpperCase()
         : (email.isNotEmpty ? email[0].toUpperCase() : 'T');
-    final accountTier = StorageService.getAccountTier();
     final kycStatus = StorageService.getKycStatus();
     final isKycVerified = kycStatus.toUpperCase().contains('VERIFIED');
     final pan = StorageService.getUserPan();
@@ -556,26 +555,61 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
+
+                    // Quick Trading & Engine Status Bar (replaces static tier badge with utilized space)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF131B2E)
+                            : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFE2E8F0),
+                        ),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.workspace_premium_rounded, size: 14, color: AppColors.primary),
-                          const SizedBox(width: 6),
-                          Text(
-                            accountTier,
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
+                          Expanded(
+                            child: _buildProfileStatusItem(
+                              icon: Icons.bolt_rounded,
+                              iconColor: AppColors.primary,
+                              title: 'AI Engine',
+                              value: 'XGBoost v2',
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 28,
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? const Color(0xFF1E293B)
+                                : const Color(0xFFCBD5E1),
+                          ),
+                          Expanded(
+                            child: _buildProfileStatusItem(
+                              icon: Icons.account_balance_wallet_rounded,
+                              iconColor: const Color(0xFF00C853),
+                              title: 'Paper Capital',
+                              value: '₹10,00,000',
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 28,
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? const Color(0xFF1E293B)
+                                : const Color(0xFFCBD5E1),
+                          ),
+                          Expanded(
+                            child: _buildProfileStatusItem(
+                              icon: Icons.sensors_rounded,
+                              iconColor: const Color(0xFF00C853),
+                              title: 'Live Market',
+                              value: 'NSE Connected',
                             ),
                           ),
                         ],
@@ -755,6 +789,48 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProfileStatusItem({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 13, color: iconColor),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
     );
   }
 
