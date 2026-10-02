@@ -29,9 +29,9 @@ class StockRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF111827) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF1E2733) : const Color(0xFFE2E6EA);
-    final primaryTextColor = isDark ? const Color(0xFFE8ECF0) : const Color(0xFF1A1A2E);
+    final cardBg = isDark ? DarkSurface.card : LightSurface.card;
+    final borderColor = isDark ? DarkSurface.border : LightSurface.border;
+    final primaryTextColor = isDark ? DarkSurface.textPrimary : LightSurface.textPrimary;
 
     return Container(
       decoration: BoxDecoration(
@@ -43,13 +43,7 @@ class StockRow extends StatelessWidget {
         ),
         boxShadow: isDark
             ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 1),
-                ),
-              ],
+            : LightSurface.cardShadow,
       ),
       child: Material(
         color: Colors.transparent,
@@ -57,8 +51,8 @@ class StockRow extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
-          splashColor: const Color(0xFF0066CC).withOpacity(0.08),
-          highlightColor: const Color(0xFF0066CC).withOpacity(0.04),
+          splashColor: (isDark ? const Color(0xFF0066CC) : const Color(0xFF1E40AF)).withValues(alpha: 0.08),
+          highlightColor: (isDark ? const Color(0xFF0066CC) : const Color(0xFF1E40AF)).withValues(alpha: 0.04),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
@@ -90,7 +84,7 @@ class StockRow extends StatelessWidget {
                         fullName,
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          color: DarkSurface.textMuted,
+                          color: isDark ? DarkSurface.textMuted : LightSurface.textMuted,
                           fontWeight: FontWeight.w400,
                         ),
                         maxLines: 1,

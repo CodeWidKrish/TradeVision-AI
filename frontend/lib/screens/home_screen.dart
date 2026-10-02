@@ -224,10 +224,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final watchlistStocks = tickerNotifier.stocks.take(6).toList();
 
     return Scaffold(
-      backgroundColor: isDark ? DarkSurface.bg : const Color(0xFFF4F6F9),
+      backgroundColor: isDark ? DarkSurface.bg : LightSurface.bg,
       body: SafeArea(
         child: RefreshIndicator(
-          color: const Color(0xFF0066CC),
+          color: const Color(0xFF1E40AF),
           backgroundColor: isDark ? const Color(0xFF111827) : Colors.white,
           onRefresh: () async {
             HapticFeedback.lightImpact();
@@ -263,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 greeting,
                                 style: GoogleFonts.inter(
                                   fontSize: 13,
-                                  color: DarkSurface.textMuted,
+                                  color: isDark ? DarkSurface.textMuted : LightSurface.textMuted,
                                   fontWeight: FontWeight.w500,
                                 ),
                               );
@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontWeight: FontWeight.w700,
                               color: isDark
                                   ? DarkSurface.textPrimary
-                                  : const Color(0xFF1A1A2E),
+                                  : LightSurface.textPrimary,
                               letterSpacing: -0.5,
                             ),
                           ),
@@ -295,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           color: isDark
                               ? DarkSurface.panel
-                              : const Color(0xFF0066CC),
+                              : const Color(0xFF1E40AF),
                           shape: BoxShape.circle,
                           border: isDark
                               ? Border.all(
@@ -303,6 +303,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   width: 1.5,
                                 )
                               : null,
+                          boxShadow: isDark
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: const Color(0xFF1E40AF).withValues(alpha: 0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  )
+                                ],
                         ),
                         child: Center(
                           child: Text(
@@ -391,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             BoxShadow(
                               color: isDark
                                   ? const Color(0xFF0066CC).withValues(alpha: 0.32)
-                                  : const Color(0xFF0066CC).withValues(alpha: 0.20),
+                                  : const Color(0xFF0F1E36).withValues(alpha: 0.12),
                               blurRadius: 36,
                               spreadRadius: 6,
                             ),
@@ -417,10 +426,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Market Pulse',
                       style: GoogleFonts.inter(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         color: isDark
-                            ? const Color(0xFFE8ECF0)
-                            : const Color(0xFF1A1A2E),
+                            ? DarkSurface.textPrimary
+                            : LightSurface.textPrimary,
                       ),
                     ),
                     const Spacer(),
@@ -441,8 +450,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         'View All',
                         style: GoogleFonts.inter(
                           fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF0066CC),
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF1E40AF),
                         ),
                       ),
                     ),
@@ -561,32 +570,26 @@ class MarketPulseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = isPositive
-        ? const Color(0xFF00C853)
-        : const Color(0xFFFF3B3B);
+        ? (isDark ? const Color(0xFF00E676) : const Color(0xFF059669))
+        : (isDark ? const Color(0xFFFF3366) : const Color(0xFFDC2626));
 
     return Container(
       width: 144,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 11),
       decoration: BoxDecoration(
         color: isDark
-            ? const Color(0xFF111827)
-            : Colors.white,
+            ? DarkSurface.card
+            : LightSurface.card,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isDark
-              ? const Color(0xFF1E2733)
-              : const Color(0xFFE2E6EA),
+              ? DarkSurface.border
+              : LightSurface.border,
           width: 1,
         ),
         boxShadow: isDark
             ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                )
-              ],
+            : LightSurface.cardShadow,
       ),
       child: SingleChildScrollView(
         physics: const NeverScrollableScrollPhysics(),
@@ -601,7 +604,7 @@ class MarketPulseCard extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.4,
-                color: const Color(0xFF8892A4),
+                color: isDark ? DarkSurface.textMuted : LightSurface.textMuted,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -618,8 +621,8 @@ class MarketPulseCard extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: isDark
-                      ? const Color(0xFFE8ECF0)
-                      : const Color(0xFF1A1A2E),
+                      ? DarkSurface.textPrimary
+                      : LightSurface.textPrimary,
                 ),
                 maxLines: 1,
               ),
@@ -735,10 +738,10 @@ class _MoversSectionState extends State<_MoversSection> {
                 'Today\'s Movers',
                 style: GoogleFonts.inter(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: isDark
-                      ? const Color(0xFFE8ECF0)
-                      : const Color(0xFF1A1A2E),
+                      ? DarkSurface.textPrimary
+                      : LightSurface.textPrimary,
                 ),
               ),
               const Spacer(),
@@ -747,13 +750,13 @@ class _MoversSectionState extends State<_MoversSection> {
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF111827)
-                      : const Color(0xFFF4F6F9),
+                      ? DarkSurface.card
+                      : LightSurface.panel,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isDark
-                      ? const Color(0xFF1E2733)
-                      : const Color(0xFFE2E6EA),
+                      ? DarkSurface.border
+                      : LightSurface.border,
                   ),
                 ),
                 child: Row(
@@ -906,14 +909,15 @@ class _MoversList extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
               color: isDark
-                  ? const Color(0xFF111827)
-                  : Colors.white,
+                  ? DarkSurface.card
+                  : LightSurface.card,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isDark
-                    ? const Color(0xFF1E2733)
-                    : const Color(0xFFE2E6EA),
+                    ? DarkSurface.border
+                    : LightSurface.border,
               ),
+              boxShadow: isDark ? null : LightSurface.cardShadow,
             ),
             child: Material(
               color: Colors.transparent,
@@ -931,10 +935,10 @@ class _MoversList extends StatelessWidget {
                       final chgPct = double.tryParse((s['change'] as String? ?? '0%').replaceAll('%', '').replaceAll('+', '')) ?? 0.0;
                       final existing = StockRepository.getStock(baseSym);
                       final updated = existing.copyWith(
-                        price: livePrice,
-                        changePercent: chgPct,
-                        changeAmount: livePrice * (chgPct / 100),
-                      );
+                         price: livePrice,
+                         changePercent: chgPct,
+                         changeAmount: livePrice * (chgPct / 100),
+                       );
                       StockRepository.registerStock(updated);
                     }
                   }
@@ -951,7 +955,7 @@ class _MoversList extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF8892A4),
+                          color: isDark ? DarkSurface.textMuted : LightSurface.textMuted,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -976,8 +980,8 @@ class _MoversList extends StatelessWidget {
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
                                     color: isDark
-                                        ? const Color(0xFFE8ECF0)
-                                        : const Color(0xFF1A1A2E),
+                                        ? DarkSurface.textPrimary
+                                        : LightSurface.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
@@ -988,7 +992,7 @@ class _MoversList extends StatelessWidget {
                               s['name']!,
                               style: GoogleFonts.inter(
                                 fontSize: 10,
-                                color: const Color(0xFF8892A4),
+                                color: isDark ? DarkSurface.textMuted : LightSurface.textMuted,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -1006,8 +1010,8 @@ class _MoversList extends StatelessWidget {
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: isDark
-                                  ? const Color(0xFFE8ECF0)
-                                  : const Color(0xFF1A1A2E),
+                                  ? DarkSurface.textPrimary
+                                  : LightSurface.textPrimary,
                             ),
                           ),
                           Container(

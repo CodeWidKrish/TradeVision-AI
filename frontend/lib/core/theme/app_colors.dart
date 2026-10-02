@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Brand Accent Colors
-  static const primary        = Color(0xFF1B56F1); // Bright Blue — CTA, cards, accents (Light Mode)
-  static const primaryLight   = Color(0xFFEFF4FF); // Light Blue tint
+  static const primary        = Color(0xFF1E40AF); // Deep Institutional Cobalt / Royal Navy
+  static const primaryLight   = Color(0xFFEFF6FF); // Light Blue tint
+  static const cobaltAccent   = Color(0xFF2563EB); // Vibrant Interactive Cobalt
   
   // Dark Mode Brand Accent Colors (User Spec: Blue changes into Dark Blue!)
   static const darkPrimary     = Color(0xFF0F2B7A); // Deep Dark Navy Blue
   static const darkPrimaryLight= Color(0xFF132247); // Dark Navy Tint
 
   // Semantic Trading Colors
-  static const gain           = Color(0xFF16A34A); // Emerald Green — positive P&L
+  static const gain           = Color(0xFF059669); // Emerald Green — positive P&L
   static const gainBg         = Color(0xFFDCFCE7); // Green tint
   static const darkGainBg     = Color(0xFF052E16); // Dark Green tint
   static const loss           = Color(0xFFDC2626); // Crimson Red — negative P&L
@@ -23,14 +24,14 @@ class AppColors {
   static const positive       = gain;
   static const negative       = loss;
 
-  // Light Mode Surfaces & Neutrals (User Spec: White background/surface)
-  static const background     = Color(0xFFF8FAFC); // Light background
-  static const surface        = Color(0xFFFFFFFF); // Pure White card background
+  // Light Mode Surfaces & Neutrals (Ultra-Smooth Ceramic & Porcelain, Zero Eye-Strain)
+  static const background     = Color(0xFFF8FAFC); // Warm ceramic pearl background
+  static const surface        = Color(0xFFFFFFFF); // Pure White card surface
   static const cardBackground = surface;
   static const surfaceElevated= Color(0xFFFFFFFF);
-  static const border         = Color(0xFFE2E8F0);
-  static const cardBorder     = Color(0xFFCBD5E1);
-  static const borderStrong   = Color(0xFF94A3B8);
+  static const border         = Color(0xFFE2E8F0); // Slate 200 hairline border
+  static const cardBorder     = Color(0xFFE2E8F0);
+  static const borderStrong   = Color(0xFFCBD5E1); // Slate 300
 
   // Dark Mode Surfaces & Neutrals (User Spec: White changes into Black!)
   static const darkBackground   = Color(0xFF000000); // Pure Black background
@@ -38,10 +39,10 @@ class AppColors {
   static const darkBorder       = Color(0xFF21262D); // Dark Hairline border
   static const darkBorderStrong = Color(0xFF30363D); // Dark Input border
 
-  // Light Mode Typography
+  // Light Mode Typography (Slate Hierarchy - High Legibility & Soothing)
   static const textPrimary    = Color(0xFF0F172A); // Slate 900
   static const textSecondary  = Color(0xFF334155); // Slate 700
-  static const textMuted      = Color(0xFF475569); // Slate 600
+  static const textMuted      = Color(0xFF64748B); // Slate 500
   static const textOnPrimary  = Color(0xFFFFFFFF);
 
   // Dark Mode Typography (User Spec: Crisp White text in Dark Mode)

@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
+import '../core/theme/dark_surfaces.dart';
 import '../core/data/stock_data.dart';
 import '../services/api_service.dart';
 import '../providers/market_data_provider.dart';
@@ -208,9 +209,9 @@ class _MarketScreenState extends State<MarketScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF111827) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF1E2733) : const Color(0xFFE2E6EA);
-    final textColor = isDark ? const Color(0xFFE8ECF0) : const Color(0xFF1A1A2E);
+    final cardBg = isDark ? DarkSurface.card : LightSurface.card;
+    final borderColor = isDark ? DarkSurface.border : LightSurface.border;
+    final textColor = isDark ? DarkSurface.textPrimary : LightSurface.textPrimary;
 
     List<StockModel> displayStocks = _universeStocks.isNotEmpty
         ? _universeStocks

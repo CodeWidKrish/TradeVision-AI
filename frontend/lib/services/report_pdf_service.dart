@@ -115,7 +115,7 @@ class ReportPdfService {
   /// Direct print or print preview
   static Future<void> previewOrPrintPdf(Map<String, dynamic> report) async {
     final symbol = _extractSymbol(report);
-    final filename = 'TradeVision_AI_Report_$symbol.pdf';
+    final filename = 'TradeVision_AI_Report_${symbol}_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.pdf';
     await Printing.layoutPdf(
       name: filename,
       onLayout: (PdfPageFormat format) async => generateReportPdfBytes(report),
@@ -370,7 +370,7 @@ class ReportPdfService {
                             borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
                           ),
                           child: pw.Text(
-                            '${isPos ? '+' : ''}${formatRupee(changeAmt.abs())} (${isPos ? '+' : ''}${changePct.toStringAsFixed(2)}%)',
+                            '${isPos ? '+' : '-'}${formatRupee(changeAmt.abs())} (${isPos ? '+' : ''}${changePct.toStringAsFixed(2)}%)',
                             style: pw.TextStyle(
                               color: PdfColors.white,
                               fontSize: 8.5,
