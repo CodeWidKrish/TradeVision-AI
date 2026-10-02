@@ -173,6 +173,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         imageBytes: _uploadedFile!.bytes!,
         filename: _uploadedFileName ?? 'chart.png',
         timeframe: '1D',
+        livePrice: _selectedStock.price,
+        changeAmount: _selectedStock.change,
+        changePercent: _selectedStock.changePercent,
+        dayHigh: _selectedStock.dayHigh,
+        dayLow: _selectedStock.dayLow,
+        volume: _selectedStock.volume,
       );
 
       if (mounted) {
@@ -229,6 +235,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       final report = await ApiService.generateMarketIntelligenceReport(
         symbol: _selectedStock.ticker,
         timeframe: '1D',
+        livePrice: _selectedStock.price,
+        changeAmount: _selectedStock.change,
+        changePercent: _selectedStock.changePercent,
+        dayHigh: _selectedStock.dayHigh,
+        dayLow: _selectedStock.dayLow,
+        volume: _selectedStock.volume,
       );
       if (mounted) {
         setState(() {

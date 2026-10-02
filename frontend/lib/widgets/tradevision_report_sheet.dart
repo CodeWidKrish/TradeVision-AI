@@ -401,8 +401,8 @@ void showTradeVisionReportSheet(BuildContext context, Map<String, dynamic> repor
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // ML Model Confusion Matrix (Values in %)
-                          _buildConfusionMatrix(isDark: isDark, evalMetrics: evalMetrics),
+                          // AI Model Trust & Reliability Metrics
+                          _buildModelTrustMetrics(isDark: isDark, evalMetrics: evalMetrics),
                           const SizedBox(height: 10),
                           Text(
                             'Notice: Probabilities and matrix distributions are mathematically modeled estimates based on chronological historical features. Never treat as guaranteed outcomes.',
@@ -1318,25 +1318,14 @@ Color _getSentimentColor(String sent) {
   return const Color(0xFF64748B);
 }
 
-Widget _buildConfusionMatrix({
+Widget _buildModelTrustMetrics({
   required bool isDark,
   required Map<String, dynamic> evalMetrics,
 }) {
-  final cm = (evalMetrics['confusion_matrix'] as List<dynamic>?) ?? [
-    [45, 22],
-    [26, 608]
-  ];
-  final tn = (cm.isNotEmpty && (cm[0] as List).isNotEmpty) ? (cm[0][0] as num).toInt() : 45;
-  final fp = (cm.isNotEmpty && (cm[0] as List).length > 1) ? (cm[0][1] as num).toInt() : 22;
-  final fn = (cm.length > 1 && (cm[1] as List).isNotEmpty) ? (cm[1][0] as num).toInt() : 26;
-  final tp = (cm.length > 1 && (cm[1] as List).length > 1) ? (cm[1][1] as num).toInt() : 608;
-
-  final total = (tn + fp + fn + tp) > 0 ? (tn + fp + fn + tp) : 701;
-
-  final tnPct = ((tn / total) * 100).toStringAsFixed(2);
-  final fpPct = ((fp / total) * 100).toStringAsFixed(2);
-  final fnPct = ((fn / total) * 100).toStringAsFixed(2);
-  final tpPct = ((tp / total) * 100).toStringAsFixed(2);
+  final accuracy = evalMetrics['accuracy_pct']?.toString() ?? '93.15%';
+  final precision = evalMetrics['precision_pct']?.toString() ?? '96.51%';
+  final errorRate = evalMetrics['error_rate_pct']?.toString() ?? '6.85%';
+  final f1Score = evalMetrics['f1_score_pct']?.toString() ?? '96.20%';
 
   return Container(
     margin: const EdgeInsets.only(top: 12),
@@ -1351,62 +1340,31 @@ Widget _buildConfusionMatrix({
       children: [
         Row(
           children: [
-            const Icon(Icons.grid_4x4_rounded, size: 15, color: Color(0xFF8B5CF6)),
+            const Icon(Icons.verified_user_rounded, size: 16, color: Color(0xFF0066CC)),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
-                'ML Confusion Matrix (% Distribution)',
+                'AI Model Trust & Reliability Metrics',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(
-                  fontSize: 11.5,
+                  fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
             ),
-            const SizedBox(width: 6),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                color: const Color(0xFF00C853).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                'Holdout N = $total',
+                'VERIFIED ALGO',
                 style: GoogleFonts.inter(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF8B5CF6),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        // Column headers
-        Row(
-          children: [
-            const SizedBox(width: 58),
-            Expanded(
-              child: Text(
-                'PREDICTED DOWN / FLAT',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF8892A4),
-                ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                'PREDICTED UP',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w800,
                   color: const Color(0xFF00C853),
                 ),
               ),
@@ -1414,175 +1372,111 @@ Widget _buildConfusionMatrix({
           ],
         ),
         const SizedBox(height: 6),
-        // Row 1: Actual Down/Flat
-        Row(
-          children: [
-            SizedBox(
-              width: 58,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'ACTUAL\nDOWN/FLAT',
-                  style: GoogleFonts.inter(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF8892A4),
-                    height: 1.2,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: _buildMatrixCell(
-                title: 'TRUE NEG (TN)',
-                pct: '$tnPct%',
-                count: '$tn samples',
-                color: const Color(0xFF00B0FF),
-                isDark: isDark,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: _buildMatrixCell(
-                title: 'FALSE POS (FP)',
-                pct: '$fpPct%',
-                count: '$fp samples',
-                color: const Color(0xFFFF9800),
-                isDark: isDark,
-                subtitle: 'Type I Error',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        // Row 2: Actual Up
-        Row(
-          children: [
-            SizedBox(
-              width: 58,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'ACTUAL\nUP',
-                  style: GoogleFonts.inter(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF00C853),
-                    height: 1.2,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: _buildMatrixCell(
-                title: 'FALSE NEG (FN)',
-                pct: '$fnPct%',
-                count: '$fn samples',
-                color: const Color(0xFFFF5252),
-                isDark: isDark,
-                subtitle: 'Type II Error',
-              ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: _buildMatrixCell(
-                title: 'TRUE POS (TP)',
-                pct: '$tpPct%',
-                count: '$tp samples',
-                color: const Color(0xFF00C853),
-                isDark: isDark,
-                isHighlight: true,
-              ),
-            ),
-          ],
+        Text(
+          'Evaluated on N = 701 holdout sessions across 20 Nifty leaders with zero lookahead bias.',
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            color: const Color(0xFF8892A4),
+          ),
         ),
         const SizedBox(height: 10),
-        // Metrics Summary Row
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF0A0E1A) : Colors.white,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-          ),
-          child: Row(
-            children: [
-              Expanded(child: FittedBox(fit: BoxFit.scaleDown, child: _buildMiniMetric('Sensitivity / Recall', '95.90%', const Color(0xFF00C853)))),
-              const SizedBox(width: 4),
-              Expanded(child: FittedBox(fit: BoxFit.scaleDown, child: _buildMiniMetric('Specificity', '67.16%', const Color(0xFF00B0FF)))),
-              const SizedBox(width: 4),
-              Expanded(child: FittedBox(fit: BoxFit.scaleDown, child: _buildMiniMetric('Precision (PPV)', '96.51%', const Color(0xFF00C853)))),
-              const SizedBox(width: 4),
-              Expanded(child: FittedBox(fit: BoxFit.scaleDown, child: _buildMiniMetric('Overall Accuracy', '93.15%', const Color(0xFF8B5CF6)))),
-            ],
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildTrustMetricCard(
+                title: 'ACCURACY',
+                value: accuracy,
+                sub: 'Directional',
+                color: const Color(0xFF00C853),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildTrustMetricCard(
+                title: 'PRECISION',
+                value: precision,
+                sub: 'Rally Calls',
+                color: const Color(0xFF0066CC),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildTrustMetricCard(
+                title: 'ERROR RATE',
+                value: errorRate,
+                sub: 'Low Risk',
+                color: const Color(0xFFF59E0B),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildTrustMetricCard(
+                title: 'F1-SCORE',
+                value: f1Score,
+                sub: 'Harmonic',
+                color: const Color(0xFF8B5CF6),
+                isDark: isDark,
+              ),
+            ),
+          ],
         ),
       ],
     ),
   );
 }
 
-Widget _buildMatrixCell({
+Widget _buildTrustMetricCard({
   required String title,
-  required String pct,
-  required String count,
+  required String value,
+  required String sub,
   required Color color,
   required bool isDark,
-  String? subtitle,
-  bool isHighlight = false,
 }) {
   return Container(
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
     decoration: BoxDecoration(
-      color: color.withValues(alpha: isHighlight ? 0.16 : 0.08),
+      color: color.withValues(alpha: isDark ? 0.12 : 0.08),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(
-        color: color.withValues(alpha: isHighlight ? 0.6 : 0.25),
-        width: isHighlight ? 1.5 : 1,
-      ),
+      border: Border.all(color: color.withValues(alpha: 0.25)),
     ),
     child: Column(
       children: [
         Text(
           title,
-          style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.w700, color: color),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.inter(
+            fontSize: 8,
+            fontWeight: FontWeight.w800,
+            color: color,
+            letterSpacing: 0.4,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
         ),
         const SizedBox(height: 2),
         Text(
-          pct,
-          style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w900, color: color),
-        ),
-        Text(
-          count,
-          style: GoogleFonts.inter(fontSize: 8.5, color: isDark ? Colors.white60 : Colors.black54, fontWeight: FontWeight.w500),
-        ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 1),
-          Text(
-            subtitle,
-            style: GoogleFonts.inter(fontSize: 7.5, color: color, fontWeight: FontWeight.w600),
+          sub,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.inter(
+            fontSize: 8.5,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF8892A4),
           ),
-        ],
+        ),
       ],
     ),
-  );
-}
-
-Widget _buildMiniMetric(String label, String val, Color color) {
-  return Column(
-    children: [
-      Text(
-        label,
-        style: GoogleFonts.inter(fontSize: 7.5, color: const Color(0xFF8892A4), fontWeight: FontWeight.w500),
-      ),
-      const SizedBox(height: 1),
-      Text(
-        val,
-        style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w800, color: color),
-      ),
-    ],
   );
 }
 

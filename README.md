@@ -527,7 +527,7 @@ The optimized Android APK will be generated at:
     <td align="center" width="220">
       <a href="https://github.com/TechthriveParv">
         <img src="https://github.com/TechthriveParv.png" width="100" style="border-radius: 50%;" alt="Parv"/><br /><br />
-        <b>Parv</b><br />
+        <b>Parv Khichadiya</b><br />
         <code>@TechthriveParv</code>
       </a>
     </td>
