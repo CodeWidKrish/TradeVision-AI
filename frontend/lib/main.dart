@@ -18,6 +18,7 @@ import 'widgets/connectivity_banner.dart';
 import 'widgets/in_app_notification_banner.dart';
 
 import 'core/error_handler.dart';
+import 'core/security_lifecycle_wrapper.dart';
 import 'core/data/stock_data.dart';
 
 void main() async {
@@ -94,9 +95,11 @@ class TradeVisionApp extends ConsumerWidget {
       routerConfig: router,
       scrollBehavior: const _SmoothScrollBehavior(),
       builder: (context, child) {
-        return ConnectivityWrapper(
-          child: InAppNotificationBanner(
-            child: child ?? const SizedBox.shrink(),
+        return AppLifecycleSecurityWrapper(
+          child: ConnectivityWrapper(
+            child: InAppNotificationBanner(
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },

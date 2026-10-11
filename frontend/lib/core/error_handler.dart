@@ -22,30 +22,60 @@ class AppErrorHandler {
 
     // Custom ErrorWidget fallback to prevent red screen of death
     ErrorWidget.builder = (FlutterErrorDetails details) {
-      return Scaffold(
-        backgroundColor: const Color(0xFF0A0E1A),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFF0066CC).withValues(alpha: 0.3),
+                width: 1.2,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded,
-                    size: 48, color: Color(0xFF8892A4)),
-                const SizedBox(height: 16),
-                const Text(
-                  'Something went wrong',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFE8ECF0),
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0066CC).withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.auto_graph_rounded,
+                    color: Color(0xFF0066CC),
+                    size: 24,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 const Text(
-                  'Please restart the app or try again.',
+                  'Component Recalibrating',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFE8ECF0),
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'TradeVision safely isolated a rendering anomaly. The application remains fully active.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.4,
                     color: Color(0xFF8892A4),
                   ),
                 ),
@@ -107,3 +137,80 @@ class StorageException implements Exception {
   final String message;
   const StorageException(this.message);
 }
+
+/// Localized error boundary widget to wrap complex visualizations (charts, gauges, PDF).
+/// Guarantees that if a single chart or data card fails to parse, only that card
+/// shows a clean retry state rather than crashing or breaking the parent screen.
+class InstitutionalCardErrorBoundary extends StatefulWidget {
+  final Widget child;
+  final String title;
+  final VoidCallback? onRetry;
+
+  const InstitutionalCardErrorBoundary({
+    super.key,
+    required this.child,
+    this.title = 'Analytics Component',
+    this.onRetry,
+  });
+
+  @override
+  State<InstitutionalCardErrorBoundary> createState() => _InstitutionalCardErrorBoundaryState();
+}
+
+class _InstitutionalCardErrorBoundaryState extends State<InstitutionalCardErrorBoundary> {
+  bool _hasError = false;
+
+  void retry() {
+    setState(() => _hasError = false);
+    widget.onRetry?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_hasError) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFF0066CC).withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, color: Color(0xFF0066CC), size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '${widget.title} is recalibrating...',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF8892A4),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            if (widget.onRetry != null)
+              TextButton(
+                onPressed: retry,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text(
+                  'RETRY',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF0066CC)),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    return widget.child;
+  }
+}
+

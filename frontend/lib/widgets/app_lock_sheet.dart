@@ -25,6 +25,7 @@ class AppLockSheet extends StatefulWidget {
 class _AppLockSheetState extends State<AppLockSheet> {
   late bool _isLockEnabled;
   late bool _isBiometricEnabled;
+  late bool _isPrivacyMaskEnabled;
   bool _isSettingPin = false;
   bool _isTestingPin = false;
 
@@ -37,6 +38,7 @@ class _AppLockSheetState extends State<AppLockSheet> {
     super.initState();
     _isLockEnabled = StorageService.isAppLockEnabled();
     _isBiometricEnabled = StorageService.isBiometricEnabled();
+    _isPrivacyMaskEnabled = StorageService.isPrivacyMaskEnabled();
   }
 
   void _onNumberTap(String digit) {
@@ -391,6 +393,23 @@ class _AppLockSheetState extends State<AppLockSheet> {
                         setState(() => _isBiometricEnabled = val);
                       }
                     : null,
+              ),
+              const Divider(height: 1),
+              SwitchListTile(
+                title: Text(
+                  'App Switcher Privacy Shield',
+                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: textColor),
+                ),
+                subtitle: Text(
+                  'Frosted glass privacy cover when switching apps to prevent balance leaks',
+                  style: GoogleFonts.inter(fontSize: 12, color: subtextColor),
+                ),
+                value: _isPrivacyMaskEnabled,
+                activeTrackColor: AppColors.primary,
+                onChanged: (val) async {
+                  await StorageService.setPrivacyMaskEnabled(val);
+                  setState(() => _isPrivacyMaskEnabled = val);
+                },
               ),
             ],
           ),
