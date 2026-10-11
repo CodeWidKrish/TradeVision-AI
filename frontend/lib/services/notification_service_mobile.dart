@@ -81,14 +81,21 @@ class NotificationService {
           showBadge: true,
         );
 
+        // Security & App Lock Channel
+        const AndroidNotificationChannel securityChannel = AndroidNotificationChannel(
+          'tradevision_security_alerts',
+          'TradeVision Security & App Lock',
+          description: 'Authentication, biometric guard, and session security notifications',
+          importance: Importance.high,
+          playSound: true,
+          enableVibration: true,
+          showBadge: true,
+        );
+
         await androidImplementation.createNotificationChannel(priceChannel);
         await androidImplementation.createNotificationChannel(marketChannel);
         await androidImplementation.createNotificationChannel(newsChannel);
-
-        await androidImplementation.requestNotificationsPermission();
-        try {
-          await androidImplementation.requestExactAlarmsPermission();
-        } catch (_) {}
+        await androidImplementation.createNotificationChannel(securityChannel);
       }
 
       // Schedule persistent OS-level alarms for market milestones
@@ -323,17 +330,26 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    String? channelId,
+    String? channelName,
+    String? channelDescription,
   }) async {
     try {
       final safeId = (id.abs()) % 2147483647;
+      final targetChannelId = channelId ?? 'tradevision_price_alerts';
+      final targetChannelName = channelName ?? 'TradeVision Price Alerts';
+      final targetDescription = channelDescription ?? 'Real-time stock price and institutional signal alerts';
+
       final androidDetails = AndroidNotificationDetails(
-        'tradevision_price_alerts',
-        'TradeVision Price Alerts',
-        channelDescription: 'Real-time stock price and institutional signal alerts',
+        targetChannelId,
+        targetChannelName,
+        channelDescription: targetDescription,
         importance: Importance.max,
         priority: Priority.high,
         showWhen: true,
-        icon: '@mipmap/ic_launcher',
+        channelShowBadge: true,
+        ticker: 'TradeVision Alert',
+        icon: '@drawable/ic_notification',
         enableVibration: true,
         playSound: true,
         category: AndroidNotificationCategory.status,
@@ -341,7 +357,7 @@ class NotificationService {
         styleInformation: BigTextStyleInformation(
           body,
           contentTitle: title,
-          summaryText: 'TradeVision Alert',
+          summaryText: 'TradeVision Intelligence',
         ),
       );
 
@@ -366,6 +382,23 @@ class NotificationService {
     } catch (e) {
       debugPrint('[NotificationService] showNotification error: $e');
     }
+  }
+
+  Future<void> showSecurityAlert({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    final id = DateTime.now().millisecondsSinceEpoch % 2147483647;
+    await showNotification(
+      id: id,
+      title: title,
+      body: body,
+      channelId: 'tradevision_security_alerts',
+      channelName: 'TradeVision Security & App Lock',
+      channelDescription: 'Authentication, biometric guard, and session security notifications',
+      payload: payload,
+    );
   }
 
   Future<void> cancelAllNotifications() async {

@@ -30,6 +30,9 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    String? channelId,
+    String? channelName,
+    String? channelDescription,
   }) async {
     debugPrint('[NotificationService] [Web] $title: $body');
     if (!kIsWeb) return;
@@ -76,6 +79,20 @@ class NotificationService {
     } catch (e) {
       debugPrint('[NotificationService] Web showNotification popup error: $e');
     }
+  }
+
+  Future<void> showSecurityAlert({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    final id = DateTime.now().millisecondsSinceEpoch % 2147483647;
+    await showNotification(
+      id: id,
+      title: title,
+      body: body,
+      payload: payload,
+    );
   }
 
   Future<void> scheduleMarketSessionAlarms() async {

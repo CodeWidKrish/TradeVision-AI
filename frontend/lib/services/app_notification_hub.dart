@@ -91,11 +91,27 @@ class AppNotificationHub {
     // Also trigger system/browser heads-up notification with official logo
     try {
       final safeId = (item.id.hashCode.abs()) % 2147483647;
+      String channelId = 'tradevision_price_alerts';
+      String channelName = 'TradeVision Price Alerts';
+
+      if (item.type == NotificationType.securityAlert) {
+        channelId = 'tradevision_security_alerts';
+        channelName = 'TradeVision Security & App Lock';
+      } else if (item.type == NotificationType.highPriorityNews) {
+        channelId = 'tradevision_breaking_news';
+        channelName = 'TradeVision Breaking News & Intelligence';
+      } else if (item.type == NotificationType.marketTiming) {
+        channelId = 'tradevision_market_milestones';
+        channelName = 'TradeVision Market Sessions & Milestones';
+      }
+
       NotificationService.instance.showNotification(
         id: safeId,
         title: '${item.categoryTag}: ${item.title}',
         body: item.body,
         payload: item.route,
+        channelId: channelId,
+        channelName: channelName,
       );
     } catch (e) {
       debugPrint('[AppNotificationHub] System notification error: $e');
