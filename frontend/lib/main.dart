@@ -13,6 +13,7 @@ import 'services/storage_service.dart';
 import 'services/alert_service.dart';
 import 'services/notification_service.dart';
 import 'services/app_notification_hub.dart';
+import 'services/supabase_service.dart';
 import 'widgets/connectivity_banner.dart';
 import 'widgets/in_app_notification_banner.dart';
 
@@ -45,12 +46,13 @@ void main() async {
   // Wrap entire startup in try-catch
   try {
     await StorageService.init();
+    await SupabaseService.instance.init();
     await AlertService.instance.init();
     await NotificationService.instance.init();
     await AppNotificationHub.instance.init();
     await StockRepository.loadStockUniverse();
   } catch (e) {
-    debugPrint('StorageService / StockRepository init failed: $e');
+    debugPrint('StorageService / Supabase / StockRepository init failed: $e');
     // Continue anyway — app can run without persisted prefs
   }
 

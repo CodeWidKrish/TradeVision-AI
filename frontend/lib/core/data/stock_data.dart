@@ -1244,7 +1244,7 @@ class StockRepository {
     ];
     final sorted = List<StockModel>.from(candidates)
       ..sort((a, b) => b.changePercent.compareTo(a.changePercent));
-    return sorted.take(limit).map((s) => {
+    return sorted.take(limit).map<Map<String, dynamic>>((s) => <String, dynamic>{
       'ticker': s.ticker,
       'name': s.fullName,
       'price': '₹${s.price.toStringAsFixed(2)}',
@@ -1269,7 +1269,7 @@ class StockRepository {
     ];
     final sorted = List<StockModel>.from(candidates)
       ..sort((a, b) => a.changePercent.compareTo(b.changePercent));
-    return sorted.take(limit).map((s) => {
+    return sorted.take(limit).map<Map<String, dynamic>>((s) => <String, dynamic>{
       'ticker': s.ticker,
       'name': s.fullName,
       'price': '₹${s.price.toStringAsFixed(2)}',

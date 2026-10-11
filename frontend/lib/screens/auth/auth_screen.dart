@@ -1,11 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/config/supabase_config.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../services/storage_service.dart';
+import '../../services/supabase_service.dart';
 import '../../services/app_notification_hub.dart';
 import '../../models/app_notification_model.dart';
 import '../../widgets/tv_logo_widget.dart';
@@ -22,6 +25,7 @@ class AuthScreen extends ConsumerStatefulWidget {
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _isLogin = true;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _rememberMe = true;
@@ -272,6 +276,112 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _showError('Something went wrong. Please check your connection and try again.');
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    HapticFeedback.lightImpact();
+
+    if (_isGoogleLoading) return;
+
+    if (!SupabaseConfig.isConfigured) {
+      _showSupabaseSetupDialog();
+      return;
+    }
+
+    setState(() => _isGoogleLoading = true);
+
+    try {
+      final success = await SupabaseService.instance.signInWithGoogle();
+      if (!mounted) return;
+
+      if (kIsWeb) {
+        final user = SupabaseService.instance.currentUser;
+        if (user != null) {
+          ref.read(isLoggedInProvider.notifier).state = true;
+          context.go('/home');
+        }
+      } else {
+        if (success) {
+          ref.read(isLoggedInProvider.notifier).state = true;
+          context.go('/home');
+        }
+      }
+    } catch (e) {
+      debugPrint('Google Sign-in error: $e');
+      _showError('Google Sign-In failed: ${e.toString().replaceAll("Exception: ", "")}');
+    } finally {
+      if (mounted) setState(() => _isGoogleLoading = false);
+    }
+  }
+
+  void _showSupabaseSetupDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, color: Color(0xFF38BDF8), size: 24),
+            const SizedBox(width: 8),
+            Text(
+              'Supabase Setup',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'To enable live Google OAuth and store user profiles in Supabase:\n\n'
+              '1. Open `lib/core/config/supabase_config.dart`\n'
+              '2. Paste your `SUPABASE_URL` and `SUPABASE_ANON_KEY`\n'
+              '3. Enable Google Provider in Supabase Auth Settings.\n\n'
+              'Would you like to test with a simulated Google login for now?',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: const Color(0xFFCBD5E1),
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.inter(color: Colors.white60),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4285F4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              // Test simulated Google account
+              await StorageService.setLoggedIn(true);
+              await StorageService.setUserEmail('trader.google@gmail.com');
+              await StorageService.setUserDisplayName('Google Trader');
+              ref.read(isLoggedInProvider.notifier).state = true;
+              if (mounted) context.go('/home');
+            },
+            child: Text(
+              'Test Demo Google Login',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showForgotPasswordDialog(BuildContext context) {
@@ -701,8 +811,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     width: double.infinity,
                     height: 52,
                     child: OutlinedButton(
-                      onPressed: () =>
-                          _showComingSoonSnackBar('Google Sign-In'),
+                      onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
                           color: cardBorder,
@@ -712,38 +821,47 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         ),
                         backgroundColor: cardBg,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 22,
-                            height: 22,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFF4285F4),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'G',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
+                      child: _isGoogleLoading
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFF4285F4),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'G',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Continue with Google',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: textColor,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Continue with Google',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: textColor,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
 
