@@ -11,7 +11,7 @@ class SupabaseConfig {
   static const String _defaultAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjeHZ1eHZzcWVwaWRqaWhobnp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMTU4NzMsImV4cCI6MjEwNjc5MTg3M30.b9mC10BlB51BUqyP-AKQW1Jo7DZf0cPCEmuqpE4MeQc';
 
   /// Google OAuth Web Client ID (Optional for web OAuth redirect, required for native Google ID Token)
-  static const String _defaultGoogleWebClientId = '376635942423-j9fvvq8higvn5dr3h23u152qpqcanasu.apps.googleusercontent.com';
+  static const String _defaultGoogleWebClientId = '509472566055-sieic4puq8opcp7ikloea29t5pm5on6v.apps.googleusercontent.com';
 
   static String get url {
     const envUrl = String.fromEnvironment('SUPABASE_URL');
