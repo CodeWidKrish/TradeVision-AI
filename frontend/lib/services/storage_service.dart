@@ -180,6 +180,17 @@ class StorageService {
   static const _keyAppLockEnabled = 'tv_app_lock_enabled';
   static const _keyAppLockPin = 'tv_app_lock_pin';
   static const _keyBiometricEnabled = 'tv_biometric_enabled';
+  static const _keyPrivacyMaskEnabled = 'tv_privacy_mask_enabled';
+
+  static bool isPrivacyMaskEnabled() {
+    try { return _prefs?.getBool(_keyPrivacyMaskEnabled) ?? true; }
+    catch (_) { return true; }
+  }
+
+  static Future<void> setPrivacyMaskEnabled(bool val) async {
+    try { await _prefs?.setBool(_keyPrivacyMaskEnabled, val); }
+    catch (e) { debugPrint('setPrivacyMaskEnabled failed: $e'); }
+  }
 
   static bool isAppLockEnabled() {
     try { return _prefs?.getBool(_keyAppLockEnabled) ?? false; }
@@ -192,12 +203,20 @@ class StorageService {
   }
 
   static String? getAppLockPin() {
-    try { return _prefs?.getString(_keyAppLockPin); }
+    try {
+      final raw = _prefs?.getString(_keyAppLockPin);
+      if (raw == null) return null;
+      final decrypted = SecurityService.decryptPayload(raw);
+      return decrypted.isNotEmpty ? decrypted : raw;
+    }
     catch (_) { return null; }
   }
 
   static Future<void> setAppLockPin(String pin) async {
-    try { await _prefs?.setString(_keyAppLockPin, pin); }
+    try {
+      final vaulted = SecurityService.encryptPayload(pin);
+      await _prefs?.setString(_keyAppLockPin, vaulted);
+    }
     catch (e) { debugPrint('setAppLockPin failed: $e'); }
   }
 
