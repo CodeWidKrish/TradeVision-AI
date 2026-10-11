@@ -156,14 +156,22 @@ class SupabaseService {
         // Web OAuth flow
         final success = await client!.auth.signInWithOAuth(
           OAuthProvider.google,
-          redirectTo: Uri.base.origin, // redirects back to this web app
+          redirectTo: Uri.base.origin, // redirects back to this web app origin
+          queryParams: {
+            'access_type': 'offline',
+            'prompt': 'select_account',
+          },
         );
         return success;
       } else {
         // Mobile / Desktop redirect flow
         final success = await client!.auth.signInWithOAuth(
           OAuthProvider.google,
-          redirectTo: 'io.supabase.tradevision://login-callback/',
+          redirectTo: 'io.supabase.tradevision://login-callback',
+          queryParams: {
+            'access_type': 'offline',
+            'prompt': 'select_account',
+          },
         );
         return success;
       }

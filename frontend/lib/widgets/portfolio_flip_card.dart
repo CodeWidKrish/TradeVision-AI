@@ -37,11 +37,11 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 650),
+      duration: const Duration(milliseconds: 340),
     );
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeInOutCubic,
+      curve: Curves.easeOutCubic,
     );
 
     // Instant synchronous baseline initialization (0ms delay)
@@ -163,114 +163,93 @@ class _PortfolioFlipCardState extends State<PortfolioFlipCard>
     final double dynamicBeta = (0.80 + (todayPercent.abs() * 0.08)).clamp(0.74, 1.12);
     final double dynamicSharpe = (1.75 + (returnsPercent / 100.0) * 0.45).clamp(1.30, 2.35);
 
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        final angle = _animation.value * math.pi;
-        final isUnder = angle > (math.pi / 2);
+    // Pre-cache front and back faces in isolated RepaintBoundary layers
+    // so during 3D rotation, fl_chart LineChart/BarChart/PieChart are NOT rebuilt every frame.
+    final frontCard = RepaintBoundary(
+      child: _buildFrontCard(
+        isDark: isDark,
+        totalPortfolioValue: totalPortfolioValue,
+        todayGain: todayGain,
+        todayPercent: todayPercent,
+        totalInvested: totalInvested,
+        totalReturns: totalReturns,
+        returnsPercent: returnsPercent,
+      ),
+    );
 
-        final Widget face;
-        if (!isUnder) {
-          face = _isFront
-              ? _buildFrontCard(
-                  isDark: isDark,
-                  totalPortfolioValue: totalPortfolioValue,
-                  todayGain: todayGain,
-                  todayPercent: todayPercent,
-                  totalInvested: totalInvested,
-                  totalReturns: totalReturns,
-                  returnsPercent: returnsPercent,
-                )
-              : _buildBackCard(
-                  isDark: isDark,
-                  todayGain: todayGain,
-                  todayPercent: todayPercent,
-                  weekGain: weekGain,
-                  weekPercent: weekPercent,
-                  monthGain: monthGain,
-                  monthPercent: monthPercent,
-                  yearGain: yearGain,
-                  yearPercent: yearPercent,
-                  reliancePct: reliancePct,
-                  hdfcPct: hdfcPct,
-                  tcsPct: tcsPct,
-                  othersPct: othersPct,
-                  equityPct: equityPct,
-                  debtPct: debtPct,
-                  cashPct: cashPct,
-                  dynamicBeta: dynamicBeta,
-                  dynamicSharpe: dynamicSharpe,
-                );
-        } else {
-          face = _isFront
-              ? _buildBackCard(
-                  isDark: isDark,
-                  todayGain: todayGain,
-                  todayPercent: todayPercent,
-                  weekGain: weekGain,
-                  weekPercent: weekPercent,
-                  monthGain: monthGain,
-                  monthPercent: monthPercent,
-                  yearGain: yearGain,
-                  yearPercent: yearPercent,
-                  reliancePct: reliancePct,
-                  hdfcPct: hdfcPct,
-                  tcsPct: tcsPct,
-                  othersPct: othersPct,
-                  equityPct: equityPct,
-                  debtPct: debtPct,
-                  cashPct: cashPct,
-                  dynamicBeta: dynamicBeta,
-                  dynamicSharpe: dynamicSharpe,
-                )
-              : _buildFrontCard(
-                  isDark: isDark,
-                  totalPortfolioValue: totalPortfolioValue,
-                  todayGain: todayGain,
-                  todayPercent: todayPercent,
-                  totalInvested: totalInvested,
-                  totalReturns: totalReturns,
-                  returnsPercent: returnsPercent,
-                );
-        }
+    final backCard = RepaintBoundary(
+      child: _buildBackCard(
+        isDark: isDark,
+        todayGain: todayGain,
+        todayPercent: todayPercent,
+        weekGain: weekGain,
+        weekPercent: weekPercent,
+        monthGain: monthGain,
+        monthPercent: monthPercent,
+        yearGain: yearGain,
+        yearPercent: yearPercent,
+        reliancePct: reliancePct,
+        hdfcPct: hdfcPct,
+        tcsPct: tcsPct,
+        othersPct: othersPct,
+        equityPct: equityPct,
+        debtPct: debtPct,
+        cashPct: cashPct,
+        dynamicBeta: dynamicBeta,
+        dynamicSharpe: dynamicSharpe,
+      ),
+    );
 
-        // Dynamic 3D mid-air lift
-        final scale = 1.0 + math.sin(angle) * 0.07;
-        final shadowOpacity = (math.sin(angle) * 0.35).clamp(0.0, 0.35);
+    return RepaintBoundary(
+      child: GestureDetector(
+        onTap: _flip,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            final angle = _animation.value * math.pi;
+            final isUnder = angle > (math.pi / 2);
 
-        final transform = Matrix4.identity()
-          ..setEntry(3, 2, 0.0014)
-          ..scale(scale, scale, 1.0);
+            // Display pre-rendered raster layer based on rotation angle
+            final Widget face = (!isUnder)
+                ? (_isFront ? frontCard : backCard)
+                : (_isFront ? backCard : frontCard);
 
-        if (!isUnder) {
-          transform.rotateY(angle);
-        } else {
-          transform.rotateY(angle - math.pi);
-        }
+            // Dynamic 3D mid-air lift
+            final scale = 1.0 + math.sin(angle) * 0.07;
+            final shadowOpacity = (math.sin(angle) * 0.35).clamp(0.0, 0.35);
 
-        return GestureDetector(
-          onTap: _flip,
-          behavior: HitTestBehavior.opaque,
-          child: Transform(
-            transform: transform,
-            alignment: Alignment.center,
-            child: Stack(
-              children: [
-                face,
-                if (shadowOpacity > 0.01)
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: shadowOpacity),
-                        borderRadius: BorderRadius.circular(20),
+            final transform = Matrix4.identity()
+              ..setEntry(3, 2, 0.0014)
+              ..scale(scale, scale, 1.0);
+
+            if (!isUnder) {
+              transform.rotateY(angle);
+            } else {
+              transform.rotateY(angle - math.pi);
+            }
+
+            return Transform(
+              transform: transform,
+              alignment: Alignment.center,
+              child: Stack(
+                children: [
+                  face,
+                  if (shadowOpacity > 0.01)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: shadowOpacity),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
+                ],
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 

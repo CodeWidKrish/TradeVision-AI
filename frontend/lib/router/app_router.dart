@@ -93,6 +93,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(
+        path: '/',
+        redirect: (context, state) {
+          final isLoggedIn = ref.read(isLoggedInProvider);
+          return isLoggedIn ? '/home' : '/splash';
+        },
+      ),
+      GoRoute(
+        path: '/login-callback',
+        redirect: (context, state) {
+          final isLoggedIn = ref.read(isLoggedInProvider);
+          return isLoggedIn ? '/home' : '/auth';
+        },
+      ),
+      GoRoute(
         path: '/splash',
         pageBuilder: (context, state) => CustomTransitionPage(
           child: const SplashScreen(),

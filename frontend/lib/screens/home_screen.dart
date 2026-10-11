@@ -386,30 +386,32 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 12),
 
               // 3. Portfolio Card (Interactive 3D Flip Card with Ambient Glow Halo)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned.fill(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? const Color(0xFF0066CC).withValues(alpha: 0.32)
-                                  : const Color(0xFF0F1E36).withValues(alpha: 0.12),
-                              blurRadius: 36,
-                              spreadRadius: 6,
-                            ),
-                          ],
+              RepaintBoundary(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned.fill(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? const Color(0xFF0066CC).withValues(alpha: 0.32)
+                                    : const Color(0xFF0F1E36).withValues(alpha: 0.12),
+                                blurRadius: 36,
+                                spreadRadius: 6,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const PortfolioFlipCard(),
-                  ],
+                      const PortfolioFlipCard(),
+                    ],
+                  ),
                 ),
               ),
 

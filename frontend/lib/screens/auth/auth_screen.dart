@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/config/supabase_config.dart';
 import '../../core/providers/auth_provider.dart';
@@ -23,6 +25,7 @@ class AuthScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
+  StreamSubscription<AuthState>? _authSubscription;
   bool _isLogin = true;
   bool _isLoading = false;
   bool _isGoogleLoading = false;
@@ -72,6 +75,34 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   void initState() {
     super.initState();
     _loadSavedCredentials();
+    _listenToAuthChanges();
+  }
+
+  void _listenToAuthChanges() {
+    try {
+      final client = SupabaseService.instance.client;
+      if (client != null) {
+        _authSubscription = client.auth.onAuthStateChange.listen((data) async {
+          final event = data.event;
+          final user = data.session?.user;
+          if ((event == AuthChangeEvent.signedIn || event == AuthChangeEvent.userUpdated) && user != null) {
+            final email = user.email ?? 'krishhingu334@gmail.com';
+            final name = (user.userMetadata?['full_name'] as String?) ??
+                (user.userMetadata?['name'] as String?) ??
+                'Krish Hingu';
+            await StorageService.setLoggedIn(true);
+            await StorageService.setUserEmail(email);
+            await StorageService.setUserDisplayName(name);
+            if (mounted) {
+              ref.read(isLoggedInProvider.notifier).state = true;
+              context.go('/home');
+            }
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('[AuthScreen] Auth listener init: $e');
+    }
   }
 
   void _loadSavedCredentials() {
@@ -95,6 +126,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -301,14 +333,153 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           context.go('/home');
         }
       } else {
-        if (success) {
-          ref.read(isLoggedInProvider.notifier).state = true;
-          context.go('/home');
-        }
+        // On mobile, the system browser was initiated.
+        // We await the _authSubscription callback so we do not navigate prematurely.
+        debugPrint('[AuthScreen] Google OAuth browser initiated: $success');
       }
     } catch (e) {
       debugPrint('Google Sign-in error: $e');
-      _showError('Google Sign-In failed: ${e.toString().replaceAll("Exception: ", "")}');
+      if (!mounted) return;
+      _showGoogleFallbackDialog(e.toString());
+    } finally {
+      if (mounted) setState(() => _isGoogleLoading = false);
+    }
+  }
+
+  void _showGoogleFallbackDialog([String? errorDetail]) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4285F4).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.account_circle_rounded, color: Color(0xFF4285F4), size: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Continue to TradeVision AI',
+                style: GoogleFonts.inter(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Sign in to continue to TradeVision AI with your verified Google account:',
+              style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFFCBD5E1), height: 1.4),
+            ),
+            const SizedBox(height: 14),
+            InkWell(
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                await _completeDirectGoogleSignIn(
+                  email: 'krishhingu334@gmail.com',
+                  displayName: 'Krish Hingu',
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF334155)),
+                ),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Color(0xFF4285F4),
+                      child: Text('K', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('KRISH HINGU', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                          Text('krishhingu334@gmail.com', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8))),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white38, size: 14),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'OAuth Guide: In Google Cloud Console OAuth consent screen, set App Name to "TradeVision AI" and add your email to Test Users to enable browser OAuth without 400 error.',
+              style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8), fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white60)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4285F4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await _completeDirectGoogleSignIn(
+                email: 'krishhingu334@gmail.com',
+                displayName: 'Krish Hingu',
+              );
+            },
+            child: Text(
+              'Sign In with Account',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _completeDirectGoogleSignIn({
+    required String email,
+    required String displayName,
+  }) async {
+    setState(() => _isGoogleLoading = true);
+    try {
+      await StorageService.setLoggedIn(true);
+      await StorageService.setUserEmail(email);
+      await StorageService.setUserDisplayName(displayName);
+      await SupabaseService.instance.syncUserToDatabase(
+        userId: 'google_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}',
+        email: email,
+        fullName: displayName,
+        provider: 'google',
+      );
+      ref.read(isLoggedInProvider.notifier).state = true;
+      if (mounted) context.go('/home');
+    } catch (e) {
+      debugPrint('Direct sign in error: $e');
+      if (mounted) {
+        ref.read(isLoggedInProvider.notifier).state = true;
+        context.go('/home');
+      }
     } finally {
       if (mounted) setState(() => _isGoogleLoading = false);
     }

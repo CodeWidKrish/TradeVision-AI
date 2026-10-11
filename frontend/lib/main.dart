@@ -1,3 +1,5 @@
+import 'dart:ui' show PointerDeviceKind;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -107,13 +109,28 @@ class TradeVisionApp extends ConsumerWidget {
   }
 }
 
-/// Removes the blue overscroll glow on Android and provides
-/// buttery-smooth scrolling physics across all platforms.
+/// Removes the blue overscroll glow and provides instantaneous,
+/// zero-friction 60fps scrolling physics across Web, Desktop, and Mobile.
 class _SmoothScrollBehavior extends ScrollBehavior {
   const _SmoothScrollBehavior();
 
   @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.stylus,
+    PointerDeviceKind.invertedStylus,
+  };
+
+  @override
   ScrollPhysics getScrollPhysics(BuildContext context) {
+    if (kIsWeb) {
+      // Clamping physics on Web eliminates sluggish elastic mouse-wheel resistance
+      return const ClampingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      );
+    }
     return const BouncingScrollPhysics(
       parent: AlwaysScrollableScrollPhysics(),
     );

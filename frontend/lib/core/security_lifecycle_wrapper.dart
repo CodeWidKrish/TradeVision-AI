@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -62,13 +63,24 @@ class _AppLifecycleSecurityWrapperState extends State<AppLifecycleSecurityWrappe
   void didChangeAppLifecycleState(AppLifecycleState state) {
     SecurityService.recordActivity();
 
+    // 1. Web browsers do not use OS app switcher thumbnails and tab switching
+    // causes spurious inactive/paused events that would trap web users in black screens.
+    if (kIsWeb) return;
+
+    // 2. Never mask authentication, onboarding, or splash screens
+    final isLoggedIn = StorageService.getIsLoggedIn();
+    if (!isLoggedIn) {
+      if (_isMasked) setState(() => _isMasked = false);
+      return;
+    }
+
     final privacyEnabled = StorageService.isPrivacyMaskEnabled();
 
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       if (privacyEnabled && !_isMasked) {
         setState(() => _isMasked = true);
       }
-    } else if (state == AppLifecycleState.resumed) {
+    } else if (state == AppLifecycleState.resumed || state == AppLifecycleState.detached) {
       if (_isMasked) {
         setState(() => _isMasked = false);
       }
@@ -77,20 +89,29 @@ class _AppLifecycleSecurityWrapperState extends State<AppLifecycleSecurityWrappe
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      textDirection: TextDirection.ltr,
-      children: [
-        widget.child,
-        if (_isMasked)
-          Positioned.fill(
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: const Duration(milliseconds: 180),
-              builder: (context, opacity, _) {
-                return Opacity(
-                  opacity: opacity,
-                  child: ClipRect(
-                    child: BackdropFilter(
+    return Listener(
+      onPointerDown: (_) {
+        if (_isMasked) {
+          setState(() => _isMasked = false);
+        }
+      },
+      child: Stack(
+        textDirection: TextDirection.ltr,
+        children: [
+          widget.child,
+          if (_isMasked && !kIsWeb && StorageService.getIsLoggedIn())
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => setState(() => _isMasked = false),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 180),
+                  builder: (context, opacity, _) {
+                    return Opacity(
+                      opacity: opacity,
+                      child: ClipRect(
+                        child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                       child: Container(
                         color: const Color(0xE60A0E1A), // deep sapphire obsidian cover
@@ -167,7 +188,9 @@ class _AppLifecycleSecurityWrapperState extends State<AppLifecycleSecurityWrappe
               },
             ),
           ),
+        ),
       ],
-    );
-  }
+    ),
+  );
+}
 }

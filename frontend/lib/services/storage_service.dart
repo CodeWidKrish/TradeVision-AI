@@ -183,8 +183,8 @@ class StorageService {
   static const _keyPrivacyMaskEnabled = 'tv_privacy_mask_enabled';
 
   static bool isPrivacyMaskEnabled() {
-    try { return _prefs?.getBool(_keyPrivacyMaskEnabled) ?? true; }
-    catch (_) { return true; }
+    try { return _prefs?.getBool(_keyPrivacyMaskEnabled) ?? false; }
+    catch (_) { return false; }
   }
 
   static Future<void> setPrivacyMaskEnabled(bool val) async {
