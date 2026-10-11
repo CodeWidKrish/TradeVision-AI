@@ -77,6 +77,51 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT OR UPDATE ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- 6. Real-Time Interactive Watchlist Table with Row Level Security (RLS)
+CREATE TABLE IF NOT EXISTS public.user_watchlists (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    symbol TEXT NOT NULL,
+    added_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(user_id, symbol)
+);
+
+ALTER TABLE public.user_watchlists ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own watchlist" ON public.user_watchlists;
+CREATE POLICY "Users can read own watchlist"
+    ON public.user_watchlists
+    FOR SELECT
+    TO authenticated
+    USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own watchlist" ON public.user_watchlists;
+CREATE POLICY "Users can insert own watchlist"
+    ON public.user_watchlists
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own watchlist" ON public.user_watchlists;
+CREATE POLICY "Users can delete own watchlist"
+    ON public.user_watchlists
+    FOR DELETE
+    TO authenticated
+    USING (auth.uid() = user_id);
+
+-- Enable Realtime publication on user_watchlists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND tablename = 'user_watchlists'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.user_watchlists;
+    END IF;
+EXCEPTION WHEN OTHERS THEN
+    -- Ignore if publication already configured or in local sandbox
+END $$;
+
 -- ====================================================================
 -- SETUP INSTRUCTIONS FOR GOOGLE AUTH IN SUPABASE CONSOLE:
 -- ====================================================================

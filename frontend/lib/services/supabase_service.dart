@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/supabase_config.dart';
+import '../core/security_service.dart';
 import 'storage_service.dart';
 
 class SupabaseService {
@@ -15,7 +16,7 @@ class SupabaseService {
   /// Initialize Supabase client if configured
   Future<void> init() async {
     if (!SupabaseConfig.isConfigured) {
-      debugPrint('[SupabaseService] Supabase credentials not set. Running in offline/local fallback mode.');
+      debugPrint('[SupabaseService] Running in offline/local fallback mode.');
       return;
     }
 
@@ -27,21 +28,27 @@ class SupabaseService {
       _initialized = true;
       debugPrint('[SupabaseService] Supabase initialized successfully.');
 
-      // Setup auth state change listener
+      // Setup auth state change listener with silent token refresh handler
       Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
         final AuthChangeEvent event = data.event;
         final Session? session = data.session;
         final User? user = session?.user;
 
         if (event == AuthChangeEvent.signedIn && user != null) {
-          debugPrint('[SupabaseService] User signed in: ${user.email}');
+          final masked = SecurityService.maskEmail(user.email ?? '');
+          debugPrint('[SupabaseService] User signed in: $masked');
+          await _onUserSignedIn(user);
+        } else if (event == AuthChangeEvent.tokenRefreshed) {
+          debugPrint('[SupabaseService] Security session token refreshed silently.');
+        } else if (event == AuthChangeEvent.userUpdated && user != null) {
+          debugPrint('[SupabaseService] User session metadata updated.');
           await _onUserSignedIn(user);
         } else if (event == AuthChangeEvent.signedOut) {
-          debugPrint('[SupabaseService] User signed out');
+          debugPrint('[SupabaseService] User session ended safely.');
         }
       });
     } catch (e) {
-      debugPrint('[SupabaseService] Initialization error: $e');
+      debugPrint('[SupabaseService] Initialization fallback: $e');
     }
   }
 
@@ -95,9 +102,40 @@ class SupabaseService {
       await client!.from('users').upsert(userRecord);
       debugPrint('[SupabaseService] Synced user record to Supabase "users" table.');
     } catch (e) {
-      debugPrint('[SupabaseService] syncUserToDatabase error: $e');
-      // If table does not exist or has RLS issue, print clear guidance
-      rethrow;
+      debugPrint('[SupabaseService] syncUserToDatabase safe fallback: $e');
+      // Do not rethrow — keep local app session valid even if cloud sync is slow
+    }
+  }
+
+  /// Add or sync a ticker to user's real-time Supabase watchlist
+  Future<void> addToWatchlist(String symbol) async {
+    final user = currentUser;
+    if (user == null || !_initialized || client == null) return;
+    try {
+      await client!.from('user_watchlists').upsert({
+        'user_id': user.id,
+        'symbol': symbol.toUpperCase(),
+        'added_at': DateTime.now().toUtc().toIso8601String(),
+      });
+      debugPrint('[SupabaseService] Synced $symbol to real-time watchlist');
+    } catch (e) {
+      debugPrint('[SupabaseService] addToWatchlist local fallback: $e');
+    }
+  }
+
+  /// Remove a ticker from user's Supabase watchlist
+  Future<void> removeFromWatchlist(String symbol) async {
+    final user = currentUser;
+    if (user == null || !_initialized || client == null) return;
+    try {
+      await client!
+          .from('user_watchlists')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('symbol', symbol.toUpperCase());
+      debugPrint('[SupabaseService] Removed $symbol from real-time watchlist');
+    } catch (e) {
+      debugPrint('[SupabaseService] removeFromWatchlist local fallback: $e');
     }
   }
 
