@@ -5,10 +5,10 @@
 /// flutter run --dart-define=SUPABASE_URL=https://xyz.supabase.co --dart-define=SUPABASE_ANON_KEY=your_key
 class SupabaseConfig {
   /// Supabase project URL (Found in Supabase Dashboard -> Project Settings -> API)
-  static const String _defaultUrl = 'https://qcxvuxvsqepidjihhnzy.supabase.co';
+  static const String _defaultUrl = 'https://zbxsilwxranbodignzmp.supabase.co';
 
   /// Supabase anon public key (Found in Supabase Dashboard -> Project Settings -> API)
-  static const String _defaultAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjeHZ1eHZzcWVwaWRqaWhobnp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMTU4NzMsImV4cCI6MjEwNjc5MTg3M30.b9mC10BlB51BUqyP-AKQW1Jo7DZf0cPCEmuqpE4MeQc';
+  static const String _defaultAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpieHNpbHd4cmFuYm9kaWduem1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3MTMxNDcsImV4cCI6MjEwNzI4OTE0N30.lmVA5wRFuEksoAMXTduQaAGt9WYn15y3gZ0MKqna9U8';
 
   /// Google OAuth Web Client ID (Optional for web OAuth redirect, required for native Google ID Token)
   static const String _defaultGoogleWebClientId = '509472566055-sieic4puq8opcp7ikloea29t5pm5on6v.apps.googleusercontent.com';
