@@ -1,7 +1,14 @@
-from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, Request, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
+import time
+import re
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("tradevision.security")
 
 from app.routers.chart import router as chart_router
 from app.routers.indicators import router as indicators_router
@@ -24,13 +31,79 @@ from app.services.news_service import get_live_news, get_market_news
 
 app = FastAPI(title="TradeVision AI Backend", version="2.4.0")
 
+# Institutional CORS Configuration: Allow local development, mobile emulators, and custom schemes
+ALLOWED_ORIGINS = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:5000",
+    "http://localhost:5050",
+    "http://localhost:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1",
+    "http://127.0.0.1:5050",
+    "http://127.0.0.1:8000",
+    "http://10.0.2.2:8000",
+    "https://tradevision.ai",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|10\.0\.2\.2)(:\d+)?$",
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
+
+# ── SECURITY MIDDLEWARE & RATE LIMITING ─────────────────────────────────
+_request_counts: dict[str, list[float]] = {}
+
+@app.middleware("http")
+async def security_middleware(request: Request, call_next):
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    path = request.url.path
+
+    # Throttling compute-heavy routes (max 60/min per IP) to defend stochastic engine
+    if any(path.startswith(prefix) for prefix in ["/predict", "/ai", "/report"]):
+        now = time.time()
+        key = f"{client_ip}:{path}"
+        timestamps = [t for t in _request_counts.get(key, []) if now - t < 60]
+        if len(timestamps) >= 60:
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "status": "error",
+                    "error_code": "RATE_LIMIT_EXCEEDED",
+                    "message": "Compute throttle limit reached for stochastic models. Please retry shortly.",
+                },
+            )
+        timestamps.append(now)
+        _request_counts[key] = timestamps
+
+    response = await call_next(request)
+    # Institutional HTTP Security Headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
+
+# ── GLOBAL EXCEPTION SHIELD (ZERO STACKTRACE LEAKAGE) ───────────────────
+@app.exception_handler(Exception)
+async def global_security_exception_handler(request: Request, exc: Exception):
+    if isinstance(exc, HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"status": "error", "message": exc.detail},
+        )
+    logger.error(f"[SecurityShield] Handled internal anomaly on {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "error_code": "INTERNAL_SECURITY_SHIELD",
+            "message": "The analytics engine encountered a transient condition and recovered safely.",
+        },
+    )
 
 app.include_router(test_router)
 app.include_router(stock_details_router)
