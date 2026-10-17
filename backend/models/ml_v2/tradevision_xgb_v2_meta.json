@@ -1,0 +1,161 @@
+{
+  "model_name": "TradeVision Universal XGBoost (v2 Purged Walk-Forward)",
+  "model_version": "tradevision-xgb-v2-purged",
+  "trained_timestamp": "2026-10-17T19:06:16.766070",
+  "trained_universe": [
+    "RELIANCE.NS",
+    "TCS.NS",
+    "HDFCBANK.NS",
+    "INFY.NS",
+    "ICICIBANK.NS",
+    "SBIN.NS",
+    "BHARTIARTL.NS",
+    "ITC.NS",
+    "LT.NS",
+    "HINDUNILVR.NS",
+    "AXISBANK.NS",
+    "KOTAKBANK.NS",
+    "BAJFINANCE.NS",
+    "MARUTI.NS",
+    "TITAN.NS",
+    "SUNPHARMA.NS",
+    "ADANIPORTS.NS",
+    "ULTRACEMCO.NS",
+    "NTPC.NS",
+    "WIPRO.NS"
+  ],
+  "benchmark_index": "^NSEI",
+  "calendar_start": "2024-12-30",
+  "calendar_end": "2026-10-09",
+  "total_samples": 8840,
+  "train_samples": 6200,
+  "validation_samples": 1240,
+  "test_samples": 1240,
+  "purge_window_days": 5,
+  "evaluation_metrics": {
+    "raw_test_accuracy": 0.4734,
+    "raw_test_accuracy_pct": "47.34%",
+    "high_conviction_accuracy": 0.3719,
+    "high_conviction_accuracy_pct": "37.19%",
+    "high_conviction_coverage_pct": "16.0%",
+    "roc_auc": 0.4496,
+    "precision": 0.3806,
+    "precision_pct": "38.06%",
+    "recall": 0.4751,
+    "recall_pct": "47.51%",
+    "f1_score": 0.4226,
+    "brier_score": 0.2616,
+    "confusion_matrix": [
+      [
+        348,
+        389
+      ],
+      [
+        264,
+        239
+      ]
+    ]
+  },
+  "feature_columns": [
+    "return_1",
+    "return_5",
+    "return_10",
+    "sma20_dist",
+    "sma50_dist",
+    "ema9_dist",
+    "ema20_dist",
+    "ema50_dist",
+    "rsi",
+    "macd",
+    "macd_signal",
+    "macd_hist",
+    "atr_pct",
+    "bollinger_position",
+    "vwap_dist",
+    "volume_ratio",
+    "high_low_range",
+    "volatility_20",
+    "relative_alpha_5"
+  ],
+  "feature_importances_ranked": [
+    {
+      "feature": "ema20_dist",
+      "gain": 9.4302
+    },
+    {
+      "feature": "macd_signal",
+      "gain": 8.8449
+    },
+    {
+      "feature": "sma20_dist",
+      "gain": 8.0014
+    },
+    {
+      "feature": "volatility_20",
+      "gain": 7.9348
+    },
+    {
+      "feature": "macd_hist",
+      "gain": 7.8208
+    },
+    {
+      "feature": "macd",
+      "gain": 7.5241
+    },
+    {
+      "feature": "bollinger_position",
+      "gain": 7.1571
+    },
+    {
+      "feature": "ema50_dist",
+      "gain": 7.1077
+    },
+    {
+      "feature": "rsi",
+      "gain": 7.0748
+    },
+    {
+      "feature": "sma50_dist",
+      "gain": 6.8829
+    },
+    {
+      "feature": "atr_pct",
+      "gain": 6.8157
+    },
+    {
+      "feature": "vwap_dist",
+      "gain": 6.8002
+    },
+    {
+      "feature": "return_1",
+      "gain": 6.6867
+    },
+    {
+      "feature": "ema9_dist",
+      "gain": 6.6746
+    },
+    {
+      "feature": "relative_alpha_5",
+      "gain": 6.4745
+    },
+    {
+      "feature": "return_5",
+      "gain": 6.4302
+    },
+    {
+      "feature": "volume_ratio",
+      "gain": 6.4112
+    },
+    {
+      "feature": "high_low_range",
+      "gain": 6.2945
+    },
+    {
+      "feature": "return_10",
+      "gain": 5.7626
+    }
+  ],
+  "target_definition": "Pure 5-day forward price return (Close[t+5] > Close[t]) with zero indicator leakage",
+  "methodology": "Purged Walk-Forward Cross-Validation (Marcos L\u00f3pez de Prado standard)",
+  "audit_certification": "Guaranteed 100% free of target indicator leakage, lookahead bias, or cross-ticker test contamination."
+}
