@@ -8,6 +8,7 @@
   <img src="https://img.shields.io/badge/ML%20Gated%20Accuracy-97.19%25-7C4DFF?style=for-the-badge&labelColor=0A0E1A" alt="Accuracy" />
   <img src="https://img.shields.io/badge/Copilot%20Speed-300%2B%20T%2Fs-FF6D00?style=for-the-badge&labelColor=0A0E1A" alt="Speed" />
   <img src="https://img.shields.io/badge/Paper%20Capital-₹10%2C00%2C000-FFD600?style=for-the-badge&labelColor=0A0E1A" alt="Paper Capital" />
+  <img src="https://img.shields.io/badge/Release-v1.0.0%2B2%20Final-00E5FF?style=for-the-badge&labelColor=0A0E1A" alt="Release" />
 </p>
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
@@ -22,22 +23,22 @@
 
 <br />
 
-**TradeVision AI** is a state-of-the-art, cross-platform stock market analytics and trading intelligence platform designed specifically for the **Indian Equities Market (NSE & BSE)**. It bridges the gap between raw market noise and actionable insight by unifying **Universal XGBoost v2 machine learning models**, an **Explainable AI (XAI)** reasoning engine, **Groq Llama 3 70B financial copiloting**, **FinBERT sentiment analysis**, and an interactive **Virtual Paper Trading Simulator** inside a high-performance Flutter client.
+**TradeVision AI** is an institutional-grade, cross-platform stock market analytics and trading intelligence ecosystem engineered specifically for the **Indian Equities Market (NSE & BSE)**. It bridges the gap between raw market noise and actionable conviction by unifying **Universal XGBoost v2 machine learning models**, an **Explainable AI (XAI)** reasoning waterfall, **Groq Llama 3 70B financial copiloting**, **FinBERT news sentiment scoring**, an anchored **Brownian Bridge stochastic charting engine**, and an interactive **Virtual Paper Trading Simulator** inside a high-performance Flutter client.
 
 <br />
 
 <p align="center">
   <a href="https://github.com/KrishnaBhundiya/TradeVision">
-    <img src="https://img.shields.io/badge/🚀%20Explore%20Codebase-TradeVision-00E5FF?style=for-the-badge&labelColor=0A0E1A" alt="Explore Codebase" />
+    <img src="https://img.shields.io/badge/🚀%20College%20Repository-TradeVision-00E5FF?style=for-the-badge&labelColor=0A0E1A" alt="Explore Codebase" />
   </a>
   <a href="http://127.0.0.1:8000/docs">
     <img src="https://img.shields.io/badge/📖%20Swagger%20API-Interactive%20Docs-76FF03?style=for-the-badge&labelColor=0A0E1A" alt="API Docs" />
   </a>
-  <a href="https://github.com/KrishnaBhundiya/TradeVision/issues">
-    <img src="https://img.shields.io/badge/🐛%20Report%20Bug-Issues-FF5252?style=for-the-badge&labelColor=0A0E1A" alt="Report Bug" />
+  <a href="docs/VIVA_DEFENSE_GUIDE.md">
+    <img src="https://img.shields.io/badge/🎓%20Viva%20Guide-Examiner%20Q%26A-FFD600?style=for-the-badge&labelColor=0A0E1A" alt="Viva Guide" />
   </a>
-  <a href="https://github.com/KrishnaBhundiya/TradeVision/pulls">
-    <img src="https://img.shields.io/badge/💡%20Contribute-PRs%20Welcome-E040FB?style=for-the-badge&labelColor=0A0E1A" alt="Contribute" />
+  <a href="docs/RESEARCH_PAPER.md">
+    <img src="https://img.shields.io/badge/📄%20Research%20Paper-IEEE%20Format-FF5252?style=for-the-badge&labelColor=0A0E1A" alt="Research Paper" />
   </a>
 </p>
 
@@ -51,7 +52,9 @@
 [🏛️ System Architecture](#%EF%B8%8F-system-architecture) •
 [🧠 Machine Learning](#-universal-xgboost-v2-machine-learning-engine) •
 [🤖 AI Copilot](#-groq-llama-3-70b-copilot) •
+[📈 Stochastic Charts](#-anchored-brownian-bridge-chart-engine) •
 [💼 Paper Trading](#-virtual-paper-trading-simulator) •
+[🎓 Viva & Research](#-academic-research--viva-defense) •
 [🛠️ Built With](#%EF%B8%8F-built-with) •
 [🚀 Quick Start](#-quick-start) •
 [📡 API Reference](#-rest--websocket-api-reference) •
@@ -73,6 +76,7 @@
 | **Groq LPU Generation Speed** | `300+ T/s` | `> 150 T/s` | 🚀 Sub-Second Token Stream |
 | **Bundled Equity Universe** | `2,500+` | `NIFTY 500+` | 🏢 Zero-Latency Offline Indexed Equities |
 | **Simulated Capital Sandbox** | `₹10,00,000` | Real Margin | 💼 Persistent Virtual Portfolio Ledger |
+| **Final Android Package (APK)** | `v1.0.0+2` | Universal Fat APK | 📱 Core Library Desugaring & Java 17 |
 
 </div>
 
@@ -83,10 +87,11 @@
 | Architectural Dimension | Traditional Trading Apps (Groww / Zerodha) | ⚡ TradeVision AI Experience |
 | :--- | :---: | :---: |
 | **Market Intelligence** | ⚠️ Raw financial headlines without risk context | ✅ **XGBoost v2 ML Engine + Groq LPU** synthesis with XAI feature weights |
-| **Chart Mathematical Accuracy** | ❌ Arbitrary random walks or synthetic drift | ✅ **Syncfusion Japanese Candlesticks** with real OHLC precision |
+| **Chart Mathematical Accuracy** | ❌ Arbitrary random walks or synthetic drift | ✅ **Syncfusion Candlesticks + Brownian Bridge** stochastic anchoring at 60 FPS |
 | **Predictive Transparency** | ❌ Opaque recommendations or black boxes | ✅ **XAI Feature Waterfall** revealing RSI, MACD, Volume & EMA contributions |
 | **Adaptive Financial Assistant** | ❌ Scripted FAQ bots or zero conversational memory | ✅ **Groq Copilot with 3 Scaling Modes** (Quick, Standard, Deep) |
 | **Risk-Free Practical Sandbox** | ⚠️ Real money required to understand volatility | ✅ **Virtual Paper Trading Simulator** with ₹10,00,000 in simulated capital |
+| **Institutional Privacy** | ❌ Sensitive balances visible in app switcher | ✅ **App Switcher Privacy Shield** with automatic canvas blur |
 | **Trading Session Engine** | ❌ Static device clock | ✅ **Live Indian Standard Time (IST) Engine** with Pre-Open & Closing phases |
 
 ---
@@ -100,10 +105,12 @@
   │  [01] Universal XGBoost v2 Engine    │ 27 features, dual-sigmoid gating, XAI waterfall │
   │  [02] Groq Llama 3 70B Copilot       │ Quick (250t), Standard (650t), Deep (1500t)     │
   │  [03] Syncfusion Pro Candlesticks    │ Interactive pinch-to-zoom, crosshairs, overlays │
-  │  [04] Virtual Paper Trading Sandbox  │ ₹10,00,000 capital, instant execution, live P&L  │
-  │  [05] FinBERT Real-Time Sentiment    │ Scraped Indian news headlines, NLP scoring      │
-  │  [06] Live IST Market Clock          │ Auto Pre-Open, Regular, Post-Market detection   │
-  │  [07] OLED Dark & Clean Light Themes │ 60 FPS 3D Matrix4 card flip animations & haptics│
+  │  [04] Brownian Bridge Chart Engine   │ Anchored continuous Wiener process at 60 FPS    │
+  │  [05] Virtual Paper Trading Sandbox  │ ₹10,00,000 capital, instant execution, live P&L  │
+  │  [06] FinBERT Real-Time Sentiment    │ Scraped Indian news headlines, NLP scoring      │
+  │  [07] Institutional Security Shield  │ App switcher blur, encrypted vault & native icon│
+  │  [08] Live IST Market Clock          │ Auto Pre-Open, Regular, Post-Market detection   │
+  │  [09] OLED Dark & Clean Light Themes │ 60 FPS 3D Matrix4 card flip animations & haptics│
   └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -118,15 +125,11 @@
 * **🔬 Deep Mode (1500 tokens):** Institutional-grade comprehensive brief with risk-reward ratios, stop-loss calculations, multi-target milestones, and bull/bear scenario planning.
 * **🧭 Conversational Routing & App Guidance:** Recognizes user greetings, extracts names, and provides complete step-by-step navigation guides for all in-app tabs and analytical tools.
 
-### 📈 3. Professional Candlestick & Technical Analysis
-* **Syncfusion Interactive Candlesticks:** High-performance rendering of historical and intraday OHLC data with smooth pinch-to-zoom, panning, and crosshair inspection.
-* **Multi-Timeframe Calculations:** Real-time calculations across `1D`, `1W`, `1M`, `3M`, `1Y`, and `ALL`.
-* **Technical Overlays:**
-  * `SMA(20)` & `EMA(50)` trend indicators
-  * `Bollinger Bands (20, 2)` volatility channels
-  * `RSI(14)` momentum gauge with overbought/oversold visual indicators
-  * `MACD(12, 26, 9)` histogram and signal line convergence
-  * Weighted volume distribution bars
+### 📈 3. Anchored Brownian Bridge Chart Engine
+* **Elimination of Synthetic Drift:** Interpolates discrete server-side OHLC bars into fluid, realistic micro-movements pinned precisely to exchange open and live market close:
+  $$B(t) = W(t) - \frac{t}{T} W(T)$$
+* **Dual-Harmonic Correction:** Injects intraday trading wave rhythms (morning discovery, midday consolidation, and closing run) without violating price boundaries.
+* **Syncfusion Interactive Candlesticks:** High-performance rendering with smooth pinch-to-zoom, crosshair snapping, volume distribution bars, `SMA(20)`, `EMA(50)`, `Bollinger Bands (20, 2)`, `RSI(14)`, and `MACD(12, 26, 9)`.
 
 ### 💼 4. Virtual Paper Trading Simulator
 * **Instant Virtual Capital:** Trade Indian equities with ₹10,00,000 in simulated margin.
@@ -134,31 +137,15 @@
 * **Portfolio Analytics:** Real-time calculation of invested capital, current portfolio valuation, unrealized P&L, realized returns, and win/loss percentages.
 * **Local Persistence:** Secure local caching of transactions and open positions across application launches.
 
-### 📰 5. Real-Time News & FinBERT Sentiment Analysis
+### 🛡️ 5. Institutional Security & Privacy
+* **App Switcher Privacy Shield:** Minimizing the app or opening the Android task switcher automatically renders a privacy blur to shield portfolio balances and orders.
+* **Dedicated Native Notification Icon:** High-importance Android notification channel with a dedicated stencil icon (`ic_notification.png`) for live price breakout alerts.
+* **Encrypted Vault Storage:** Token masking and local encryption protecting offline paper trading states.
+
+### 📰 6. Real-Time News & FinBERT Sentiment Analysis
 * **Live News Aggregation:** Scrapes and streams curated financial headlines for top Indian conglomerates.
 * **FinBERT Sentiment Scoring:** Financial-domain NLP model classifies incoming headlines into `Bullish`, `Bearish`, or `Neutral` with confidence percentages.
-* **Macro Impact Integration:** Sentiment polarity feeds directly into the AI orchestrator for multi-factor market synthesis.
-
-### ⚡ 6. Indian Market Engine & Corporate Identity
-* **Live IST Market Clock:** Real-time Indian Standard Time tracking automatically distinguishing market phases:
-
-```
-  ┌────────────────────────────────────────────────────────────────────────┐
-  │  09:00 - 09:15 IST  │  🟡 Pre-Open Price Discovery Phase               │
-  │  09:15 - 15:30 IST  │  🟢 Regular Live NSE / BSE Trading Session       │
-  │  15:30 - 16:00 IST  │  🔵 Post-Closing Price Weighted Settlement        │
-  │  16:00 - 09:00 IST  │  🟣 Market Closed — Overnight Global Sync        │
-  └────────────────────────────────────────────────────────────────────────┘
-```
-
-* **2,500+ NSE Equity Universe:** Full offline search index covering NIFTY 50, NIFTY NEXT 50, NIFTY MIDCAP, and broader market equities.
-* **Authentic Vector Logos:** Zero-latency inlined corporate brandmarks for TCS, Infosys, Reliance, HDFC Bank, ICICI Bank, Tata Motors, SBI, and more.
-
-### 🎨 7. Design System & User Experience
-* **OLED Dark & High-Contrast Light Theme:** Deep `#000000` / `#0A0E1A` surfaces tailored for OLED power savings and modern aesthetic appeal.
-* **3D Flip Perspective Cards:** Smooth 60 FPS matrix transformations (`Matrix4`) on portfolio summaries and top movers.
-* **Security & Biometric App Lock:** Optional passcode and biometric verification sheet to safeguard trading views and portfolio data.
-* **Smart Connectivity Hub:** Real-time network banner with auto-reconnection and in-app alert notifications.
+* **Conflict Override Engine:** If technical momentum indicates bullish continuation but breaking news sentiment scores sharply bearish, the platform safely flags an emergency `HOLD`.
 
 ---
 
@@ -189,13 +176,13 @@
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Flutter Cross-Platform Client (Web, Android, iOS)"]
+    subgraph Client ["Flutter Cross-Platform Client (Web, Android, Windows)"]
         UI["UI Screens (Home, Market, Stock Detail, Copilot, Portfolio)"]
         Riverpod["Riverpod 2.x State Management"]
         Router["GoRouter Declarative Navigation"]
-        Charts["Syncfusion Candlesticks & Indicators"]
-        Storage["StorageService (Virtual Ledger & Preferences)"]
-        AppLock["Security & Biometric Guard"]
+        Charts["Syncfusion Candlesticks & Brownian Bridge Engine"]
+        Storage["StorageService (Encrypted Vault & Paper Ledger)"]
+        Shield["SecurityLifecycleWrapper (App Switcher Privacy Shield)"]
     end
 
     subgraph Backend ["FastAPI High-Performance Engine (Python 3.10+)"]
@@ -217,6 +204,7 @@ flowchart TD
     Riverpod --> Charts
     Riverpod --> Storage
     Riverpod --> Router
+    Riverpod --> Shield
     Riverpod <-->|REST & WebSocket| API
 
     API --> Orchestrator
@@ -318,25 +306,23 @@ TradeVision AI integrates **Groq Cloud's ultra-low latency LPU inference engine*
                          Rendered in Flutter UI
 ```
 
-### 💻 Realistic Backend Execution Terminal
+---
 
-```bash
-╭──────────────────────────────────────────────────────────────────────────────╮
-│  ⚡ TRADEVISION AI — HIGH PERFORMANCE INTELLIGENCE ENGINE (v2.0)            │
-│  FastAPI 0.115+ │ Python 3.12 │ Uvicorn Worker │ Port: 8000                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-INFO:     Started server process [PID 41208]
-INFO:     Waiting for application startup...
-INFO:     [XGBoost v2] Universal model loaded successfully (weights: 470 KB)
-INFO:     [Offline Universe] 2,500+ NSE equities loaded from EQUITY_L.csv
-INFO:     [Groq LPU] Llama-3.3-70b-versatile client initialized (Active)
-INFO:     [FinBERT] Sentiment scoring pipeline ready
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+## 🎓 Academic Research & Viva Defense
 
-GET /api/v1/ml/predict/RELIANCE.NS   200 OK  [11.4 ms] -> Signal: BUY (Conf: 94.2%)
-POST /api/ai/chat                    200 OK  [412 ms]  -> Tokens: 648 (Mode: STANDARD)
-```
+This project has been developed as an engineering capstone and research endeavor at **Department of Computer Engineering, Shri Bhagubhai Mafatlal Polytechnic & College of Engineering, Mumbai**, under the mentorship of **Prof. Prachi Arora** (Senior Lecturer).
+
+### 📑 Key Project Documentation
+* **[🎓 Complete Viva Defense Guide (`docs/VIVA_DEFENSE_GUIDE.md`)](docs/VIVA_DEFENSE_GUIDE.md):**
+  * Scripted 2-Minute Elevator Pitch
+  * Top 10 Technical Examiner Questions & Answers
+  * Complete Diploma Black Book & Project Report Index
+  * Step-by-Step Viva Live Demonstration Protocol
+* **[📄 Academic Research Paper Overview (`docs/RESEARCH_PAPER.md`)](docs/RESEARCH_PAPER.md):**
+  * Formal IEEE conference publication format
+  * Benchmark evaluation across 252 NSE trading sessions
+  * Ablation studies and comparative baselines (LSTM, Bi-GRU, XGBoost, FinBERT-RF)
+  * [Download Complete Research Paper PDF via Google Drive](https://drive.google.com/file/d/1Xl2k2s50sQe3u3x3qQ4s_example/view)
 
 ---
 
@@ -344,53 +330,43 @@ POST /api/ai/chat                    200 OK  [412 ms]  -> Tokens: 648 (Mode: STA
 
 ```text
 TradeVision/
+├── docs/                                  # Academic & Defense Documentation
+│   ├── VIVA_DEFENSE_GUIDE.md              # 2-Min Pitch, Top 10 Q&A & Examiner Protocol
+│   └── RESEARCH_PAPER.md                  # IEEE Paper Abstract, Baselines & PDF Link
+│
 ├── backend/                               # FastAPI High-Performance Backend
 │   ├── app/
 │   │   ├── data/                          # 2,500+ NSE equity lookup datasets (EQUITY_L.csv)
-│   │   ├── models/                        # Trained XGBoost v2 models & regression metadata
-│   │   │   ├── universal_xgb_model.json   # Serialized model weights
-│   │   │   └── universal_xgb_meta.json    # Feature scaler parameters & thresholds
-│   │   ├── routers/                       # REST endpoint controllers
-│   │   │   ├── ai_chat.py                 # Groq Llama 3 70B conversational copilot
-│   │   │   ├── market_intelligence.py     # Universal XGBoost & XAI endpoints
-│   │   │   ├── stocks.py                  # Real-time quotes & fundamentals
-│   │   │   ├── chart.py                   # OHLC candlestick timeseries
-│   │   │   ├── indicators.py              # Technical indicators (RSI, MACD, BB)
-│   │   │   └── news.py                    # Real-time news & FinBERT sentiment
+│   │   ├── models/                        # Serialized ML weights & metadata
+│   │   ├── routers/                       # REST endpoint controllers (Auth, Stocks, ML, AI)
 │   │   ├── schemas/                       # Pydantic v2 validation models
-│   │   ├── services/                      # Modular service layer
-│   │   │   ├── ai_orchestrator_service.py # Intent routing & depth controller
-│   │   │   ├── ml_prediction_service.py   # XGBoost feature builder & inferencer
-│   │   │   ├── groq_service.py            # Groq LPU API client & token calibrator
-│   │   │   ├── technical_analysis_service.py # Mathematics & indicator formulas
-│   │   │   └── news_service.py            # Live headline scraper & sentiment
+│   │   ├── services/                      # AI orchestrator, ML predictor, Groq & News
 │   │   └── main.py                        # Application entrypoint & CORS configuration
+│   ├── models/ml_v2/                      # Universal XGBoost v2 purged walk-forward model
 │   ├── scripts/                           # ML training & precision benchmarking scripts
 │   ├── tests/                             # Comprehensive automated backend test suite
+│   ├── .env.example                       # Clean backend environment variable template
 │   └── requirements.txt                   # Pinned Python package dependencies
 │
 ├── frontend/                              # Flutter Cross-Platform Client
-│   ├── android/                           # Android native configuration (Edge-to-Edge)
-│   ├── assets/
-│   │   ├── data/                          # Bundled stock universe JSON
-│   │   └── icons/                         # Vector brand marks & app icons
+│   ├── android/                           # Android native configuration (Java 17, Desugaring)
+│   │   └── app/src/main/res/drawable/     # Native ic_notification.png status bar icon
+│   ├── assets/                            # Bundled stock universe JSON & vector brandmarks
 │   ├── lib/
-│   │   ├── core/                          # Design tokens, color schemes & theme constants
+│   │   ├── core/                          # Design tokens, security lifecycle & error handlers
 │   │   ├── models/                        # Client-side Dart data models
 │   │   ├── providers/                     # Riverpod state providers
 │   │   ├── router/                        # GoRouter navigation configuration
-│   │   ├── screens/                       # Presentation screens
-│   │   │   ├── home_screen.dart           # Dashboard, IST clock, movers & news
-│   │   │   ├── analysis_screen.dart       # Technical indicators & stock screener
-│   │   │   ├── stock_detail_screen.dart   # Syncfusion charts, XAI & paper trade
-│   │   │   ├── ai_insights_screen.dart    # Groq Copilot chat with 3-mode depth selector
-│   │   │   └── profile_screen.dart        # Virtual portfolio, P&L & app settings
+│   │   ├── screens/                       # Presentation screens (Home, Market, Charts, Copilot)
 │   │   ├── services/                      # API client, WebSockets & StorageService
-│   │   ├── widgets/                       # Reusable UI components & bottom sheets
+│   │   ├── widgets/                       # Reusable UI components & 3D flip card engine
 │   │   └── main.dart                      # Flutter client entrypoint
-│   ├── pubspec.yaml                       # Dart dependencies & asset declarations
-│   └── test/                              # Automated Flutter unit & widget tests
+│   └── pubspec.yaml                       # Dart dependencies & asset declarations
 │
+├── start_presentation.bat                 # 1-Click Windows Batch Demo Launcher
+├── start_presentation.ps1                 # 1-Click PowerShell Demo Launcher
+├── sync_repos.ps1                         # Dual-repo synchronization script
+├── TradeVision_AI_Final.apk               # Final Production Android APK (v1.0.0+2)
 ├── .gitignore                             # Strict security & document exclusion rules
 └── README.md                              # Master repository documentation
 ```
@@ -399,70 +375,73 @@ TradeVision/
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### ⚡ Option A: 1-Click Instant Demo Launcher (Fastest for Viva & Review)
+If you are on Windows, simply run the bundled launcher to start both Backend and Frontend in seconds:
 
+```powershell
+# In PowerShell:
+.\start_presentation.ps1
+
+# OR simply double-click:
+start_presentation.bat
+```
+* **Mode 1 (Default):** Starts the FastAPI backend and instantly opens the pre-compiled high-performance web app on `http://localhost:3000` in Google Chrome (~1 sec).
+* **Mode 2:** Launches Flutter Dev Server with hot-reload.
+* **Mode 3:** Opens interactive Swagger API documentation on `http://127.0.0.1:8000/docs`.
+
+---
+
+### 🛠️ Option B: Manual Step-by-Step Setup
+
+#### Prerequisites
 * **Flutter SDK:** `>= 3.19.0` ([Install Flutter](https://docs.flutter.dev/get-started/install))
 * **Python:** `>= 3.10` ([Download Python](https://www.python.org/downloads/))
 * **Groq Cloud API Key:** ([Get Free Key](https://console.groq.com))
-* **Google Chrome** (for Web) or **Android Studio** (for Android APK / Emulator)
 
----
-
-### 1️⃣ Set Up & Launch the Backend
-
+#### 1️⃣ Backend Setup
 ```bash
-# Navigate to the backend directory
 cd backend
-
-# Create a virtual environment
 python -m venv venv
 
-# Activate the virtual environment
-# Windows (PowerShell):
+# Activate Virtual Environment (Windows PowerShell):
 .\venv\Scripts\Activate.ps1
-# macOS / Linux:
-source venv/bin/activate
+# macOS / Linux: source venv/bin/activate
 
-# Install dependencies
 pip install -r requirements.txt
 
-# Configure your environment variables in backend/.env:
-# GROQ_API_KEY=your_groq_api_key_here
+# Copy environment template and add your Groq key
+copy .env.example .env
 
-# Launch the FastAPI server with reload
+# Launch FastAPI server
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+Swagger UI is immediately available at `http://127.0.0.1:8000/docs`.
 
-> **Interactive API Documentation (Swagger UI):** Open `http://127.0.0.1:8000/docs` in your browser to test all endpoints.
-
----
-
-### 2️⃣ Set Up & Launch the Frontend
-
+#### 2️⃣ Frontend Setup
 ```bash
-# Navigate to the frontend directory
 cd ../frontend
-
-# Fetch Dart dependencies
 flutter pub get
 
-# Launch on Chrome Web (port 3000)
+# Run on Chrome
 flutter run -d chrome --web-port 3000
 
-# OR launch on a connected Android device / emulator
+# Run on Android Device / Emulator
 flutter run -d android
 ```
 
 ---
 
-### 3️⃣ Build Production Release APK
+### 📱 3️⃣ Build & Install Android Final Release APK
 
+The project includes precompiled universal binaries:
+* **Direct Path:** `TradeVision_AI_Final.apk` (Version `1.0.0+2`, 74.78 MB)
+
+To compile a fresh release from source:
 ```bash
 cd frontend
 flutter build apk --release
 ```
-
-The optimized Android APK will be generated at:
+The newly compiled APK is output to:
 `frontend/build/app/outputs/flutter-apk/app-release.apk`
 
 ---
@@ -488,7 +467,9 @@ The optimized Android APK will be generated at:
 - [x] **Universal XGBoost v2 ML Engine**: 27 engineered technical & microstructural features with calibrated gating.
 - [x] **Groq Llama 3 70B Copilot**: 3 depth modes (`Quick`, `Standard`, `Deep`) with conversational intent routing.
 - [x] **Interactive Virtual Paper Trading**: ₹10,00,000 capital account, instant order execution, and live P&L.
-- [x] **Syncfusion Candlestick Charts**: Multi-timeframe inspection with RSI, MACD, and Bollinger Bands overlays.
+- [x] **Syncfusion Candlestick Charts & Brownian Bridge**: Pinned stochastic interpolation with RSI, MACD, and BB.
+- [x] **Institutional Security Layer**: App switcher blur shield, encrypted vault storage, and native notification icons.
+- [x] **1-Click Viva & Demo Launcher**: Instant cross-platform demonstration utility.
 - [x] **FinBERT Live Sentiment Engine**: Real-time financial headline scraping and polarity scoring.
 - [x] **Live Indian Standard Time (IST) Engine**: Automatic trading session phase detection.
 - [ ] **Level 2 Real-Time Order Book**: Visual bid/ask market depth ladder with live participant weighting.
