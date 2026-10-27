@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart' as provider;
 import '../widgets/empty_state_widget.dart';
 import '../widgets/ticker_logo.dart';
-import '../core/data/stock_data.dart';
 import '../core/data/user_holdings_data.dart';
 import '../core/providers/market_ticker_provider.dart';
 import '../core/providers/portfolio_provider.dart';

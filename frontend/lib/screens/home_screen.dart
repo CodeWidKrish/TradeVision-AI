@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
 import '../providers/clock_provider.dart';
-import '../providers/market_data_provider.dart';
 import '../widgets/ist_clock_widget.dart';
 import '../core/theme/dark_surfaces.dart';
 import '../core/data/stock_data.dart';

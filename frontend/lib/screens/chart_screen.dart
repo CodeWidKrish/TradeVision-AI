@@ -7,13 +7,11 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/theme/app_text_styles.dart';
 import '../core/data/stock_data.dart';
-import '../core/models/ohlc_point.dart';
 import '../core/providers/portfolio_provider.dart';
 import '../core/providers/chart_pattern_provider.dart';
 import '../widgets/ai_insight_strip.dart';
 import '../widgets/ticker_logo.dart';
 import '../widgets/chart_type_selector.dart';
-import '../widgets/interactive_stock_chart.dart';
 import '../widgets/real_stock_chart.dart';
 import '../widgets/swipe_to_execute_button.dart';
 

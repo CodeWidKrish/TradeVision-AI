@@ -1,10 +1,7 @@
-import 'dart:math' as math;
-import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/dark_surfaces.dart';
-import '../core/theme/app_dimensions.dart';
 import '../core/data/stock_data.dart';
 import '../core/providers/market_ticker_provider.dart';
 import '../widgets/stock_row.dart';

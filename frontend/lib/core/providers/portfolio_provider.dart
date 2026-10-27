@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../data/stock_data.dart';
 import '../../services/notification_service.dart';
 import '../../services/secure_storage_service.dart';

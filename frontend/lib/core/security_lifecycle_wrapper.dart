@@ -2,8 +2,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import 'theme/app_colors.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 import 'security_service.dart';
