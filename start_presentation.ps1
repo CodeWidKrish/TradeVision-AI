@@ -12,10 +12,10 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # 1. Locate Python virtual environment
 $PythonExe = "python"
-if (Test-Path "$ScriptDir\backend\venv\Scripts\python.exe") {
-    $PythonExe = "$ScriptDir\backend\venv\Scripts\python.exe"
-} elseif (Test-Path "$ScriptDir\.venv\Scripts\python.exe") {
+if (Test-Path "$ScriptDir\.venv\Scripts\python.exe") {
     $PythonExe = "$ScriptDir\.venv\Scripts\python.exe"
+} elseif (Test-Path "$ScriptDir\backend\venv\Scripts\python.exe") {
+    $PythonExe = "$ScriptDir\backend\venv\Scripts\python.exe"
 }
 
 Write-Host "[*] Utilizing Python executable: $PythonExe" -ForegroundColor Green

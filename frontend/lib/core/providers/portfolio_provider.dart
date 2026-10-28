@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../data/stock_data.dart';
 import '../../services/notification_service.dart';
 import '../../services/secure_storage_service.dart';
+import '../../services/storage_service.dart';
 import '../../services/app_notification_hub.dart';
 import '../../models/app_notification_model.dart';
 
@@ -144,6 +145,7 @@ class PortfolioProvider extends ChangeNotifier {
   double _realizedPnL = 0.0;
   final List<StockModel> _watchlist = List.from(StockRepository.stocks);
   final Set<String> _alertedRangeThresholds = {};
+  final DateTime _appStartTime = DateTime.now();
   static PortfolioProvider? instance;
 
   PortfolioProvider() {
@@ -475,12 +477,6 @@ class PortfolioProvider extends ChangeNotifier {
         } else {
           sellStock(stock, order.quantity);
         }
-        NotificationService.instance.showNotification(
-          id: order.id.hashCode,
-          title: 'Limit Order Executed!',
-          body: '${order.isBuy ? "Bought" : "Sold"} ${order.quantity} shares of ${order.ticker} at ₹${price.toStringAsFixed(2)}',
-          payload: order.ticker,
-        );
       }
     }
 
@@ -497,64 +493,79 @@ class PortfolioProvider extends ChangeNotifier {
     final pctMove = ((currentPrice - pos.avgPrice) / pos.avgPrice) * 100;
     final floatingPnL = (currentPrice - pos.avgPrice) * pos.quantity;
 
+    final ist = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+    final dateStr = '${ist.year}${ist.month.toString().padLeft(2, '0')}${ist.day.toString().padLeft(2, '0')}';
+
+    // If within first 15 seconds of startup, suppress push alerts for pre-existing position states
+    final isStartupGracePeriod = DateTime.now().difference(_appStartTime).inSeconds < 15;
+
     // Milestone 1: +1% increase
-    final key1 = '${ticker}_plus_1';
-    if (pctMove >= 1.0 && !_alertedRangeThresholds.contains(key1)) {
+    final key1 = '${ticker}_plus_1_$dateStr';
+    if (pctMove >= 1.0 && !_alertedRangeThresholds.contains(key1) && !StorageService.hasMilestoneTriggered(key1)) {
       _alertedRangeThresholds.add(key1);
-      AppNotificationHub.instance.notify(
-        AppNotificationItem(
-          id: 'range_${ticker}_plus1_${DateTime.now().millisecondsSinceEpoch}',
-          type: NotificationType.priceAlert,
-          categoryTag: 'POSITION ALERT',
-          title: '$ticker is UP +${pctMove.toStringAsFixed(1)}%',
-          body: '$ticker rose to ₹${currentPrice.toStringAsFixed(2)} (bought at ₹${pos.avgPrice.toStringAsFixed(2)}). Floating gain: +₹${floatingPnL.toStringAsFixed(2)}.',
-          accentColor: const Color(0xFF00C853),
-          iconAsset: 'assets/images/logo_icon.png',
-          route: '/paper-trading',
-          priority: NotificationPriority.high,
-          actionLabel: 'VIEW POSITION',
-        ),
-      );
+      StorageService.markMilestoneTriggered(key1);
+      if (!isStartupGracePeriod) {
+        AppNotificationHub.instance.notify(
+          AppNotificationItem(
+            id: 'range_${ticker}_plus1_${DateTime.now().millisecondsSinceEpoch}',
+            type: NotificationType.priceAlert,
+            categoryTag: 'POSITION ALERT',
+            title: '$ticker is UP +${pctMove.toStringAsFixed(1)}%',
+            body: '$ticker rose to ₹${currentPrice.toStringAsFixed(2)} (bought at ₹${pos.avgPrice.toStringAsFixed(2)}). Floating gain: +₹${floatingPnL.toStringAsFixed(2)}.',
+            accentColor: const Color(0xFF00C853),
+            iconAsset: 'assets/images/logo_icon.png',
+            route: '/paper-trading',
+            priority: NotificationPriority.high,
+            actionLabel: 'VIEW POSITION',
+          ),
+        );
+      }
     }
 
     // Milestone 2: +2% increase
-    final key2 = '${ticker}_plus_2';
-    if (pctMove >= 2.0 && !_alertedRangeThresholds.contains(key2)) {
+    final key2 = '${ticker}_plus_2_$dateStr';
+    if (pctMove >= 2.0 && !_alertedRangeThresholds.contains(key2) && !StorageService.hasMilestoneTriggered(key2)) {
       _alertedRangeThresholds.add(key2);
-      AppNotificationHub.instance.notify(
-        AppNotificationItem(
-          id: 'range_${ticker}_plus2_${DateTime.now().millisecondsSinceEpoch}',
-          type: NotificationType.priceAlert,
-          categoryTag: 'TARGET HIT',
-          title: '🎯 $ticker Target Hit (+${pctMove.toStringAsFixed(1)}%)',
-          body: '$ticker crossed +2% target at ₹${currentPrice.toStringAsFixed(2)}! Total gain: +₹${floatingPnL.toStringAsFixed(2)}.',
-          accentColor: const Color(0xFF00C853),
-          iconAsset: 'assets/images/logo_icon.png',
-          route: '/paper-trading',
-          priority: NotificationPriority.high,
-          actionLabel: 'VIEW POSITION',
-        ),
-      );
+      StorageService.markMilestoneTriggered(key2);
+      if (!isStartupGracePeriod) {
+        AppNotificationHub.instance.notify(
+          AppNotificationItem(
+            id: 'range_${ticker}_plus2_${DateTime.now().millisecondsSinceEpoch}',
+            type: NotificationType.priceAlert,
+            categoryTag: 'TARGET HIT',
+            title: '🎯 $ticker Target Hit (+${pctMove.toStringAsFixed(1)}%)',
+            body: '$ticker crossed +2% target at ₹${currentPrice.toStringAsFixed(2)}! Total gain: +₹${floatingPnL.toStringAsFixed(2)}.',
+            accentColor: const Color(0xFF00C853),
+            iconAsset: 'assets/images/logo_icon.png',
+            route: '/paper-trading',
+            priority: NotificationPriority.high,
+            actionLabel: 'VIEW POSITION',
+          ),
+        );
+      }
     }
 
     // Risk milestone: -1.5% decrease
-    final keyNeg = '${ticker}_neg_1';
-    if (pctMove <= -1.5 && !_alertedRangeThresholds.contains(keyNeg)) {
+    final keyNeg = '${ticker}_neg_1_$dateStr';
+    if (pctMove <= -1.5 && !_alertedRangeThresholds.contains(keyNeg) && !StorageService.hasMilestoneTriggered(keyNeg)) {
       _alertedRangeThresholds.add(keyNeg);
-      AppNotificationHub.instance.notify(
-        AppNotificationItem(
-          id: 'range_${ticker}_neg1_${DateTime.now().millisecondsSinceEpoch}',
-          type: NotificationType.priceAlert,
-          categoryTag: 'RISK ALERT',
-          title: '⚠️ $ticker Position Alert (${pctMove.toStringAsFixed(1)}%)',
-          body: '$ticker declined to ₹${currentPrice.toStringAsFixed(2)} (${pctMove.toStringAsFixed(2)}% from entry). Review risk and stop levels.',
-          accentColor: const Color(0xFFFF3B3B),
-          iconAsset: 'assets/images/logo_icon.png',
-          route: '/paper-trading',
-          priority: NotificationPriority.high,
-          actionLabel: 'VIEW POSITION',
-        ),
-      );
+      StorageService.markMilestoneTriggered(keyNeg);
+      if (!isStartupGracePeriod) {
+        AppNotificationHub.instance.notify(
+          AppNotificationItem(
+            id: 'range_${ticker}_neg1_${DateTime.now().millisecondsSinceEpoch}',
+            type: NotificationType.priceAlert,
+            categoryTag: 'RISK ALERT',
+            title: '⚠️ $ticker Position Alert (${pctMove.toStringAsFixed(1)}%)',
+            body: '$ticker declined to ₹${currentPrice.toStringAsFixed(2)} (${pctMove.toStringAsFixed(2)}% from entry). Review risk and stop levels.',
+            accentColor: const Color(0xFFFF3B3B),
+            iconAsset: 'assets/images/logo_icon.png',
+            route: '/paper-trading',
+            priority: NotificationPriority.high,
+            actionLabel: 'VIEW POSITION',
+          ),
+        );
+      }
     }
   }
 

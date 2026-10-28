@@ -30,6 +30,8 @@ class AppNotificationHub {
   Timer? _newsMonitorTimer;
   final Set<String> _triggeredMilestonesToday = {};
   final Set<String> _seenNewsTitles = {};
+  final Set<String> _recentNotificationIds = {};
+  DateTime? _lastNotificationTime;
   bool _initialized = false;
 
   Future<void> init() async {
@@ -71,6 +73,23 @@ class AppNotificationHub {
   }
 
   void notify(AppNotificationItem item) {
+    // 1. Deduplicate by notification ID
+    if (_recentNotificationIds.contains(item.id)) return;
+    _recentNotificationIds.add(item.id);
+    if (_recentNotificationIds.length > 80) {
+      _recentNotificationIds.remove(_recentNotificationIds.first);
+    }
+
+    // 2. Rate-limit burst notifications (minimum 4 seconds between non-critical alerts)
+    final now = DateTime.now();
+    if (item.priority != NotificationPriority.critical) {
+      if (_lastNotificationTime != null && now.difference(_lastNotificationTime!).inSeconds < 4) {
+        debugPrint('[AppNotificationHub] Throttled burst notification: ${item.title}');
+        return;
+      }
+    }
+    _lastNotificationTime = now;
+
     _history.insert(0, item);
     if (_history.length > 50) {
       _history.removeLast();
@@ -148,8 +167,9 @@ class AppNotificationHub {
       // 1. Pre-Open (09:00 AM - 09:02 AM is the active notification window)
       final preOpenKey = '${dateStr}_preOpen';
       if (totalMinutes >= 540 && totalMinutes < 542) {
-        if (!_triggeredMilestonesToday.contains(preOpenKey)) {
+        if (!_triggeredMilestonesToday.contains(preOpenKey) && !StorageService.hasMilestoneTriggered(preOpenKey)) {
           _triggeredMilestonesToday.add(preOpenKey);
+          StorageService.markMilestoneTriggered(preOpenKey);
           notify(AppNotificationItem.marketTiming(
             id: preOpenKey,
             title: 'NSE/BSE Pre-Open Session Started',
@@ -158,15 +178,16 @@ class AppNotificationHub {
           ));
         }
       } else if (totalMinutes >= 542) {
-        // Mark as already past for today so opening later doesn't trigger a stale alert
         _triggeredMilestonesToday.add(preOpenKey);
+        StorageService.markMilestoneTriggered(preOpenKey);
       }
 
       // 2. Market Open (09:15 AM - 09:17 AM is the active notification window)
       final openKey = '${dateStr}_marketOpen';
       if (totalMinutes >= 555 && totalMinutes < 557) {
-        if (!_triggeredMilestonesToday.contains(openKey)) {
+        if (!_triggeredMilestonesToday.contains(openKey) && !StorageService.hasMilestoneTriggered(openKey)) {
           _triggeredMilestonesToday.add(openKey);
+          StorageService.markMilestoneTriggered(openKey);
           notify(AppNotificationItem.marketTiming(
             id: openKey,
             title: 'Indian Stock Market is LIVE!',
@@ -175,15 +196,16 @@ class AppNotificationHub {
           ));
         }
       } else if (totalMinutes >= 557) {
-        // Mark as already past for today
         _triggeredMilestonesToday.add(openKey);
+        StorageService.markMilestoneTriggered(openKey);
       }
 
       // 3. Market Close (15:30 PM - 15:32 PM is the active notification window)
       final closeKey = '${dateStr}_marketClose';
       if (totalMinutes >= 930 && totalMinutes < 932) {
-        if (!_triggeredMilestonesToday.contains(closeKey)) {
+        if (!_triggeredMilestonesToday.contains(closeKey) && !StorageService.hasMilestoneTriggered(closeKey)) {
           _triggeredMilestonesToday.add(closeKey);
+          StorageService.markMilestoneTriggered(closeKey);
           notify(AppNotificationItem.marketTiming(
             id: closeKey,
             title: 'Market Trading Session Closed',
@@ -193,13 +215,15 @@ class AppNotificationHub {
         }
       } else if (totalMinutes >= 932) {
         _triggeredMilestonesToday.add(closeKey);
+        StorageService.markMilestoneTriggered(closeKey);
       }
 
       // 4. Post-Market Close (16:00 PM - 16:02 PM is the active notification window)
       final postCloseKey = '${dateStr}_postClose';
       if (totalMinutes >= 960 && totalMinutes < 962) {
-        if (!_triggeredMilestonesToday.contains(postCloseKey)) {
+        if (!_triggeredMilestonesToday.contains(postCloseKey) && !StorageService.hasMilestoneTriggered(postCloseKey)) {
           _triggeredMilestonesToday.add(postCloseKey);
+          StorageService.markMilestoneTriggered(postCloseKey);
           notify(AppNotificationItem.marketTiming(
             id: postCloseKey,
             title: 'Post-Market Settlement Closed',
@@ -209,6 +233,7 @@ class AppNotificationHub {
         }
       } else if (totalMinutes >= 962) {
         _triggeredMilestonesToday.add(postCloseKey);
+        StorageService.markMilestoneTriggered(postCloseKey);
       }
     }
   }
@@ -234,32 +259,12 @@ class AppNotificationHub {
       final articles = await LiveNewsService.fetchLiveNews(limit: 10);
       if (!_hasInitialNewsSeeded || initialSeed) {
         _hasInitialNewsSeeded = true;
-        // On initial startup, check if the latest top article is a major breaking headline
-        if (articles.isNotEmpty) {
-          final first = articles.first;
-          final title = (first['title'] as String?) ?? '';
-          final sentiment = (first['sentiment'] as String?)?.toUpperCase() ?? 'NEUTRAL';
-          if (title.isNotEmpty && _isBreakingHeadline(title, sentiment)) {
-            final key = 'seed_news_${title.hashCode}';
-            if (!_seenNewsTitles.contains(title)) {
-              _seenNewsTitles.add(title);
-              final related = first['related_ticker'] as String?;
-              final source = first['source'] as String? ?? 'Financial Desk';
-              notify(AppNotificationItem.breakingNews(
-                id: key,
-                title: title,
-                body: '$source reports high market impact. Review AI volatility assessment.',
-                relatedTicker: related,
-                url: first['url'] as String?,
-              ));
-            }
-          }
-        }
+        // On initial startup: silently seed all existing articles into _seenNewsTitles so we DO NOT notify for old articles!
         for (final article in articles) {
           final title = (article['title'] as String?) ?? '';
           if (title.isNotEmpty) _seenNewsTitles.add(title);
         }
-        return;
+        return; // Zero notifications during initial startup seed
       }
 
       for (final article in articles) {

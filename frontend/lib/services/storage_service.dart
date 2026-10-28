@@ -551,4 +551,30 @@ class StorageService {
   static bool _isValidEmail(String email) {
     return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
   }
+
+  // 5. Persistent Market Milestone Notification Tracking
+  static const _keyTriggeredMilestones = 'tv_triggered_milestones_list';
+
+  static bool hasMilestoneTriggered(String milestoneKey) {
+    try {
+      final list = _prefs?.getStringList(_keyTriggeredMilestones) ?? [];
+      return list.contains(milestoneKey);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> markMilestoneTriggered(String milestoneKey) async {
+    try {
+      final list = List<String>.from(_prefs?.getStringList(_keyTriggeredMilestones) ?? []);
+      if (!list.contains(milestoneKey)) {
+        list.add(milestoneKey);
+        // Retain last 30 milestone records to prevent unbounded growth
+        if (list.length > 30) list.removeAt(0);
+        await _prefs?.setStringList(_keyTriggeredMilestones, list);
+      }
+    } catch (e) {
+      debugPrint('markMilestoneTriggered failed: $e');
+    }
+  }
 }

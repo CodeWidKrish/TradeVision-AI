@@ -122,12 +122,6 @@ class AlertService {
         _save();
         _alertTriggeredController.add(alert);
         HapticFeedback.heavyImpact();
-        NotificationService.instance.showNotification(
-          id: alert.id.hashCode,
-          title: '🚨 TradeVision Alert: ${alert.ticker}',
-          body: message,
-          payload: alert.ticker,
-        );
       }
     }
   }
@@ -168,12 +162,6 @@ class AlertService {
         _save();
         _alertTriggeredController.add(alert);
         HapticFeedback.heavyImpact();
-        NotificationService.instance.showNotification(
-          id: alert.id.hashCode,
-          title: 'TradeVision AI Signal Alert',
-          body: message,
-          payload: alert.ticker,
-        );
       }
     }
   }

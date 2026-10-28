@@ -230,8 +230,7 @@ class NotificationService {
         payload: '/home',
       );
 
-      // 8. Register periodic pulse for background alerts when app remains closed
-      await _schedulePeriodicBackgroundPulse();
+      // 8. Background pulse suppressed to prevent unwanted notification bursts on app launch
       debugPrint('[NotificationService] Market session alarms successfully registered with OS AlarmManager.');
     } catch (e) {
       debugPrint('[NotificationService] scheduleMarketSessionAlarms error: $e');

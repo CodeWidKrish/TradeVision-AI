@@ -20,9 +20,10 @@ import '../widgets/ai_insight_strip.dart';
 import '../widgets/animated_press_card.dart';
 import '../widgets/market_news_widget.dart';
 import '../core/providers/portfolio_provider.dart';
+import '../core/providers/watchlist_provider.dart';
 import '../widgets/ticker_logo.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final Function(StockModel) onSelectStock;
   final Function(int)? onSelectTab;
   final VoidCallback? onOpenProfile;
@@ -35,10 +36,10 @@ class HomeScreen extends StatefulWidget {
   });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
@@ -220,7 +221,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tickerNotifier = provider.Provider.of<MarketTickerNotifier>(context);
-    final watchlistStocks = tickerNotifier.stocks.take(6).toList();
+    final savedSymbols = ref.watch(watchlistProvider);
+    final List<StockModel> watchlistStocks = savedSymbols.isNotEmpty
+        ? savedSymbols.map((sym) => StockRepository.getStock(sym)).toList()
+        : tickerNotifier.stocks.take(6).toList();
 
     return Scaffold(
       backgroundColor: isDark ? DarkSurface.bg : LightSurface.bg,
@@ -509,7 +513,9 @@ class _HomeScreenState extends State<HomeScreen> {
               // 7. Live Watchlist Section Header
               SectionHeader(
                 title: 'Watchlist',
-                actionText: 'See All',
+                actionText: savedSymbols.isNotEmpty
+                    ? 'See All (${savedSymbols.length})'
+                    : 'See All',
                 onActionTap: () => context.push('/watchlist'),
               ),
 
@@ -523,7 +529,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   final stock = watchlistStocks[index];
                   return AnimatedPressCard(
-                    onTap: () => context.push('/stock-detail', extra: stock.ticker),
+                    onTap: () {
+                      widget.onSelectStock(stock);
+                      context.push('/stock-detail', extra: stock.ticker);
+                    },
                     child: StockRow(
                       ticker: stock.ticker,
                       fullName: stock.fullName,
@@ -532,7 +541,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       isPositive: stock.isPositive,
                       logoColor: stock.logoColor,
                       logoUrl: stock.logoUrl,
-                      onTap: () => context.push('/stock-detail', extra: stock.ticker),
+                      onTap: () {
+                        widget.onSelectStock(stock);
+                        context.push('/stock-detail', extra: stock.ticker);
+                      },
                     ),
                   );
                 },

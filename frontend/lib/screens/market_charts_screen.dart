@@ -21,6 +21,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../services/storage_service.dart';
+import '../core/providers/watchlist_provider.dart';
 
 class MarketChartsScreen extends ConsumerStatefulWidget {
   final StockModel initialStock;
@@ -48,7 +49,6 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
   bool _isSearching = false;
   bool _isLoadingSearch = false;
   Timer? _debounceTimer;
-  final Set<String> _watchlistTickers = {'RELIANCE', 'TCS', 'HDFCBANK', 'INFY'};
 
   @override
   void initState() {
@@ -155,17 +155,12 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
   }
 
   void _toggleWatchlist(String ticker) {
-    setState(() {
-      if (_watchlistTickers.contains(ticker)) {
-        _watchlistTickers.remove(ticker);
-      } else {
-        _watchlistTickers.add(ticker);
-      }
-    });
+    ref.read(watchlistProvider.notifier).toggleWatchlist(ticker);
+    final isSaved = ref.read(watchlistProvider.notifier).isSaved(ticker);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          _watchlistTickers.contains(ticker)
+          isSaved
               ? '$ticker added to Watchlist'
               : '$ticker removed from Watchlist',
           style: const TextStyle(fontWeight: FontWeight.w600),
@@ -182,7 +177,8 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
 
     switch (_selectedTab) {
       case 1: // Watchlist
-        return all.where((s) => _watchlistTickers.contains(s.ticker)).toList();
+        final watchlistSymbols = ref.watch(watchlistProvider);
+        return all.where((s) => watchlistSymbols.contains(s.ticker)).toList();
       case 2: // Stocks
       case 3: // Charts
       case 0: // Overview
@@ -1065,7 +1061,7 @@ class _MarketChartsScreenState extends ConsumerState<MarketChartsScreen> {
 
   Widget _buildStockDetailCard() {
     final theme = Theme.of(context);
-    final isWatched = _watchlistTickers.contains(_selectedStock.ticker);
+    final isWatched = ref.watch(watchlistProvider).contains(_selectedStock.ticker);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),

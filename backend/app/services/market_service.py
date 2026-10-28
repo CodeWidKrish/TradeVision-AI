@@ -102,10 +102,19 @@ def _fallback_quote(symbol: str) -> Dict[str, Any]:
         "NIFTY BANK": {"price": 56262.40, "change": -30.05, "changePercent": -0.05},
         "NIFTY_IT":   {"price": 28833.05, "change": -254.60, "changePercent": -0.88},
         "NIFTY IT":   {"price": 28833.05, "change": -254.60, "changePercent": -0.88},
-        "RELIANCE":   {"price": 2896.25,  "change": 35.40,  "changePercent": 1.24},
+        "RELIANCE":   {"price": 1285.50,  "change": 14.80,  "changePercent": 1.17},
         "TCS":        {"price": 4124.80,  "change": 84.60,  "changePercent": 2.09},
         "HDFCBANK":   {"price": 1642.50,  "change": 18.70,  "changePercent": 1.15},
         "INFY":       {"price": 1892.40,  "change": 64.30,  "changePercent": 3.52},
+        "TATAMOTORS": {"price": 985.40,   "change": 12.60,  "changePercent": 1.30},
+        "SBIN":       {"price": 815.20,   "change": 7.40,   "changePercent": 0.92},
+        "ICICIBANK":  {"price": 1262.30,  "change": 15.10,  "changePercent": 1.21},
+        "BAJFINANCE": {"price": 6850.00,  "change": -42.50, "changePercent": -0.62},
+        "MARUTI":     {"price": 11840.00, "change": 125.00, "changePercent": 1.07},
+        "LT":         {"price": 3624.50,  "change": 48.20,  "changePercent": 1.35},
+        "ITC":        {"price": 468.20,   "change": 3.40,   "changePercent": 0.73},
+        "WIPRO":      {"price": 542.10,   "change": 6.80,   "changePercent": 1.27},
+        "ZOMATO":     {"price": 268.40,   "change": 8.90,   "changePercent": 3.43},
     }
     fb = fallbacks.get(symbol.upper(), {"price": 1000.0, "change": 10.0, "changePercent": 1.0})
     return {

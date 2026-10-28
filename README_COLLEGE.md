@@ -106,11 +106,13 @@
   │  [02] Groq Llama 3 70B Copilot       │ Quick (250t), Standard (650t), Deep (1500t)     │
   │  [03] Syncfusion Pro Candlesticks    │ Interactive pinch-to-zoom, crosshairs, overlays │
   │  [04] Brownian Bridge Chart Engine   │ Anchored continuous Wiener process at 60 FPS    │
-  │  [05] Virtual Paper Trading Sandbox  │ ₹10,00,000 capital, instant execution, live P&L  │
-  │  [06] FinBERT Real-Time Sentiment    │ Scraped Indian news headlines, NLP scoring      │
-  │  [07] Institutional Security Shield  │ App switcher blur, encrypted vault & native icon│
-  │  [08] Live IST Market Clock          │ Auto Pre-Open, Regular, Post-Market detection   │
-  │  [09] OLED Dark & Clean Light Themes │ 60 FPS 3D Matrix4 card flip animations & haptics│
+  │  [05] Indian Market Session Sync     │ 09:15–15:30 IST uniform 1-hr axis across screens│
+  │  [06] Production Notification Hub    │ Rate-limited, deduplicated, zero-storm startup  │
+  │  [07] Virtual Paper Trading Sandbox  │ ₹10,00,000 capital, instant execution, live P&L  │
+  │  [08] FinBERT Real-Time Sentiment    │ Scraped Indian news headlines, NLP scoring      │
+  │  [09] Institutional Security Shield  │ App switcher blur, encrypted vault & native icon│
+  │  [10] Live IST Market Clock          │ Auto Pre-Open, Regular, Post-Market detection   │
+  │  [11] OLED Dark & Clean Light Themes │ 60 FPS 3D Matrix4 card flip animations & haptics│
   └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -125,24 +127,31 @@
 * **🔬 Deep Mode (1500 tokens):** Institutional-grade comprehensive brief with risk-reward ratios, stop-loss calculations, multi-target milestones, and bull/bear scenario planning.
 * **🧭 Conversational Routing & App Guidance:** Recognizes user greetings, extracts names, and provides complete step-by-step navigation guides for all in-app tabs and analytical tools.
 
-### 📈 3. Anchored Brownian Bridge Chart Engine
+### 📈 3. Anchored Brownian Bridge Chart Engine & Indian Market Hours Sync
+* **Indian Market Session Synchronization (09:15 to 15:30 IST):** 1D intraday charts are anchored strictly to official NSE/BSE market trading hours, starting at `09:15 AM IST` with uniform 1-hour interval ticks (`09:15`, `10:15`, `11:15`, `12:15`, `13:15`, `14:15`, `15:15`) across all screens (Stock Detail, Market & Charts, Quick Chart, Analysis).
+* **Live OHLC HUD & Crosshairs:** Real-time trackball and crosshair snapping with continuous OHLC display in Indian Rupee format (`₹#,##0.00`).
 * **Elimination of Synthetic Drift:** Interpolates discrete server-side OHLC bars into fluid, realistic micro-movements pinned precisely to exchange open and live market close:
   $$B(t) = W(t) - \frac{t}{T} W(T)$$
 * **Dual-Harmonic Correction:** Injects intraday trading wave rhythms (morning discovery, midday consolidation, and closing run) without violating price boundaries.
 * **Syncfusion Interactive Candlesticks:** High-performance rendering with smooth pinch-to-zoom, crosshair snapping, volume distribution bars, `SMA(20)`, `EMA(50)`, `Bollinger Bands (20, 2)`, `RSI(14)`, and `MACD(12, 26, 9)`.
 
-### 💼 4. Virtual Paper Trading Simulator
+### ⚡ 4. Production-Grade Notification & Milestone Hub
+* **Real-Time Market Milestone Precision:** Monitored via IST clock for accurate session events: Pre-Open (`09:00 AM`), Market Open (`09:15 AM`), Regular Market Close (`03:30 PM`), and Post-Market Settlement (`04:00 PM` IST).
+* **Zero-Storm Startup Suppression:** On application launch, initial news headlines and pre-existing paper portfolio positions are silently indexed within a 15-second grace window, completely eliminating startup notification floods.
+* **Deduplication & Rate Limiting:** Persistent `StorageService` milestone tracking prevents duplicate alerts across app restarts within the same calendar day, backed by an in-memory 80-item deduplication buffer and a 4-second burst throttle.
+
+### 💼 5. Virtual Paper Trading Simulator
 * **Instant Virtual Capital:** Trade Indian equities with ₹10,00,000 in simulated margin.
 * **Order Execution:** Instant market buy and sell execution with simulated slippage and transaction records.
 * **Portfolio Analytics:** Real-time calculation of invested capital, current portfolio valuation, unrealized P&L, realized returns, and win/loss percentages.
 * **Local Persistence:** Secure local caching of transactions and open positions across application launches.
 
-### 🛡️ 5. Institutional Security & Privacy
+### 🛡️ 6. Institutional Security & Privacy
 * **App Switcher Privacy Shield:** Minimizing the app or opening the Android task switcher automatically renders a privacy blur to shield portfolio balances and orders.
 * **Dedicated Native Notification Icon:** High-importance Android notification channel with a dedicated stencil icon (`ic_notification.png`) for live price breakout alerts.
 * **Encrypted Vault Storage:** Token masking and local encryption protecting offline paper trading states.
 
-### 📰 6. Real-Time News & FinBERT Sentiment Analysis
+### 📰 7. Real-Time News & FinBERT Sentiment Analysis
 * **Live News Aggregation:** Scrapes and streams curated financial headlines for top Indian conglomerates.
 * **FinBERT Sentiment Scoring:** Financial-domain NLP model classifies incoming headlines into `Bullish`, `Bearish`, or `Neutral` with confidence percentages.
 * **Conflict Override Engine:** If technical momentum indicates bullish continuation but breaking news sentiment scores sharply bearish, the platform safely flags an emergency `HOLD`.

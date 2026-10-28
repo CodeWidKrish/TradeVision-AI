@@ -144,6 +144,10 @@ class _RealStockChartState extends State<RealStockChart> {
             );
           }).toList();
 
+          if (widget.period == '1D') {
+            exchangeData.removeWhere((c) => c.time.hour < 9 || (c.time.hour == 9 && c.time.minute < 15));
+          }
+
           if (exchangeData.isNotEmpty && exchangeData.last.close > 0) {
             setState(() {
               _data = exchangeData;
@@ -235,8 +239,22 @@ class _RealStockChartState extends State<RealStockChart> {
       closes[i] = linear + bridge * 2.2 + wave1 + wave2;
     }
 
+    // Determine standard Indian market session (09:15 AM IST open)
+    DateTime sessionDate = DateTime(now.year, now.month, now.day);
+    if (sessionDate.weekday == DateTime.saturday) {
+      sessionDate = sessionDate.subtract(const Duration(days: 1));
+    } else if (sessionDate.weekday == DateTime.sunday) {
+      sessionDate = sessionDate.subtract(const Duration(days: 2));
+    }
+    final sessionMarketOpen = DateTime(sessionDate.year, sessionDate.month, sessionDate.day, 9, 15);
+
     for (int i = 0; i < bars; i++) {
-      final time = now.subtract(interval * (bars - 1 - i));
+      final DateTime time;
+      if (widget.period == '1D') {
+        time = sessionMarketOpen.add(Duration(minutes: 5 * i));
+      } else {
+        time = now.subtract(interval * (bars - 1 - i));
+      }
       final open = closes[i];
       final close = closes[i + 1];
 
@@ -265,7 +283,8 @@ class _RealStockChartState extends State<RealStockChart> {
   Map<String, dynamic> _getPeriodConfig(String period) {
     switch (period) {
       case '1D':
-        return {'bars': 78, 'interval': const Duration(minutes: 5)};
+        // Indian Market Trading Hours (09:15 to 15:30 IST) = 375 minutes = 75 5-min intervals (76 bars)
+        return {'bars': 76, 'interval': const Duration(minutes: 5)};
       case '1W':
         return {'bars': 42, 'interval': const Duration(hours: 1)};
       case '1M':
@@ -702,9 +721,11 @@ class _RealStockChartState extends State<RealStockChart> {
             ? DateFormat('HH:mm')
             : DateFormat('dd MMM'),
         intervalType: widget.period == '1D'
-            ? DateTimeIntervalType.minutes
+            ? DateTimeIntervalType.hours
             : DateTimeIntervalType.days,
-        interval: widget.period == '1D' ? 30 : 7,
+        interval: widget.period == '1D' ? 1 : (widget.period == '1W' ? 1 : 7),
+        minimum: widget.period == '1D' && _data.isNotEmpty ? _data.first.time : null,
+        maximum: widget.period == '1D' && _data.isNotEmpty ? _data.last.time : null,
         axisLine: const AxisLine(color: Color(0xFF1E2733)),
         majorGridLines: MajorGridLines(
           width: 0.5,
@@ -875,6 +896,12 @@ class _RealStockChartState extends State<RealStockChart> {
         dateFormat: widget.period == '1D'
             ? DateFormat('HH:mm')
             : DateFormat('dd MMM'),
+        intervalType: widget.period == '1D'
+            ? DateTimeIntervalType.hours
+            : DateTimeIntervalType.days,
+        interval: widget.period == '1D' ? 1 : (widget.period == '1W' ? 1 : 7),
+        minimum: widget.period == '1D' && _data.isNotEmpty ? _data.first.time : null,
+        maximum: widget.period == '1D' && _data.isNotEmpty ? _data.last.time : null,
         axisLine: const AxisLine(color: Color(0xFF1E2733)),
         majorGridLines: MajorGridLines(
           width: 0.5,
