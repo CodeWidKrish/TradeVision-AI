@@ -28,8 +28,8 @@
 <br />
 
 <p align="center">
-  <a href="https://github.com/KrishnaBhundiya/TradeVision">
-    <img src="https://img.shields.io/badge/🚀%20College%20Repository-TradeVision-00E5FF?style=for-the-badge&labelColor=0A0E1A" alt="Explore Codebase" />
+  <a href="https://github.com/CodeWidKrish/TradeVision-AI">
+    <img src="https://img.shields.io/badge/🚀%20GitHub%20Repository-TradeVision--AI-00E5FF?style=for-the-badge&labelColor=0A0E1A" alt="Explore Codebase" />
   </a>
   <a href="http://127.0.0.1:8000/docs">
     <img src="https://img.shields.io/badge/📖%20Swagger%20API-Interactive%20Docs-76FF03?style=for-the-badge&labelColor=0A0E1A" alt="API Docs" />
@@ -494,31 +494,18 @@ The newly compiled APK is output to:
 
 ---
 
-## 👥 Contributors
+## 👤 Author & Lead Architect
 
 <div align="center">
 
 <table border="0">
   <tr>
-    <td align="center" width="220">
+    <td align="center" width="260">
       <a href="https://github.com/CodeWidKrish">
-        <img src="https://github.com/CodeWidKrish.png" width="100" style="border-radius: 50%;" alt="Krish Hingu"/><br /><br />
+        <img src="https://github.com/CodeWidKrish.png" width="120" style="border-radius: 50%;" alt="Krish Hingu"/><br /><br />
         <b>Krish Hingu</b><br />
-        <code>@CodeWidKrish</code>
-      </a>
-    </td>
-    <td align="center" width="220">
-      <a href="https://github.com/KrishnaBhundiya">
-        <img src="https://github.com/KrishnaBhundiya.png" width="100" style="border-radius: 50%;" alt="Krishna Bhundiya"/><br /><br />
-        <b>Krishna Bhundiya</b><br />
-        <code>@KrishnaBhundiya</code>
-      </a>
-    </td>
-    <td align="center" width="220">
-      <a href="https://github.com/TechthriveParv">
-        <img src="https://github.com/TechthriveParv.png" width="100" style="border-radius: 50%;" alt="Parv"/><br /><br />
-        <b>Parv Khichadiya</b><br />
-        <code>@TechthriveParv</code>
+        <code>@CodeWidKrish</code><br />
+        <i>Creator & Lead Architect</i>
       </a>
     </td>
   </tr>
@@ -526,8 +513,8 @@ The newly compiled APK is output to:
 
 <br />
 
-[![GitHub](https://img.shields.io/badge/GitHub-KrishnaBhundiya-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/KrishnaBhundiya)
-[![Repository](https://img.shields.io/badge/Repository-TradeVision-00E5FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/KrishnaBhundiya/TradeVision)
+[![GitHub](https://img.shields.io/badge/GitHub-CodeWidKrish-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CodeWidKrish)
+[![Repository](https://img.shields.io/badge/Repository-TradeVision--AI-00E5FF?style=for-the-badge&logo=git&logoColor=black)](https://github.com/CodeWidKrish/TradeVision-AI)
 
 </div>
 
