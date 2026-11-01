@@ -15,7 +15,8 @@ Write-Host "`n🚀 Syncing TradeVision to both repositories..." -ForegroundColor
 git checkout main
 
 # If there are uncommitted changes and a message was provided, commit them
-if ($Message -and (git status --porcelain)) {
+$uncommitted = git status --porcelain
+if ($Message -and $uncommitted) {
     git add .
     git commit -m $Message
     Write-Host "✓ Committed changes: $Message" -ForegroundColor Green
@@ -33,7 +34,8 @@ git merge main --no-edit -m "merge: sync latest features and fixes from main"
 
 # Restore College README
 Copy-Item README_COLLEGE.md README.md -Force
-if (git status --porcelain README.md) {
+$readmeChanged = git status --porcelain README.md
+if ($readmeChanged) {
     git commit -am 'docs: retain college README with 3 authors - Krish, Krishna, Parv'
 }
 
