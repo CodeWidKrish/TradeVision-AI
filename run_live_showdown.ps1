@@ -1,6 +1,6 @@
-# TradeVision AI — Live Showdown Launch Script
+# TradeVision AI -- Live Showdown Launch Script
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host "   TRADEVISION AI — LAUNCHING LIVE SHOWDOWN" -ForegroundColor Yellow
+Write-Host "   TRADEVISION AI -- LAUNCHING LIVE SHOWDOWN" -ForegroundColor Yellow
 Write-Host "==================================================" -ForegroundColor Cyan
 
 $ScriptDir = $PSScriptRoot
@@ -26,12 +26,12 @@ if (-not (Test-Path $ChromeExe)) {
 
 # 1. Start Backend in separate visible console window
 Write-Host "[1/3] Starting FastAPI Backend on http://127.0.0.1:8000..." -ForegroundColor Green
-$backendScript = "`$host.ui.RawUI.WindowTitle = 'TradeVision AI - FastAPI Backend (:8000)'; cd '$BackendDir'; & '$PythonExe' -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload"
+$backendScript = "try { `$host.ui.RawUI.WindowTitle = 'TradeVision AI - FastAPI Backend (:8000)' } catch {}; Set-Location '$BackendDir'; & '$PythonExe' -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendScript
 
 # 2. Start Frontend in separate visible console window
 Write-Host "[2/3] Starting Flutter Web Host on http://localhost:3000..." -ForegroundColor Green
-$frontendScript = "`$host.ui.RawUI.WindowTitle = 'TradeVision AI - Flutter Web Frontend (:3000)'; cd '$FrontendDir'; & '$PythonExe' -m http.server 3000"
+$frontendScript = "try { `$host.ui.RawUI.WindowTitle = 'TradeVision AI - Flutter Web Frontend (:3000)' } catch {}; Set-Location '$FrontendDir'; & '$PythonExe' -m http.server 3000"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $frontendScript
 
 Write-Host "Waiting 3 seconds for services to bind..." -ForegroundColor DarkGray
